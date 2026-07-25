@@ -13,7 +13,7 @@
 * **Core Framework:** Quarkus 3.x + Eclipse Vert.x (Non-blocking reactive streaming)
 * **Databases:** PostgreSQL 16+ (Production / Clustered) and Embedded H2 (Dev / Test)
 * **Migration Engine:** Liquibase (`quarkus-liquibase`) with dynamic `dbms` attribute dialect isolation
-* **Storage Abstraction:** Content-Addressable Storage (CAS) on AWS S3 / MinIO and Local File System
+* **Storage Abstraction:** Content-Addressable Storage (CAS) on AWS S3 / RustFS and Local File System
 * **Frontend:** Angular 17+ (Signals) with Material Design 3, compiled into Quarkus static resources
 * **Branching Model:** Trunk-Based Development (TBD) on a single persistent `main` branch
 * **Deployment Models:** Single container (dev/small enterprise) and multi-pod Kubernetes cluster
@@ -31,7 +31,7 @@ omnidepot/
 ├── repo-core-domain/                   # Catalog, Virtual Repositories & Routing Engine
 ├── repo-storage-api/                   # Storage SPIs & UploadSession Interfaces
 ├── repo-storage-fs/                    # Local Filesystem Storage SPI Provider
-├── repo-storage-s3/                    # AWS S3 / MinIO Storage SPI Provider (5MB Buffering)
+├── repo-storage-s3/                    # AWS S3 / RustFS Storage SPI Provider (5MB Buffering)
 ├── repo-infra-db/                      # Liquibase Changelogs & JPA/Panache Entities
 ├── repo-infra-outbox/                  # Transactional Outbox (SKIP LOCKED & Kafka/EventBus)
 ├── repo-domain-iam/                    # PAT, Token Broker (PAT-to-JWT), Upstream Credentials

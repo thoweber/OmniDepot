@@ -6,7 +6,7 @@ import java.util.Optional;
 
 /**
  * Storage SPI for Content-Addressable Storage (CAS) operations.
- * Concrete implementations (Filesystem, AWS S3/MinIO) are injected dynamically.
+ * Concrete implementations (Filesystem, AWS S3/RustFS) are injected dynamically.
  */
 public interface BlobStore {
 

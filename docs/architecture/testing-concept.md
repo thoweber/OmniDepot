@@ -25,7 +25,7 @@ This document defines the binding guidelines for the structure, naming, tools, a
 | **Mocking** | Mockito 5+ (for external boundaries only) |
 | **Architecture Guard** | ArchUnit 1.4.2 |
 | **Coverage** | JaCoCo 0.8.15 (Per-module + Aggregated `repo-coverage-report`) |
-| **Integration Containers** | Testcontainers (PostgreSQL 16, MinIO S3, Apache Kafka) |
+| **Integration Containers** | Testcontainers (PostgreSQL 16, RustFS S3, Apache Kafka) |
 
 ---
 

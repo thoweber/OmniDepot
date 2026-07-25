@@ -33,5 +33,5 @@ Technical specifications detailing the Evolutionary Modular Monolith design, Hex
 
 - **Java 25 LTS:** Harnesses Virtual Threads, Records, Sealed Classes, and Pattern Matching.
 - **Polyglot Protocol Adapters:** Native support for OCI V2 (`/v2/`), Maven (`/maven/`), and NPM (`/npm/`).
-- **Content-Addressable Storage (CAS):** SHA-256 digest deduplication across Filesystem and AWS S3/MinIO providers.
+- **Content-Addressable Storage (CAS):** SHA-256 digest deduplication across Filesystem and AWS S3/RustFS providers.
 - **Strict Architecture Boundaries:** ArchUnit enforcement guarantees clean module isolation and prevents unintended cross-domain coupling.

@@ -147,7 +147,7 @@ Stakeholders are mapped according to their **Influence (Power)** over system dec
   - Unstable open-source software with fragile migration paths across database upgrades.
 - **Core Requirements:**
   1. **Evolutionary Modular Monolith:** Single deployable container built with hexagonal Bounded Contexts, ensuring simple deployment today with a clear extraction path if services need isolation later.
-  2. **Pluggable Storage & Identity SPIs:** Decouples core business logic from cloud providers (AWS S3, MinIO, File System) and identity vendors (OIDC, LDAP).
+  2. **Pluggable Storage & Identity SPIs:** Decouples core business logic from cloud providers (AWS S3, RustFS, File System) and identity vendors (OIDC, LDAP).
   3. **Java 25 LTS Ecosystem Stability:** Leverages enterprise Java 25 LTS, Quarkus, and standard SQL specifications.
 - **Key ADR Alignment:** ADR-001, ADR-003, ADR-005, ADR-023, ADR-030.
 

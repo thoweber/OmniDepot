@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * AWS S3 / MinIO implementation of Content-Addressable Storage (CAS) BlobStore.
+ * AWS S3 / RustFS implementation of Content-Addressable Storage (CAS) BlobStore.
  * Package-private access to enforce boundary rules (ADR-009).
  */
 @ApplicationScoped

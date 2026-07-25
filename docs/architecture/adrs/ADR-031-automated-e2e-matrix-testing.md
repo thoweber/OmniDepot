@@ -8,8 +8,8 @@ Unit tests cannot guarantee true protocol compatibility with native client tools
 ## Decision
 Execute automated end-to-end matrix integration tests in CI across three deployment topologies:
 1. *Dev Machine:* Embedded H2 + Local FS + Zero-Auth + Caddy.
-2. *Standard Enterprise:* PostgreSQL + MinIO S3 + PAT Token Broker.
-3. *Clustered HA:* 2x App Pods + PostgreSQL + Apache Kafka + MinIO S3.
+2. *Standard Enterprise:* PostgreSQL + RustFS S3 + PAT Token Broker.
+3. *Clustered HA:* 2x App Pods + PostgreSQL + Apache Kafka + RustFS S3.
 
 ## Consequences
 

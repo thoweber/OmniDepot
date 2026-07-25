@@ -8,7 +8,7 @@ tech_stack:
   assertions: AssertJ 3.26+ (Exclusive assertion library)
   architecture_testing: ArchUnit 1.4.2
   coverage: JaCoCo 0.8.15 (Aggregated report in repo-coverage-report)
-  containers: Testcontainers (PostgreSQL 16, MinIO S3, Kafka)
+  containers: Testcontainers (PostgreSQL 16, RustFS S3, Kafka)
 ---
 
 # Test Engineering Skill: OmniDepot

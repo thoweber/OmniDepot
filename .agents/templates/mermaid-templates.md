@@ -29,6 +29,6 @@ graph TD
 
     subgraph Infrastructure
         Domain --> Postgres[(PostgreSQL 16)]
-        Domain --> MinIO[(MinIO S3)]
+        Domain --> RustFS[(RustFS S3)]
     end
 ```

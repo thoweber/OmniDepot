@@ -19,7 +19,7 @@ graph TD
     BlobStore -->|@LookupIfProperty s3| S3
 
     FS --> |Write to Path| Disk["/blobs/sha256/e3/b0/c4..."]
-    S3 --> |5MB Buffer Aggregation| MinIO["s3://bucket/blobs/sha256/e3/b0/c4..."]
+    S3 --> |5MB Buffer Aggregation| RustFS["s3://bucket/blobs/sha256/e3/b0/c4..."]
 ```
 
 ---

@@ -1,5 +1,5 @@
 /**
- * AWS S3 / MinIO storage provider implementation.
+ * AWS S3 / RustFS storage provider implementation.
  */
 @NullMarked
 package io.omnidepot.storage.s3;

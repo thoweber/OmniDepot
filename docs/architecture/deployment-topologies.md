@@ -9,8 +9,8 @@ OmniDepot supports three validated deployment matrix topologies ranging from loc
 | Topology | Database | Storage Backend | Identity / Auth | TLS Termination | Eventing |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **1. Dev Machine** | Embedded H2 | Local Filesystem | Zero-Auth (`disabled`) | Caddy Sidecar (`:8443`) | Vert.x EventBus |
-| **2. Enterprise Standard** | PostgreSQL 16+ | MinIO / AWS S3 | TokenBroker (PAT/JWT) | Ingress / Gateway | Vert.x EventBus |
-| **3. Clustered HA** | PostgreSQL 16+ (Clustered) | MinIO / AWS S3 | TokenBroker (OIDC/PAT) | Ingress / Service Mesh | Apache Kafka |
+| **2. Enterprise Standard** | PostgreSQL 16+ | RustFS / AWS S3 | TokenBroker (PAT/JWT) | Ingress / Gateway | Vert.x EventBus |
+| **3. Clustered HA** | PostgreSQL 16+ (Clustered) | RustFS / AWS S3 | TokenBroker (OIDC/PAT) | Ingress / Service Mesh | Apache Kafka |
 
 ---
 

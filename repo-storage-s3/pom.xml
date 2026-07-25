@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>repo-storage-s3</artifactId>
-    <name>OmniDepot :: Storage Provider - AWS S3 / MinIO</name>
+    <name>OmniDepot :: Storage Provider - AWS S3 / RustFS</name>
 
     <dependencies>
         <dependency>

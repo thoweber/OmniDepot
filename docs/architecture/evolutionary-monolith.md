@@ -12,7 +12,7 @@ omnidepot-parent/
 ├── repo-core-domain/          # Catalog, Routing & Virtual Repositories
 ├── repo-storage-api/          # Storage Provider Contracts
 ├── repo-storage-fs/           # Package-Private Filesystem BlobStore Provider
-├── repo-storage-s3/           # Package-Private AWS S3 / MinIO BlobStore Provider
+├── repo-storage-s3/           # Package-Private AWS S3 / RustFS BlobStore Provider
 ├── repo-infra-db/             # Liquibase Migrations & Database Entity Models
 ├── repo-infra-outbox/         # Transactional Outbox Pattern
 ├── repo-domain-iam/           # Token Broker & RBAC Implementation
