@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "intellij": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@jetbrains/mcp-proxy"
+      ],
+      "env": {
+        "INTELLIJ_PORT": "63342"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "archunitChecker": {
+      "command": "./mvnw",
+      "args": [
+        "test",
+        "-Dtest=ArchitectureBoundaryTest"
+      ]
+    },
+    "liquibaseValidator": {
+      "command": "./mvnw",
+      "args": [
+        "compile",
+        "liquibase:updateTestingRollback",
+        "-pl",
+        "repo-infra-db"
+      ]
+    }
+  }
+}

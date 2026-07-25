@@ -50,6 +50,7 @@ graph TD
 ## 🧩 Architectural Foundations & Deep-Dives
 
 - **[AI Harness & Agent System Specification](ai-harness-agent-spec.md):** `.agents/` SSOT configuration, rules, agent execution protocols, and custom skills (`/add-format`, `/new-migration`, `/check-boundaries`, `/gen-benchmark`, `/gen-persona-tests`).
+- **[MCP Server Setup & Token Guide](mcp-setup-guide.md):** Setup guidelines, tokens (`GITHUB_TOKEN`), scopes, and IntelliJ IDEA MCP proxy port setup.
 - **[Stakeholder Matrix & Persona Context](stakeholders-personas.md):** 7 persona profiles, Mendelow Power-Interest matrix, and persona-to-ADR traceability.
 - **[Evolutionary Modular Monolith](evolutionary-monolith.md):** 15 decoupled Maven sub-modules enforcing compilation-level isolation.
 - **[Content-Addressable Storage (CAS)](storage-cas.md):** Global SHA-256 deduplication, off-heap Netty streaming, and S3 5MB part aggregation.

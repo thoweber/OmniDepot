@@ -55,6 +55,7 @@ nav:
   - Architecture:
       - Architectural Overview: architecture/index.md
       - AI Harness & Agent Specification: architecture/ai-harness-agent-spec.md
+      - MCP Server Setup & Token Guide: architecture/mcp-setup-guide.md
       - Stakeholders & Persona Matrix: architecture/stakeholders-personas.md
       - Evolutionary Modular Monolith: architecture/evolutionary-monolith.md
       - Storage & Content-Addressable Storage: architecture/storage-cas.md

@@ -3,6 +3,11 @@ target/
 **/target/
 *.exec
 
+# Environment Credentials and Local Secret Overrides
+.env
+.env.local
+*.env
+
 # Compiled class file
 *.class
 

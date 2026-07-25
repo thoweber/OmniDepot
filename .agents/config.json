@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/omnidepot-agent-config.json",
+  "project": {
+    "name": "OmniDepot",
+    "version": "1.0.0-SNAPSHOT",
+    "javaVersion": "25",
+    "quarkusVersion": "3.37.4",
+    "groupId": "io.omnidepot",
+    "architectureStyle": "Evolutionary Modular Monolith"
+  },
+  "networking": {
+    "applicationPort": 8080,
+    "managementPort": 9000,
+    "localDevTlsPort": 8443,
+    "localDevHost": "https://localhost:8443"
+  },
+  "modules": {
+    "coreApi": "repo-core-api",
+    "coreDomain": "repo-core-domain",
+    "storageApi": "repo-storage-api",
+    "storageFs": "repo-storage-fs",
+    "storageS3": "repo-storage-s3",
+    "infraDb": "repo-infra-db",
+    "infraOutbox": "repo-infra-outbox",
+    "domainIam": "repo-domain-iam",
+    "formatOci": "repo-format-oci",
+    "formatMaven": "repo-format-maven",
+    "formatNpm": "repo-format-npm",
+    "ui": "repo-ui",
+    "app": "repo-app",
+    "coverageReport": "repo-coverage-report"
+  },
+  "qualityGoalsAndSLA": {
+    "nativeMemoryIdleMb": 80,
+    "nativeColdBootSeconds": 0.8,
+    "jvmColdBootSeconds": 1.5,
+    "hotPathJwtVerifyMsP99": 1.0,
+    "governanceEvaluationMsP99": 0.1,
+    "globalSearchPaletteMsP99": 100.0,
+    "crossRepoMountMsP99": 1.0,
+    "s3MinPartSizeBytes": 5242880,
+    "proxyCacheRevalidationTtlSeconds": 60,
+    "tombstoneGracePeriodHours": 48
+  },
+  "database": {
+    "productionDialect": "postgresql",
+    "developmentDialect": "h2",
+    "migrationEngine": "liquibase",
+    "changelogMasterPath": "repo-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
+  },
+  "mcpServers": {
+    "archunitChecker": {
+      "command": "./mvnw",
+      "args": ["test", "-Dtest=ArchitectureBoundaryTest"]
+    },
+    "liquibaseValidator": {
+      "command": "./mvnw",
+      "args": ["compile", "liquibase:updateTestingRollback", "-pl", "repo-infra-db"]
+    },
+    "intellij": {
+      "command": "npx",
+      "args": ["-y", "@jetbrains/mcp-proxy"],
+      "description": "IntelliJ IDEA Model Context Protocol Server for IDE context inspection and navigation",
+      "env": {
+        "INTELLIJ_PORT": "63342"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "description": "GitHub Model Context Protocol Server for repository issues, PRs, and workflow inspection",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  }
+}
