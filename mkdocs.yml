@@ -1,0 +1,92 @@
+site_name: OmniDepot Documentation
+site_description: Polyglot Package Repository (OCI, Maven, NPM) - Evolutionary Modular Monolith
+site_author: OmniDepot Team
+repo_name: OmniDepot
+repo_url: https://github.com/omnidepot/omnidepot
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.def_mermaid_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Home: index.md
+  - User Documentation:
+      - Overview: user-guide/index.md
+      - Getting Started: user-guide/getting-started.md
+      - OCI Distribution Registry: user-guide/oci-distribution.md
+      - Maven / Gradle Repository: user-guide/maven-repository.md
+      - NPM Registry: user-guide/npm-registry.md
+  - Architecture:
+      - Architectural Overview: architecture/index.md
+      - Evolutionary Modular Monolith: architecture/evolutionary-monolith.md
+      - Data Model & Liquibase: architecture/data-model-liquibase.md
+      - Security & IAM SPI: architecture/security-iam.md
+      - Architectural Decision Records:
+          - ADR Index: architecture/adrs/index.md
+          - ADR-001 Modular Monolith: architecture/adrs/ADR-001-modular-monolith.md
+          - ADR-002 Quarkus & Vert.x Reactive Core: architecture/adrs/ADR-002-quarkus-vertx-reactive.md
+          - ADR-003 Storage SPI: architecture/adrs/ADR-003-hexagonal-storage-spi.md
+          - ADR-004 Hybrid Port & Path Routing: architecture/adrs/ADR-004-hybrid-port-path-routing.md
+          - ADR-005 Bounded Context Isolation: architecture/adrs/ADR-005-bounded-context-isolation.md
+          - ADR-006 Zero-GC & Off-Heap Memory: architecture/adrs/ADR-006-zero-gc-off-heap-memory.md
+          - ADR-007 Asynchronous Telemetry: architecture/adrs/ADR-007-asynchronous-telemetry.md
+          - ADR-008 Shift-Left Governance: architecture/adrs/ADR-008-shift-left-governance.md
+          - ADR-009 Hybrid Boundary Rules: architecture/adrs/ADR-009-hybrid-boundary-rules.md
+          - ADR-010 Decoupled Health Probes: architecture/adrs/ADR-010-decoupled-health-probes.md
+          - ADR-011 Angular SPA Embedded Delivery: architecture/adrs/ADR-011-angular-spa-static-delivery.md
+          - ADR-012 Material Design 3 Theming: architecture/adrs/ADR-012-material-design-3-theming.md
+          - ADR-013 Shared Component & Storybook: architecture/adrs/ADR-013-shared-component-storybook.md
+          - ADR-014 Command Palette Productivity: architecture/adrs/ADR-014-command-palette-productivity.md
+          - ADR-015 Pure Content-Addressable Storage: architecture/adrs/ADR-015-pure-content-addressable-storage.md
+          - ADR-016 Dual-Mode Transactional Outbox: architecture/adrs/ADR-016-dual-mode-transactional-outbox.md
+          - ADR-017 Adaptive L1 Cache Invalidation: architecture/adrs/ADR-017-adaptive-l1-cache-invalidation.md
+          - ADR-018 Two-Phase Tombstone GC: architecture/adrs/ADR-018-two-phase-tombstone-gc.md
+          - ADR-019 Token Broker CLI Auth: architecture/adrs/ADR-019-token-broker-cli-auth.md
+          - ADR-020 Persistent UploadSession SPI: architecture/adrs/ADR-020-persistent-upload-session-spi.md
+          - ADR-021 Pluggable Identity & Zero-Auth: architecture/adrs/ADR-021-pluggable-identity-zero-auth.md
+          - ADR-022 Upstream Credential Forwarding: architecture/adrs/ADR-022-upstream-credential-forwarding.md
+          - ADR-023 Liquibase Migration Dialect Isolation: architecture/adrs/ADR-023-liquibase-dynamic-migration.md
+          - ADR-024 Virtual Repository Aggregation: architecture/adrs/ADR-024-virtual-repository-routing.md
+          - ADR-025 S3 5 MB Part Aggregation: architecture/adrs/ADR-025-s3-5mb-part-aggregation.md
+          - ADR-026 Non-Blocking Outbox Polling: architecture/adrs/ADR-026-non-blocking-outbox-polling.md
+          - ADR-027 Proxy Cache Revalidation TTL: architecture/adrs/ADR-027-proxy-cache-revalidation-ttl.md
+          - ADR-028 OCI Cross-Repo Blob Mounting: architecture/adrs/ADR-028-oci-cross-repo-blob-mounting.md
+          - ADR-029 Sidecar TLS Proxy Architecture: architecture/adrs/ADR-029-sidecar-tls-proxy.md
+          - ADR-030 Trunk-Based Development: architecture/adrs/ADR-030-trunk-based-development.md
+          - ADR-031 Automated E2E Matrix Testing: architecture/adrs/ADR-031-automated-e2e-matrix-testing.md
