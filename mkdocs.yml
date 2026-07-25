@@ -54,9 +54,17 @@ nav:
       - NPM Registry: user-guide/npm-registry.md
   - Architecture:
       - Architectural Overview: architecture/index.md
+      - AI Harness & Agent Specification: architecture/ai-harness-agent-spec.md
+      - Stakeholders & Persona Matrix: architecture/stakeholders-personas.md
       - Evolutionary Modular Monolith: architecture/evolutionary-monolith.md
+      - Storage & Content-Addressable Storage: architecture/storage-cas.md
       - Data Model & Liquibase: architecture/data-model-liquibase.md
+      - Transactional Outbox & Eventing: architecture/outbox-eventing.md
+      - Protocol Adapters: architecture/protocol-adapters.md
+      - Virtual Repositories & Routing: architecture/virtual-routing.md
       - Security & IAM SPI: architecture/security-iam.md
+      - Deployment Topologies: architecture/deployment-topologies.md
+      - Automated Testing & Quality Concept: architecture/testing-concept.md
       - Architectural Decision Records:
           - ADR Index: architecture/adrs/index.md
           - ADR-001 Modular Monolith: architecture/adrs/ADR-001-modular-monolith.md

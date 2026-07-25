@@ -39,3 +39,18 @@ OmniDepot captures critical architectural decisions using Architectural Decision
 | **[ADR-029](ADR-029-sidecar-tls-proxy.md)** | Infrastructure TLS Termination and Local Dev Reverse Proxy Strategy | Accepted |
 | **[ADR-030](ADR-030-trunk-based-development.md)** | Trunk-Based Development and Short-Lived Branching Strategy | Accepted |
 | **[ADR-031](ADR-031-automated-e2e-matrix-testing.md)** | Automated E2E Matrix Integration Testing with Native Package CLIs | Accepted |
+
+---
+
+## 📊 Technical Invariant & Consequences Quick-Reference Table
+
+| Layer / Domain | Key Technology / Pattern | Positive Aspect | Negative Trade-Off | Non-Negotiable Architectural Invariant |
+| --- | --- | --- | --- | --- |
+| **Runtime Engine** | Quarkus 3.x + Vert.x | High throughput, sub-second boot | Steeper reactive learning curve | Non-blocking byte streams (`Multi<Buffer>`); no blocking code on event loops. |
+| **Domain Isolation** | Hexagonal DDD | Spec changes don't break DB schema | Mapping boilerplate between layers | Format modules depend ONLY on `repo-core-api`. Zero DB access from formats. |
+| **Database Migration** | Liquibase (`quarkus-liquibase`) | Single changelog tree with `dbms` qualifiers | Slightly higher startup XML parsing | Dynamic XML changelogs with `dbms` attribute isolation for H2 and PostgreSQL. |
+| **Storage Engine** | Pure CAS (`/blobs/sha256/...`) | Global 70%+ storage deduplication | Complex orphan tombstone GC | Global deduplication; 5 MB off-heap buffering for S3 multipart uploads. |
+| **Outbox & Messaging** | Transactional Outbox | Guarantees at-least-once delivery | Requires worker table cleanup | `FOR UPDATE SKIP LOCKED` polling; local Vert.x EventBus or external Apache Kafka. |
+| **Authentication** | Token Broker (PAT $\rightarrow$ JWT) | Zero DB calls on layer streaming | Key rotation management | RSA/ECDSA-signed short-lived JWTs validated in-memory off-heap on streaming routes. |
+| **Network & TLS** | Plain HTTP + External Proxy | Clean JVM without TLS keystores | Local `mkcert` host setup step | Application runs plain HTTP (port 8080/9000); TLS offloaded to Ingress or Caddy proxy. |
+| **Git Workflow** | Trunk-Based Development | Continuous integration, no merge hell | Requires strict PR discipline | Single `main` branch; feature branches live $\le 48\text{h}$; feature flag gating. |
