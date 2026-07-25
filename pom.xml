@@ -26,7 +26,7 @@
         <compiler-plugin.version>3.13.0</compiler-plugin.version>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <archunit.version>1.4.2</archunit.version>
-        <assertj.version>3.26.3</assertj.version>
+        <assertj.version>3.27.3</assertj.version>
         <jacoco.version>0.8.15</jacoco.version>
         <lombok.version>1.18.46</lombok.version>
         <jspecify.version>1.0.0</jspecify.version>
@@ -222,6 +222,7 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
@@ -232,6 +233,7 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
@@ -257,9 +259,11 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
