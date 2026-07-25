@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/repo-app/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-app/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-core-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-core-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-core-domain/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-core-domain/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-coverage-report/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-coverage-report/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-domain-iam/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-domain-iam/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-maven/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-maven/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-npm/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-npm/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-oci/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-format-oci/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-infra-db/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-infra-db/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-infra-outbox/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-infra-outbox/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-fs/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-fs/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-s3/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-storage-s3/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-ui/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/repo-ui/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

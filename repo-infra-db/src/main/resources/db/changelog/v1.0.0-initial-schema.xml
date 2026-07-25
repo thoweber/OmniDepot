@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- ChangeSet 1: Repositories Table -->
+    <changeSet id="1.0.0-create-repositories-table-ansi" author="omnidepot">
+        <createTable tableName="repositories">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="format" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_virtual" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="repositories"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-repositories-attributes-pg" author="omnidepot" dbms="postgresql">
+        <addColumn tableName="repositories">
+            <column name="attributes" type="jsonb"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="repositories" columnName="attributes"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-repositories-attributes-h2" author="omnidepot" dbms="h2">
+        <addColumn tableName="repositories">
+            <column name="attributes" type="CLOB"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="repositories" columnName="attributes"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet 2: Blobs Table -->
+    <changeSet id="1.0.0-create-blobs-table" author="omnidepot">
+        <createTable tableName="blobs">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="sha256_hash" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="size_bytes" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="media_type" type="VARCHAR(255)"/>
+            <column name="storage_path" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="blobs" indexName="idx_blobs_sha256">
+            <column name="sha256_hash"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="blobs" indexName="idx_blobs_sha256"/>
+            <dropTable tableName="blobs"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet 3: Artifact Coordinates Table -->
+    <changeSet id="1.0.0-create-artifact-coordinates-table-ansi" author="omnidepot">
+        <createTable tableName="artifact_coordinates">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="repository_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_coord_repo" references="repositories(id)"/>
+            </column>
+            <column name="coordinate_path" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="VARCHAR(255)"/>
+            <column name="blob_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_coord_blob" references="blobs(id)"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="artifact_coordinates" indexName="idx_coord_repo_path">
+            <column name="repository_id"/>
+            <column name="coordinate_path"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="artifact_coordinates" indexName="idx_coord_repo_path"/>
+            <dropTable tableName="artifact_coordinates"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-artifact-coordinates-attributes-pg" author="omnidepot" dbms="postgresql">
+        <addColumn tableName="artifact_coordinates">
+            <column name="attributes" type="jsonb"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="artifact_coordinates" columnName="attributes"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-artifact-coordinates-attributes-h2" author="omnidepot" dbms="h2">
+        <addColumn tableName="artifact_coordinates">
+            <column name="attributes" type="CLOB"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="artifact_coordinates" columnName="attributes"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet 4: Upload Sessions Table -->
+    <changeSet id="1.0.0-create-upload-sessions-table-ansi" author="omnidepot">
+        <createTable tableName="upload_sessions">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="repository_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_upload_repo" references="repositories(id)"/>
+            </column>
+            <column name="upload_token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="bytes_received" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_bytes" type="BIGINT"/>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="upload_sessions"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-upload-sessions-state-pg" author="omnidepot" dbms="postgresql">
+        <addColumn tableName="upload_sessions">
+            <column name="provider_state" type="jsonb"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="upload_sessions" columnName="provider_state"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-upload-sessions-state-h2" author="omnidepot" dbms="h2">
+        <addColumn tableName="upload_sessions">
+            <column name="provider_state" type="CLOB"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="upload_sessions" columnName="provider_state"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet 5: Outbox Events Table -->
+    <changeSet id="1.0.0-create-outbox-events-table-ansi" author="omnidepot">
+        <createTable tableName="outbox_events">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="aggregate_type" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="aggregate_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(32)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="processed_at" type="TIMESTAMP"/>
+        </createTable>
+        <createIndex tableName="outbox_events" indexName="idx_outbox_status_created">
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="outbox_events" indexName="idx_outbox_status_created"/>
+            <dropTable tableName="outbox_events"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-outbox-events-payload-pg" author="omnidepot" dbms="postgresql">
+        <addColumn tableName="outbox_events">
+            <column name="payload" type="jsonb"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="outbox_events" columnName="payload"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.0.0-outbox-events-payload-h2" author="omnidepot" dbms="h2">
+        <addColumn tableName="outbox_events">
+            <column name="payload" type="CLOB"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="outbox_events" columnName="payload"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

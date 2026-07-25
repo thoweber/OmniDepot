@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for OmniDepot :: Parent" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="repo-format-oci" />
+        <module name="repo-storage-s3" />
+        <module name="repo-coverage-report" />
+        <module name="repo-app" />
+        <module name="repo-core-domain" />
+        <module name="repo-domain-iam" />
+        <module name="repo-format-npm" />
+        <module name="repo-infra-outbox" />
+        <module name="repo-infra-db" />
+        <module name="repo-storage-fs" />
+        <module name="repo-ui" />
+        <module name="repo-core-api" />
+        <module name="repo-format-maven" />
+        <module name="repo-storage-api" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="repo-app" options="-parameters" />
+      <module name="repo-core-api" options="-parameters" />
+      <module name="repo-core-domain" options="-parameters" />
+      <module name="repo-coverage-report" options="-parameters" />
+      <module name="repo-domain-iam" options="-parameters" />
+      <module name="repo-format-maven" options="-parameters" />
+      <module name="repo-format-npm" options="-parameters" />
+      <module name="repo-format-oci" options="-parameters" />
+      <module name="repo-infra-db" options="-parameters" />
+      <module name="repo-infra-outbox" options="-parameters" />
+      <module name="repo-storage-api" options="-parameters" />
+      <module name="repo-storage-fs" options="-parameters" />
+      <module name="repo-storage-s3" options="-parameters" />
+      <module name="repo-ui" options="-parameters" />
+    </option>
+  </component>
+</project>

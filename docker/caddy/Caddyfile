@@ -1,0 +1,14 @@
+localhost, omnidepot.local {
+    # TLS termination using local mkcert certificates or internal self-signed
+    tls /etc/caddy/certs/omnidepot.local.pem /etc/caddy/certs/omnidepot.local-key.pem {
+        on_demand
+    }
+
+    # Reverse proxy to Quarkus HTTP route engine on port 8080
+    reverse_proxy host.docker.internal:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
