@@ -7,19 +7,22 @@ Welcome to the **OmniDepot** documentation portal. OmniDepot is an open-source, 
 ## 📚 Documentation Sections
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    OmniDepot Documentation                  │
-└──────────────┬───────────────────────────────┬──────────────┘
-               │                               │
-  ┌────────────▼────────────┐     ┌────────────▼────────────┐
-  │   User Documentation    │     │      Architecture       │
-  ├─────────────────────────┤     ├─────────────────────────┤
-  │ • Quick Start & Docker  │     │ • Modular Monolith DDD  │
-  │ • OCI V2 Distribution   │     │ • Hexagonal Storage SPI │
-  │ • Maven & Gradle Setup  │     │ • Database & Liquibase  │
-  │ • NPM Registry Config   │     │ • ADRs (ADR-001..031)   │
-  └─────────────────────────┘     └─────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                          OmniDepot Documentation                          │
+└──────────────┬─────────────────────────────┬──────────────────────────────┘
+               │                             │
+  ┌────────────▼────────────┐   ┌────────────▼────────────┐   ┌─────────────▼────────────┐
+  │   User Documentation    │   │  Developer Onboarding   │   │       Architecture       │
+  ├─────────────────────────┤   ├─────────────────────────┤   ├──────────────────────────┤
+  │ • Quick Start & Docker  │   │ • Prerequisites (JDK25) │   │ • Modular Monolith DDD   │
+  │ • OCI V2 Distribution   │   │ • Container Setup       │   │ • Hexagonal Storage SPI  │
+  │ • Maven & Gradle Setup  │   │ • Fast Feedback Loops   │   │ • Database & Liquibase   │
+  │ • NPM Registry Config   │   │ • Quarkus Live Dev Mode │   │ • ADRs (ADR-001..031)    │
+  └─────────────────────────┘   └─────────────────────────┘   └──────────────────────────┘
 ```
+
+### [🛠️ Developer Onboarding & Environment Guide](developer-guide/index.md)
+Complete step-by-step developer documentation for setting up a local development environment, starting Docker containers, running database migrations, executing fast local feedback loops, and running Quarkus live dev mode.
 
 ### [🚀 User Documentation](user-guide/index.md)
 Instructions on installing, running, and configuring OmniDepot as a developer or administrator. Learn how to push and pull Docker/OCI images, publish Java Maven/Gradle artifacts, and host NPM packages.
