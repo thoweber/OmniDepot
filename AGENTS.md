@@ -58,3 +58,4 @@ All feature development, bug fixes, and protocol adapter additions MUST follow t
 2. **Strict Encapsulation:** Concrete implementations must remain `package-private`. Only interfaces in `repo-core-api` are `public`.
 3. **Jakarta Validation & @NullMarked:** Enforce boundary checks using Jakarta Validation (`@NotNull`, `@NotBlank`, `@Valid`) at REST/Kafka/DB entrypoints. Never use `org.junit.jupiter.api.Assertions`. All production packages require `@NullMarked` in `package-info.java`.
 4. **Hermetic Testcontainers:** Integration tests (`*IT.java`) must bring up isolated containers (PostgreSQL 16, RustFS, Kafka) and tear down without leaving state side-effects.
+5. **Pipeline & DevOps Automation:** Whenever building or updating CI/CD build pipelines (`.github/workflows/*`), Dockerfiles (`src/main/docker/*`), Kubernetes manifests, or Helm charts, ALWAYS activate and adhere to the `devops-engineer` skill.

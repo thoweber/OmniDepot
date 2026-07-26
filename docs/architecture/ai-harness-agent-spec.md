@@ -154,4 +154,5 @@ AGENTS.md                              # Root repository agent guidelines & TDD 
 - **`/new-migration` (`liquibase-changelog`):** Generates versioned XML changelogs with `dbms="postgresql"` and `dbms="h2"` qualifiers and mandatory `<rollback>` blocks.
 - **`/check-boundaries` (`archunit-boundary-checker`):** Audits package visibility, CDI `@LookupIfProperty` annotations, and DDD encapsulation.
 - **`/gen-benchmark` (`sla-benchmark-runner`):** Generates automated k6 benchmark scripts validating SLA thresholds from `config.json`.
-- **`/gen-persona-tests` (`persona-e2e-generator`):** Generates persona-driven acceptance tests for Mateo, Sven, Elena, Priya, Marcus, Thomas, and Alex.
+- **`persona-e2e-generator`:** Generates persona-driven acceptance tests for Mateo, Sven, Elena, Priya, Marcus, Thomas, and Alex.
+- **`devops-engineer`:** Containerization, Kubernetes manifests, Helm charts, Docker multistage builds, GitHub Actions workflows, matrix builds, RustFS/S3 storage integration, and CI/CD automation.
