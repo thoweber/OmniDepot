@@ -9,11 +9,11 @@ import static java.util.Objects.isNull;
 
 /**
  * Strongly-typed OCI Repository Name Value Object.
- * Validates OCI V2 repository name components cleanly without catastrophic backtracking (S5998).
+ * Validates OCI V2 repository name components cleanly using possessive quantifiers to eliminate catastrophic backtracking (S5998).
  */
 public record OciRepositoryName(String value) implements RepositoryPath {
 
-    private static final Pattern COMPONENT_PATTERN = Pattern.compile("^[a-z0-9]+(?:[._-][a-z0-9]+)*$");
+    private static final Pattern COMPONENT_PATTERN = Pattern.compile("^[a-z0-9]+(?:[._-][a-z0-9]+)*+$");
     private static final int MAX_LENGTH = 255;
 
     public OciRepositoryName {
