@@ -6,20 +6,18 @@ import java.util.regex.Pattern;
 import static java.util.Objects.isNull;
 
 /**
- * Value Object representing a validated SHA-256 digest string in lowercase hex format.
- * Optimized for subatomic speed hot-path execution with pre-sized StringBuilder capacity.
+ * Value Object representing a validated SHA-256 digest in lowercase hex format.
+ * Encapsulates pure SHA-256 hash invariants without coupling to specific protocol/storage path formats.
  */
 public record Sha256Digest(String hexValue) {
 
     private static final Pattern SHA256_HEX_PATTERN = Pattern.compile("^[a-f0-9]{64}$");
-    private static final String OCI_PREFIX = "sha256:";
-    private static final String CAS_PREFIX = "blobs/sha256/";
 
     public Sha256Digest {
         String normalized = isNull(hexValue) ? "" : hexValue.trim().toLowerCase(Locale.ROOT);
 
-        if (normalized.startsWith(OCI_PREFIX)) {
-            normalized = normalized.substring(7);
+        if (normalized.startsWith(OciDigest.ALGORITHM_PREFIX)) {
+            normalized = normalized.substring(OciDigest.ALGORITHM_PREFIX.length());
         }
 
         if (!SHA256_HEX_PATTERN.matcher(normalized).matches()) {
@@ -34,21 +32,11 @@ public record Sha256Digest(String hexValue) {
     }
 
     public String toOciDigestString() {
-        return new StringBuilder(71)
-                .append(OCI_PREFIX)
-                .append(hexValue)
-                .toString();
+        return OciDigest.fromSha256(this).value();
     }
 
-    public String toCasPath() {
-        return new StringBuilder(81)
-                .append(CAS_PREFIX)
-                .append(hexValue, 0, 2)
-                .append('/')
-                .append(hexValue, 2, 4)
-                .append('/')
-                .append(hexValue)
-                .toString();
+    public CasPath toCasPath() {
+        return CasPath.fromSha256(this);
     }
 
     @Override
