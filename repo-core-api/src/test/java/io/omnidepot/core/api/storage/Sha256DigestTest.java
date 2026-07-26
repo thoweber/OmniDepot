@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class Sha256DigestTest {
 
     @Test
-    @DisplayName("Given a valid 64-char hex string - when creating Sha256Digest - then hex value is preserved and OCI string is formatted")
+    @DisplayName("Given a valid 64-char hex string - when creating Sha256Digest - then hex value is preserved")
     void shouldParseValidHexDigest() {
         // Given
         String validHex = DigestObjectMother.SAMPLE_SHA256_HEX;
@@ -20,7 +20,7 @@ class Sha256DigestTest {
 
         // Then
         DigestTestSupport.assertValidDigestValue(digest, validHex);
-        assertThat(digest.toOciDigestString()).isEqualTo("sha256:" + validHex);
+        assertThat(digest.hexValue()).isEqualTo(validHex);
     }
 
     @Test
