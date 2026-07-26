@@ -3,7 +3,6 @@ package io.omnidepot.storage.s3;
 import io.omnidepot.core.api.storage.BlobDescriptor;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
-import io.quarkus.arc.lookup.LookupIfProperty;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -14,38 +13,36 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * AWS S3 / RustFS implementation of Content-Addressable Storage (CAS) BlobStore.
- * Package-private access to enforce boundary rules (ADR-009).
+ * AWS S3 / RustFS implementation of Content-Addressable Storage BlobStore SPI (ADR-004, ADR-025).
  */
 @ApplicationScoped
-@LookupIfProperty(name = "repo.storage.type", stringValue = "s3")
-class S3BlobStore implements BlobStore {
+public class S3BlobStore implements BlobStore {
 
     private final String bucketName;
 
-    S3BlobStore(@ConfigProperty(name = "repo.storage.s3.bucket", defaultValue = "omnidepot-blobs") String bucketName) {
+    public S3BlobStore(@ConfigProperty(name = "omnidepot.storage.s3.bucket-name", defaultValue = "omnidepot-cas") String bucketName) {
         this.bucketName = bucketName;
     }
 
     private String resolveS3Key(Sha256Digest digest) {
-        String hex = digest.hexValue();
-        return "blobs/sha256/" + hex.substring(0, 2) + "/" + hex.substring(2, 4) + "/" + hex;
+        return digest.toCasPath().value();
     }
 
     @Override
     public Uni<BlobDescriptor> put(Sha256Digest digest, String mediaType, InputStream data, long sizeBytes) {
-        return Uni.createFrom().item(() -> {
-            String key = resolveS3Key(digest);
-            // S3 5MB Part Aggregation & Ingest (ADR-025)
-            return new BlobDescriptor(
-                    UUID.randomUUID().toString(),
-                    digest,
-                    sizeBytes,
-                    mediaType,
-                    "s3://" + bucketName + "/" + key,
-                    Instant.now()
-            );
-        });
+        return Uni.createFrom().item(() -> buildS3Descriptor(digest, mediaType, sizeBytes));
+    }
+
+    private BlobDescriptor buildS3Descriptor(Sha256Digest digest, String mediaType, long sizeBytes) {
+        String key = resolveS3Key(digest);
+        return new BlobDescriptor(
+                UUID.randomUUID().toString(),
+                digest,
+                sizeBytes,
+                mediaType,
+                "s3://" + bucketName + "/" + key,
+                Instant.now()
+        );
     }
 
     @Override
