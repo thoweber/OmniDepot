@@ -1,0 +1,34 @@
+package io.omnidepot.core.api.storage;
+
+import static java.util.Objects.isNull;
+
+/**
+ * Value Object representing an algorithm-prefixed OCI Digest string (e.g. "sha256:e3b0c4...").
+ * Single Source of Truth for OCI digest formatting and capacity calculation.
+ */
+public record OciDigest(String value) {
+
+    public static final String ALGORITHM_PREFIX = "sha256:";
+    public static final int SHA256_HEX_LENGTH = 64;
+    public static final int OCI_DIGEST_CAPACITY = ALGORITHM_PREFIX.length() + SHA256_HEX_LENGTH;
+
+    public OciDigest {
+        String normalized = isNull(value) ? "" : value.trim();
+        if (!normalized.startsWith(ALGORITHM_PREFIX)) {
+            throw new IllegalArgumentException("OCI digest must start with algorithm prefix " + ALGORITHM_PREFIX);
+        }
+        value = normalized;
+    }
+
+    public static OciDigest fromSha256(Sha256Digest digest) {
+        String formatted = new StringBuilder(OCI_DIGEST_CAPACITY)
+                .append(ALGORITHM_PREFIX)
+                .append(digest.hexValue())
+                .toString();
+        return new OciDigest(formatted);
+    }
+
+    public static OciDigest of(String rawValue) {
+        return new OciDigest(rawValue);
+    }
+}
