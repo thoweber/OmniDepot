@@ -127,7 +127,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -B clean verify sonar:sonar
+        run: ./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true
 ```
 
 ---
