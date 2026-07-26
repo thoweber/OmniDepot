@@ -5,6 +5,7 @@ target/
 
 # Environment Credentials and Local Secret Overrides
 .env
+agy.env
 .env.local
 *.env
 
