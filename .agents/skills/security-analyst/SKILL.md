@@ -1,6 +1,6 @@
 ---
 name: security-analyst
-description: Security analysis, secure data handling, input normalization before validation, zero-trust boundary validation, JWT token security, and OWASP compliance for OmniDepot.
+description: Security analysis, secure data handling, input normalization before validation, zero-trust boundary validation via Jakarta Validation, JWT token security, and OWASP compliance for OmniDepot.
 version: 1.0.0
 ---
 
@@ -12,31 +12,33 @@ This skill governs security analysis, secure data handling, boundary validation,
 
 ## 1. Core Security & Data Handling Principles
 
-### A. Boundary-Only Validation & JSpecify Nullability Rule
-* **Boundary Invariant:** We use **JSpecify** (`@NullMarked`, `@Nullable`) to define nullability contracts across all production packages.
-* **Boundary Validation:** Null-checks, size checks, and payload validations MUST be performed ONLY at application boundaries (i.e., REST Controllers, Vert.x HTTP Handlers, Kafka Event Consumers, and Database Repositories).
+### A. Jakarta Validation & JSpecify Boundary-Only Nullability Rule
+* **JSpecify Boundary Nullability:** We use **JSpecify** (`@NullMarked`, `@Nullable`) to declare nullability contracts across all production packages.
+* **Jakarta Validation at Boundaries:** All null-checks, non-blank checks, string size constraints, and format validations MUST be declared and executed ONLY at application boundaries (REST Controllers, Vert.x Handlers, Kafka Event Consumers, and Database Repositories) using standard **Jakarta Validation annotations** (`jakarta.validation.constraints.*`: `@NotNull`, `@NotBlank`, `@Size`, `@Pattern`, `@Valid`).
 * **Internal Domain Methods:** Internal domain methods within `@NullMarked` packages assume non-null parameters and MUST NOT pollute domain logic with redundant defensive null checks (`Objects.requireNonNull` or `if (param == null)`).
 
 ### B. Normalization-Before-Validation Rule
 * **Mandatory Ordering:** When data processing involves normalization (e.g., path canonicalization, Unicode normalization, lowercasing hashes, stripping trailing slashes), **data MUST always be normalized FIRST and THEN validated**.
-* **Discard Unnormalized Data:** Unnormalized raw inputs MUST be immediately discarded in favor of the canonicalized, normalized representation. Validation rules MUST execute exclusively against the normalized object.
+* **Discard Unnormalized Data:** Unnormalized raw inputs MUST be immediately discarded in favor of the canonicalized, normalized representation. Validation rules (via Jakarta Validation or value object validators) MUST execute exclusively against the normalized object.
 
 ```java
-// Example: Digest Normalization & Boundary Validation
-public static Sha256Digest parseBoundaryInput(String rawDigest) {
-    // 1. Normalize first
-    String normalized = rawDigest.trim().toLowerCase(Locale.ROOT);
-    if (normalized.startsWith("sha256:")) {
-        normalized = normalized.substring(7);
-    }
-
+// Example: Jakarta Validation & Boundary Normalization
+@PUT
+@Path("/{name}/blobs/uploads/{sessionId}")
+public Response finalizeUpload(
+        @PathParam("name") @NotBlank String repositoryName,
+        @PathParam("sessionId") @NotBlank String sessionId,
+        @QueryParam("digest") @NotBlank String rawDigestParam
+) {
+    // 1. Normalize first (lowercase, strip sha256: prefix)
     // 2. Validate normalized data
-    if (!HEX_64_PATTERN.matcher(normalized).matches()) {
-        throw new IllegalArgumentException("Invalid SHA-256 digest format: " + rawDigest);
-    }
+    Sha256Digest digest = Sha256Digest.of(rawDigestParam);
 
-    // 3. Discard raw unnormalized input; return object wrapping normalized data
-    return new Sha256Digest(normalized);
+    // 3. Discard raw unnormalized input
+    return Response.status(Response.Status.CREATED)
+            .header("Location", "/v2/" + repositoryName + "/blobs/" + digest.toOciDigestString())
+            .header("Docker-Content-Digest", digest.toOciDigestString())
+            .build();
 }
 ```
 
