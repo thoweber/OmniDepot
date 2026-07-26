@@ -1,6 +1,6 @@
-# OmniDepot Developer Onboarding & Environment Guide
+# OmniDepot Developer Onboarding & Architecture Guide
 
-Welcome to the **OmniDepot Developer Onboarding Guide**. This document outlines the prerequisites, infrastructure container setup, database migration workflows, local feedback loops, and live development commands for contributing to OmniDepot.
+Welcome to the **OmniDepot Developer Onboarding Guide**. This document outlines the prerequisites, infrastructure container setup, database migration workflows, local feedback loops, Domain-Driven Design (DDD), Hexagonal Architecture invariants, and coding standards.
 
 ---
 
@@ -36,7 +36,109 @@ graph TD
 
 ---
 
-## 2. Prerequisites
+## 2. Architecture: Domain-Driven Design (DDD) & Hexagonal Ports & Adapters
+
+OmniDepot is built as an **Evolutionary Modular Monolith** structured strictly around **Hexagonal Architecture (Ports and Adapters)** and **Domain-Driven Design (DDD)** principles (`ADR-001`, `ADR-004`).
+
+```mermaid
+graph LR
+    subgraph Driving Adapters (Protocol Inbound)
+        OCI["repo-format-oci (/v2/)"]
+        MAVEN["repo-format-maven (/maven/)"]
+        NPM["repo-format-npm (/npm/)"]
+    end
+
+    subgraph Domain Core & SPI Ports
+        API["repo-core-api (Public SPIs & Value Objects)"]
+        CORE["repo-core-domain (Catalog & Virtual Routing)"]
+        STORAGE_API["repo-storage-api (BlobStore SPI)"]
+    end
+
+    subgraph Driven Adapters (Infrastructure Outbound)
+        FS["repo-storage-fs (Filesystem CAS)"]
+        S3["repo-storage-s3 (AWS S3 / RustFS)"]
+        DB["repo-infra-db (PostgreSQL / Liquibase)"]
+        OUTBOX["repo-infra-outbox (Transactional Outbox)"]
+    end
+
+    OCI -->|Consumes SPI| API
+    MAVEN -->|Consumes SPI| API
+    NPM -->|Consumes SPI| API
+
+    CORE -->|Implements Core Logic| API
+    CORE -->|Uses CAS SPI| STORAGE_API
+
+    FS -->|Implements BlobStore SPI| STORAGE_API
+    S3 -->|Implements BlobStore SPI| STORAGE_API
+    DB -->|Implements DB Outbox| OUTBOX
+```
+
+### Hexagonal Boundary Invariants
+1. **Strict Public vs. Package-Private Encapsulation:**  
+   Only interfaces, SPIs, tagging interfaces, and Value Objects residing in `repo-core-api` are `public`. Concrete adapter implementations (`FileSystemBlobStore`, `S3BlobStore`, `OciDistributionResource`) MUST remain `package-private` to enforce compilation-level layer isolation (`ADR-004`).
+2. **Zero Circular Dependencies:**  
+   Protocol adapters (`repo-format-oci`, `repo-format-maven`) depend strictly on `repo-core-api` and `repo-storage-api`. They MUST NEVER depend directly on concrete storage providers or DB infrastructure modules.
+3. **ArchUnit Boundary Enforcement:**  
+   Module visibility and layer boundaries are automatically verified by `./mvnw test -Dtest=ArchitectureBoundaryTest`.
+
+---
+
+## 3. Strongly-Typed Value Objects & Nullability Rules
+
+OmniDepot strictly avoids **Primitive Obsession** by encapsulating all domain identifiers and coordinates into strongly-typed Java 25 `record` Value Objects.
+
+### A. Primitive Obsession Prevention
+Instead of passing raw `String` or `long` primitives across layers, encapsulate them into dedicated Value Objects that implement tagging interfaces:
+
+```java
+// BAD: Primitive obsession
+public BlobDescriptor getBlob(String rawDigest, String repoName, long bytes)
+
+// GOOD: Strongly-typed Value Objects
+public BlobDescriptor getBlob(Sha256Digest digest, OciRepositoryName repoName, BlobSize bytes)
+```
+
+**Core Value Objects:**
+* **`Sha256Digest`**: Validated 64-character hexadecimal SHA-256 hash.
+* **`OciRepositoryName`**: Normalized, validated OCI namespace (`repo-format-oci`).
+* **`CasPath`**: Calculated Content-Addressable Storage path (`blobs/sha256/xx/yy/...`).
+* **`BlobSize`**: Non-negative byte length with shared static `BlobSize.ZERO` singleton.
+* **`UploadSessionId`**: Unique upload session identifier.
+
+---
+
+### B. Nullability Guardrails & Static Imports
+* **Manual Null Checks:** Never use raw `== null` or `!= null`. Always use statically imported `isNull(val)` or `nonNull(val)`:
+  ```java
+  import static java.util.Objects.isNull;
+  import static java.util.Objects.nonNull;
+
+  if (isNull(rawName)) {
+      throw new IllegalArgumentException("Name cannot be null");
+  }
+  ```
+* **JSpecify `@NullMarked`:** All production packages feature `@NullMarked` in `package-info.java`. Parameters within `@NullMarked` packages are assumed non-null by default.
+* **`Optional<T>` Return Types:** Use `Optional<T>` for any query or getter method return type that may not produce a result. Never return raw `null` from SPI methods.
+* **Empty Collections:** Never return `null` for collection return types — always return an immutable empty collection (`List.of()`, `Set.of()`, `Map.of()`).
+
+---
+
+### C. Functional Optional Chains over Ternary Branching
+Avoid ternary conditional branching (`a ? b : c`). Use functional `Optional` chains for parameter normalization, filtering, and default fallbacks:
+
+```java
+// BAD: Ternary conditional branching
+String digest = rawDigest != null && !rawDigest.isBlank() ? rawDigest : "default";
+
+// GOOD: Functional Optional chain
+String digest = Optional.ofNullable(rawDigest)
+        .filter(s -> !s.isBlank())
+        .orElseThrow(() -> new OciDigestInvalidException("Missing required digest parameter"));
+```
+
+---
+
+## 4. Prerequisites
 
 Ensure the following tools are installed on your workstation prior to setting up the environment:
 
@@ -50,7 +152,7 @@ Ensure the following tools are installed on your workstation prior to setting up
 
 ---
 
-## 3. Step-by-Step Developer Setup
+## 5. Step-by-Step Developer Setup
 
 ### Step 1: Clone Repository & Create Local Secrets
 Clone the repository and instantiate your local environment credentials file (`agy.env`):
@@ -135,10 +237,9 @@ To run the autonomous AI pair programmer equipped with all local credentials:
 
 ---
 
-## 4. Key Repository Guidelines & Invariants
+## 6. Key Repository Guidelines & Coding Standards
 
-* ** Jakarta Validation & `@NullMarked`:** Enforce JSpecify `@NullMarked` in `package-info.java` across production packages.
 * ** Strongly-Typed Domain Exceptions:** Never throw raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
 * ** 1-to-1 Target-Class Test Mapping:** Every production class must have a dedicated 1-to-1 unit test class (`<ClassName>Test.java`).
 * ** Pre-sized `StringBuilder` Capacity:** Hot-path URI/header formatting must allocate explicit capacity to eliminate dynamic array resizing.
-* ** Architecture Isolation:** Concrete implementations remain `package-private`. Only interfaces in `repo-core-api` are `public`.
+* ** Liquibase Migration Rollbacks:** Every database changeSet must define an explicit `<rollback>` block.
