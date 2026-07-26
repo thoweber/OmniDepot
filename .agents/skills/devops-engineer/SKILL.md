@@ -123,8 +123,11 @@ jobs:
       - name: Code Formatting Check
         run: ./mvnw spotless:check
 
-      - name: Build & Verify Reactor
-        run: ./mvnw clean verify
+      - name: Build, Test & Analyze with SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./mvnw -B clean verify sonar:sonar
 ```
 
 ---
