@@ -90,6 +90,15 @@
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
+    },
+    "sonarcloud": {
+      "command": "npx",
+      "args": ["-y", "@sonar/mcp-server"],
+      "description": "SonarCloud Model Context Protocol Server for auditing code smells, vulnerabilities, security hotspots, and Quality Gate metrics",
+      "env": {
+        "SONAR_TOKEN": "${SONAR_TOKEN}",
+        "SONAR_HOST_URL": "https://sonarcloud.io"
+      }
     }
   }
 }
