@@ -1,10 +1,15 @@
-name: OmniDepot 3x3 E2E Matrix Validation
+name: OmniDepot 3x3 E2E Matrix Validation (Disabled)
 
+# Disabled for automated Push/PR runs - reserved for future manual/scheduled E2E matrix testing
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
+# Future automated triggers:
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
 
 jobs:
   e2e-matrix-test:

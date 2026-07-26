@@ -129,6 +129,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true
+
+  # Disabled for now - reserved for future Level 3 Black-Box E2E Matrix Testing across native CLI clients
+  # e2e-matrix-test:
+  #   name: E2E Matrix Test (${{ matrix.client }})
+  #   needs: build-and-analyze
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       client: [docker, helm, maven, npm]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Run Native Client E2E Verification
+  #       run: echo "Future E2E black-box test suite for ${{ matrix.client }}"
 ```
 
 ---
