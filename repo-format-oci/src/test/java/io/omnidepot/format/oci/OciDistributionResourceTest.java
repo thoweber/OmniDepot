@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OciDistributionResourceTest {
 
@@ -55,6 +56,13 @@ class OciDistributionResourceTest {
     }
 
     @Test
+    @DisplayName("Given invalid mount digest format - when mounting - then OciDigestInvalidException is thrown")
+    void shouldRejectInvalidMountDigest() {
+        assertThatThrownBy(() -> resource.handleBlobUploadOrMount("app-image", "invalid-digest", "base-image"))
+                .isInstanceOf(OciDigestInvalidException.class);
+    }
+
+    @Test
     @DisplayName("Given upload session and digest - when finalizing monolithic blob upload - then 201 Created with digest headers is returned")
     void shouldFinalizeMonolithicBlobUpload() {
         // Given
@@ -68,5 +76,27 @@ class OciDistributionResourceTest {
         assertThat(response.getStatus()).isEqualTo(201);
         assertThat(response.getHeaderString("Location")).isEqualTo("/v2/test-repo/blobs/" + digest);
         assertThat(response.getHeaderString("Docker-Content-Digest")).isEqualTo(digest);
+    }
+
+    @Test
+    @DisplayName("Given missing digest parameter - when finalizing upload - then OciDigestInvalidException is thrown")
+    void shouldRejectFinalizeUploadWithoutDigest() {
+        assertThatThrownBy(() -> resource.finalizeUpload("test-repo", "sess-123", null))
+                .isInstanceOf(OciDigestInvalidException.class);
+    }
+
+    @Test
+    @DisplayName("Given valid repository and digest - when HEAD /v2/{name}/blobs/{digest} - then 200 OK with Docker-Content-Digest header is returned")
+    void shouldCheckBlobExistence() {
+        // Given
+        String digest = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+        // When
+        Response response = resource.checkBlobExists("test-repo", digest);
+
+        // Then
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getHeaderString("Docker-Content-Digest")).isEqualTo(digest);
+        assertThat(response.getHeaderString("Content-Length")).isEqualTo("0");
     }
 }
