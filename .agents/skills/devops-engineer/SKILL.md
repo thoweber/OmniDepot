@@ -79,8 +79,9 @@ name: OmniDepot CI Build Pipeline
 
 on:
   push:
-    branches: [ main, 'feature/*' ]
+    branches: [ main ]
   pull_request:
+    types: [ opened, synchronize, reopened ]
     branches: [ main ]
 
 jobs:
