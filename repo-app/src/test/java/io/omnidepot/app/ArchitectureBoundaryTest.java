@@ -31,7 +31,7 @@ class ArchitectureBoundaryTest {
     }
 
     @Test
-    @DisplayName("Format modules MUST NOT depend on repo-storage-* or repo-infra-db-*")
+    @DisplayName("Given reactor format modules - when auditing package boundaries - then they must not access storage or database directly")
     void formatModulesMustNotAccessStorageOrInfraDbDirectly() {
         ArchRule rule = classes()
                 .that().resideInAPackage("..format..")
@@ -56,7 +56,7 @@ class ArchitectureBoundaryTest {
     }
 
     @Test
-    @DisplayName("Test classes MUST use AssertJ assertions instead of JUnit Assertions")
+    @DisplayName("Given test classes across all modules - when auditing assertions - then they must use AssertJ instead of JUnit Assertions")
     void testsMustUseAssertJAssertionsInsteadOfJUnitAssertions() {
         ArchRule rule = noClasses()
                 .that().haveSimpleNameEndingWith("Test")
@@ -69,7 +69,7 @@ class ArchitectureBoundaryTest {
     }
 
     @Test
-    @DisplayName("Packages in production code MUST be marked with JSpecify @NullMarked")
+    @DisplayName("Given production code packages - when auditing nullability annotations - then package-info must be annotated with @NullMarked")
     void packagesMustBeAnnotatedWithNullMarked() {
         ArchRule rule = classes()
                 .that().resideInAPackage("io.omnidepot..")

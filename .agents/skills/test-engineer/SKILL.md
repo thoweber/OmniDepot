@@ -5,7 +5,7 @@ version: 1.0.0
 tech_stack:
   jdk: Java 25 LTS
   framework: JUnit 5 (Jupiter)
-  assertions: AssertJ 3.26+ (Exclusive assertion library)
+  assertions: AssertJ 3.27+ (Exclusive assertion library)
   architecture_testing: ArchUnit 1.4.2
   coverage: JaCoCo 0.8.15 (Aggregated report in repo-coverage-report)
   containers: Testcontainers (PostgreSQL 16, RustFS S3, Kafka)
@@ -46,11 +46,12 @@ This document defines the binding guidelines for structure, naming, tools, asser
 - **FORBIDDEN:** `org.junit.jupiter.api.Assertions` imports are strictly forbidden and enforced by ArchUnit rules.
 
 ### B. Display Name Standard Pattern
-Every `@Test` method MUST be annotated with `@DisplayName("When [condition] then [expected outcome]")`:
+Every `@Test` method MUST be annotated with a display name following the **Given - When - Then** structure:  
+`@DisplayName("Given [precondition] - when [action/trigger] - then [expected outcome]")`
 
 ```java
 @Test
-@DisplayName("When digest is valid sha256, then CAS storage location is computed correctly")
+@DisplayName("Given a valid sha256 digest - when resolving CAS path - then correct tiered storage location is returned")
 void shouldComputeCasStoragePath() {
     // Given
     var digest = Sha256Digest.of("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
@@ -67,7 +68,7 @@ void shouldComputeCasStoragePath() {
 ```java
 @ParameterizedTest(name = "Case {index}: input digest {0}")
 @ValueSource(strings = { "invalid-hash", "", "   ", "sha256:too-short" })
-@DisplayName("When input digest format is invalid, then IllegalArgumentException is thrown")
+@DisplayName("Given an invalid input digest format - when creating Sha256Digest - then IllegalArgumentException is thrown")
 void shouldThrowExceptionForInvalidDigests(String invalidDigest) {
     assertThatThrownBy(() -> Sha256Digest.of(invalidDigest))
             .isInstanceOf(IllegalArgumentException.class);
@@ -83,12 +84,17 @@ All architecture protection tests are located in `repo-app` inside [Architecture
 ```java
 class ArchitectureBoundaryTest {
 
-    private final JavaClasses allClasses = new ClassFileImporter()
-            .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
-            .importPackages("io.omnidepot");
+    private static JavaClasses allClasses;
+
+    @BeforeAll
+    static void setup() {
+        allClasses = new ClassFileImporter()
+                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
+                .importPackages("io.omnidepot");
+    }
 
     @Test
-    @DisplayName("When format modules are checked, then they must not access storage or DB directly")
+    @DisplayName("Given reactor format modules - when auditing package boundaries - then they must not access storage or database directly")
     void formatModulesMustNotAccessStorageOrInfraDbDirectly() {
         ArchRule rule = classes()
                 .that().resideInAPackage("..format..")
@@ -99,7 +105,7 @@ class ArchitectureBoundaryTest {
     }
 
     @Test
-    @DisplayName("When test classes are checked, then they must use AssertJ instead of JUnit Assertions")
+    @DisplayName("Given test classes across all modules - when auditing assertions - then they must use AssertJ instead of JUnit Assertions")
     void testsMustUseAssertJAssertionsInsteadOfJUnitAssertions() {
         ArchRule rule = noClasses()
                 .that().haveSimpleNameEndingWith("Test")
@@ -110,7 +116,7 @@ class ArchitectureBoundaryTest {
     }
 
     @Test
-    @DisplayName("When production packages are checked, then package-info must be annotated with @NullMarked")
+    @DisplayName("Given production code packages - when auditing nullability annotations - then package-info must be annotated with @NullMarked")
     void packagesMustBeAnnotatedWithNullMarked() {
         ArchRule rule = classes()
                 .that().resideInAPackage("io.omnidepot..")
