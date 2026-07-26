@@ -16,15 +16,20 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
+
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
  * Uses strongly-typed Value Objects (OciRepositoryName, UploadSessionId, Sha256Digest) and functional Optional chains.
- * Explicitly marks optional query parameters as @Nullable for JSpecify compliance.
+ * Hot path location header construction is optimized for speed using pre-sized StringBuilder capacity.
  * Strictly depends ONLY on repo-core-api.
  */
 @Path("/v2")
 @ApplicationScoped
 public class OciDistributionResource {
+
+    private static final String V2_PREFIX = "/v2/";
+    private static final String BLOBS_PATH = "/blobs/";
+    private static final String UPLOADS_PATH = "/blobs/uploads/";
 
     @GET
     @Path("/")
@@ -56,16 +61,18 @@ public class OciDistributionResource {
 
             OciRepositoryName sourceRepository = OciRepositoryName.of(sourceRepoOpt.get());
 
+            String location = buildBlobLocation(repositoryName.value(), mountDigest.toOciDigestString());
             return Response.status(Response.Status.CREATED)
-                    .header("Location", "/v2/" + repositoryName.value() + "/blobs/" + mountDigest.toOciDigestString())
+                    .header("Location", location)
                     .header("Docker-Content-Digest", mountDigest.toOciDigestString())
                     .build();
         }
 
         UploadSessionId sessionId = UploadSessionId.generate();
 
+        String location = buildUploadSessionLocation(repositoryName.value(), sessionId.value());
         return Response.status(Response.Status.ACCEPTED)
-                .header("Location", "/v2/" + repositoryName.value() + "/blobs/uploads/" + sessionId.value())
+                .header("Location", location)
                 .header("Range", "0-0")
                 .build();
     }
@@ -91,8 +98,9 @@ public class OciDistributionResource {
             throw new OciDigestInvalidException(ex.getMessage());
         }
 
+        String location = buildBlobLocation(repositoryName.value(), digest.toOciDigestString());
         return Response.status(Response.Status.CREATED)
-                .header("Location", "/v2/" + repositoryName.value() + "/blobs/" + digest.toOciDigestString())
+                .header("Location", location)
                 .header("Docker-Content-Digest", digest.toOciDigestString())
                 .build();
     }
@@ -116,5 +124,23 @@ public class OciDistributionResource {
                 .header("Docker-Content-Digest", digest.toOciDigestString())
                 .header("Content-Length", 0)
                 .build();
+    }
+
+    private static String buildBlobLocation(String repoName, String ociDigest) {
+        return new StringBuilder(11 + repoName.length() + ociDigest.length())
+                .append(V2_PREFIX)
+                .append(repoName)
+                .append(BLOBS_PATH)
+                .append(ociDigest)
+                .toString();
+    }
+
+    private static String buildUploadSessionLocation(String repoName, String sessionId) {
+        return new StringBuilder(19 + repoName.length() + sessionId.length())
+                .append(V2_PREFIX)
+                .append(repoName)
+                .append(UPLOADS_PATH)
+                .append(sessionId)
+                .toString();
     }
 }
