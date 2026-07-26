@@ -32,9 +32,10 @@ class BlobDescriptorTest {
     @DisplayName("Given negative size, constructor throws IllegalArgumentException")
     void shouldRejectNegativeSizeBytes() {
         Sha256Digest digest = DigestObjectMother.emptyPayloadDigest();
+        String id = UUID.randomUUID().toString();
+        Instant now = Instant.now();
 
-        assertThatThrownBy(() ->
-                new BlobDescriptor(UUID.randomUUID().toString(), digest, -1L, "text/plain", "/path", Instant.now())
-        ).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new BlobDescriptor(id, digest, -1L, "text/plain", "/path", now))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

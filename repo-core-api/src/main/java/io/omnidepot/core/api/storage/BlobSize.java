@@ -17,8 +17,4 @@ public record BlobSize(long bytes) {
     public static BlobSize of(long bytes) {
         return bytes == 0L ? ZERO : new BlobSize(bytes);
     }
-
-    public static BlobSize zero() {
-        return ZERO;
-    }
 }

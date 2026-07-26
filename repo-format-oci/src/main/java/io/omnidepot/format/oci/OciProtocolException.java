@@ -12,10 +12,17 @@ public abstract class OciProtocolException extends RuntimeException {
 
     private final String ociErrorCode;
     private final Response.Status httpStatus;
-    private final @Nullable Object detail;
+    private final transient @Nullable Object detail;
 
     protected OciProtocolException(String ociErrorCode, String message, Response.Status httpStatus, @Nullable Object detail) {
         super(message);
+        this.ociErrorCode = ociErrorCode;
+        this.httpStatus = httpStatus;
+        this.detail = detail;
+    }
+
+    protected OciProtocolException(String ociErrorCode, String message, Response.Status httpStatus, @Nullable Object detail, @Nullable Throwable cause) {
+        super(message, cause);
         this.ociErrorCode = ociErrorCode;
         this.httpStatus = httpStatus;
         this.detail = detail;
