@@ -18,6 +18,7 @@ AGENTS.md                              # Root repository agent guidelines & TDD 
 │   ├── 02-coding-standards.md         # Java 25, Vert.x, Angular Signals & Liquibase patterns
 │   └── 03-quality-and-slas.md         # Verification procedures & performance thresholds
 ├── skills/                            # Executable agent skills (/commands)
+│   ├── security-analyst/              # Boundary-only validation, normalization-first, JWT security
 │   ├── tdd-runner/                    # Red-Green-Refactor loop & fast sub-30s verification
 │   ├── sonar-remediation/             # Static analysis, code smells & Sonar quality gates
 │   ├── test-manager/                  # Quality strategy, protocol verification (L1/L2/L3)
@@ -141,6 +142,7 @@ AGENTS.md                              # Root repository agent guidelines & TDD 
 
 ## 3. Custom Agent Skills (`.agents/skills/`)
 
+- **`security-analyst`:** Boundary-only null checks & validations via JSpecify `@NullMarked`, mandatory input normalization-first rules, raw data discarding, hot-path zero-DB JWT cryptographic validation, and path traversal prevention.
 - **`tdd-runner`:** Enforces the Red (failing test) $\rightarrow$ Green (minimal production code) $\rightarrow$ Refactor (clean format) execution loop with sub-30-second local feedback loops.
 - **`sonar-remediation`:** Static analysis code smell remediation, nullability checks, resource leak prevention, and 80%+ branch coverage enforcement.
 - **`test-manager`:** Overlooks quality strategy, protocol verification levels (Level 1 Snapshot, Level 2 Fuzzing, Level 3 Native Client E2E), mutation score thresholds ($\ge 80\%$), zero flakiness enforcement, and feedback speed protection.

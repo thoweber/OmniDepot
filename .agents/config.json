@@ -51,6 +51,7 @@
     "changelogMasterPath": "repo-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
   },
   "skills": {
+    "securityAnalyst": ".agents/skills/security-analyst/SKILL.md",
     "tddRunner": ".agents/skills/tdd-runner/SKILL.md",
     "sonarRemediation": ".agents/skills/sonar-remediation/SKILL.md",
     "testManager": ".agents/skills/test-manager/SKILL.md",
