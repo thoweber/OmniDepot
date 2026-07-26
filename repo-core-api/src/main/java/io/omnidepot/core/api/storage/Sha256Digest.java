@@ -1,25 +1,29 @@
 package io.omnidepot.core.api.storage;
 
-import java.util.Objects;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Value Object representing a validated SHA-256 digest string in hex format.
+ * Value Object representing a validated SHA-256 digest string in lowercase hex format.
+ * Implements normalization-first before validation per security analyst directives.
  */
 public record Sha256Digest(String hexValue) {
 
-    private static final Pattern SHA256_PATTERN = Pattern.compile("^[a-fA-F0-9]{64}$");
+    private static final Pattern SHA256_HEX_PATTERN = Pattern.compile("^[a-f0-9]{64}$");
 
     public Sha256Digest {
-        Objects.requireNonNull(hexValue, "Digest hex value must not be null");
-        String trimmed = hexValue.trim().toLowerCase();
-        if (trimmed.startsWith("sha256:")) {
-            trimmed = trimmed.substring(7);
+        // Normalization first
+        String normalized = hexValue == null ? "" : hexValue.trim().toLowerCase(Locale.ROOT);
+        if (normalized.startsWith("sha256:")) {
+            normalized = normalized.substring(7);
         }
-        if (!SHA256_PATTERN.matcher(trimmed).matches()) {
+
+        // Validation against normalized data
+        if (!SHA256_HEX_PATTERN.matcher(normalized).matches()) {
             throw new IllegalArgumentException("Invalid SHA-256 digest format: " + hexValue);
         }
-        hexValue = trimmed;
+
+        hexValue = normalized;
     }
 
     public static Sha256Digest of(String rawValue) {
@@ -28,6 +32,10 @@ public record Sha256Digest(String hexValue) {
 
     public String toOciDigestString() {
         return "sha256:" + hexValue;
+    }
+
+    public String toCasPath() {
+        return "blobs/sha256/" + hexValue.substring(0, 2) + "/" + hexValue.substring(2, 4) + "/" + hexValue;
     }
 
     @Override
