@@ -13,7 +13,6 @@ public class DigestTestSupport {
     public static void assertValidDigestValue(Sha256Digest digest, String expectedHex) {
         assertThat(digest).as("Digest must not be null").isNotNull();
         assertThat(digest.hexValue()).as("Hex value should match normalized expected string").isEqualTo(expectedHex.toLowerCase());
-        assertThat(digest.toOciDigestString()).as("OCI digest string should be formatted correctly").isEqualTo("sha256:" + expectedHex.toLowerCase());
     }
 
     public static void assertInvalidDigestCreationFails(String invalidInput) {

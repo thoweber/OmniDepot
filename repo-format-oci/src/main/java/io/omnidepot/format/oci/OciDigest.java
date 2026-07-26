@@ -1,10 +1,12 @@
-package io.omnidepot.core.api.storage;
+package io.omnidepot.format.oci;
+
+import io.omnidepot.core.api.storage.Sha256Digest;
 
 import static java.util.Objects.isNull;
 
 /**
  * Value Object representing an algorithm-prefixed OCI Digest string (e.g. "sha256:e3b0c4...").
- * Single Source of Truth for OCI digest formatting and capacity calculation.
+ * Single Source of Truth for OCI digest formatting and capacity calculation in repo-format-oci.
  */
 public record OciDigest(String value) {
 

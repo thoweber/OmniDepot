@@ -19,9 +19,9 @@ import java.util.Optional;
 
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
- * Uses strongly-typed Value Objects (OciRepositoryName, UploadSessionId, Sha256Digest) and functional Optional chains.
+ * Uses strongly-typed Value Objects (OciRepositoryName, UploadSessionId, Sha256Digest, OciDigest) and functional Optional chains.
  * Hot path location header construction is optimized for speed using pre-sized StringBuilder capacity.
- * Strictly depends ONLY on repo-core-api.
+ * Strictly depends ONLY on repo-core-api and repo-format-oci.
  */
 @Path("/v2")
 @ApplicationScoped
@@ -60,11 +60,12 @@ public class OciDistributionResource {
             }
 
             OciRepositoryName sourceRepository = OciRepositoryName.of(sourceRepoOpt.get());
+            OciDigest ociDigest = OciDigest.fromSha256(mountDigest);
 
-            String location = buildBlobLocation(repositoryName.value(), mountDigest.toOciDigestString());
+            String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
             return Response.status(Response.Status.CREATED)
                     .header("Location", location)
-                    .header("Docker-Content-Digest", mountDigest.toOciDigestString())
+                    .header("Docker-Content-Digest", ociDigest.value())
                     .build();
         }
 
@@ -98,10 +99,11 @@ public class OciDistributionResource {
             throw new OciDigestInvalidException(ex.getMessage());
         }
 
-        String location = buildBlobLocation(repositoryName.value(), digest.toOciDigestString());
+        OciDigest ociDigest = OciDigest.fromSha256(digest);
+        String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
                 .header("Location", location)
-                .header("Docker-Content-Digest", digest.toOciDigestString())
+                .header("Docker-Content-Digest", ociDigest.value())
                 .build();
     }
 
@@ -120,8 +122,9 @@ public class OciDistributionResource {
             throw new OciDigestInvalidException(ex.getMessage());
         }
 
+        OciDigest ociDigest = OciDigest.fromSha256(digest);
         return Response.ok()
-                .header("Docker-Content-Digest", digest.toOciDigestString())
+                .header("Docker-Content-Digest", ociDigest.value())
                 .header("Content-Length", 0)
                 .build();
     }
