@@ -40,13 +40,29 @@
     "crossRepoMountMsP99": 1.0,
     "s3MinPartSizeBytes": 5242880,
     "proxyCacheRevalidationTtlSeconds": 60,
-    "tombstoneGracePeriodHours": 48
+    "tombstoneGracePeriodHours": 48,
+    "localFeedbackSlaSeconds": 30,
+    "targetBranchCoveragePercent": 80
   },
   "database": {
     "productionDialect": "postgresql",
     "developmentDialect": "h2",
     "migrationEngine": "liquibase",
     "changelogMasterPath": "repo-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
+  },
+  "skills": {
+    "tddRunner": ".agents/skills/tdd-runner/SKILL.md",
+    "sonarRemediation": ".agents/skills/sonar-remediation/SKILL.md",
+    "testManager": ".agents/skills/test-manager/SKILL.md",
+    "testEngineer": ".agents/skills/test-engineer/SKILL.md",
+    "backendEngineer": ".agents/skills/backend-engineer/SKILL.md",
+    "frontendEngineer": ".agents/skills/frontend-engineer/SKILL.md",
+    "techWriter": ".agents/skills/tech-writer/SKILL.md",
+    "formatAdapterScaffolder": ".agents/skills/format-adapter-scaffolder/SKILL.md",
+    "liquibaseChangelog": ".agents/skills/liquibase-changelog/SKILL.md",
+    "archunitBoundaryChecker": ".agents/skills/archunit-boundary-checker/SKILL.md",
+    "slaBenchmarkRunner": ".agents/skills/sla-benchmark-runner/SKILL.md",
+    "personaE2eGenerator": ".agents/skills/persona-e2e-generator/SKILL.md"
   },
   "mcpServers": {
     "archunitChecker": {

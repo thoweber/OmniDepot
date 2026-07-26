@@ -3,7 +3,7 @@ name: frontend-engineer
 description: Front-end architecture, UI/UX design system, Angular Material 3 theming, component guidelines, and Storybook protocols for OmniDepot (@omni-depot/ui).
 version: 1.0.0
 tech_stack:
-  framework: Angular (v18+, Standalone, Signals)
+  framework: Angular (22+, Standalone, Signals)
   ui_library: Angular Material 3 (M3)
   architecture: Shared Component Library (@omni-depot/ui)
   workbench: Storybook with @storybook/addon-themes

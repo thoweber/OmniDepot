@@ -1,15 +1,16 @@
 # OmniDepot: AI Harness & Agent System Context Specification
 
 > **Master Specification for OmniDepot AI Governance & `antigravity-cli`**
-> This document defines the complete AI Harness specification (`.agents/` directory structure, configuration schema, coding rules, quality goals, custom agent skills, and MCP server integrations) for **OmniDepot**. Use this specification to initialize, configure, and govern automated code generation, refactoring, test creation, and architectural auditing within `antigravity-cli`.
+> This document defines the complete AI Harness specification (`AGENTS.md`, `.agents/` directory structure, configuration schema, coding rules, quality goals, custom agent skills, and MCP server integrations) for **OmniDepot**. Use this specification to initialize, configure, and govern automated code generation, refactoring, test creation, and architectural auditing within `antigravity-cli`.
 
 ---
 
 ## 1. AI Harness Directory Topology
 
-The AI Harness resides in the `.agents/` directory at the root of the repository. It acts as the brain and governance system for AI agents interacting with the codebase.
+The AI Harness consists of `AGENTS.md` in the repository root and the `.agents/` governance directory.
 
 ```text
+AGENTS.md                              # Root repository agent guidelines & TDD protocol
 .agents/
 ├── config.json                        # Single Source of Truth for SLAs, ports, modules & MCP servers
 ├── rules/                             # Invariant rules loaded into prompt context
@@ -17,15 +18,18 @@ The AI Harness resides in the `.agents/` directory at the root of the repository
 │   ├── 02-coding-standards.md         # Java 25, Vert.x, Angular Signals & Liquibase patterns
 │   └── 03-quality-and-slas.md         # Verification procedures & performance thresholds
 ├── skills/                            # Executable agent skills (/commands)
-│   ├── tech-writer/SKILL.md           # Documentation standards & Mermaid diagram authoring
-│   ├── format-adapter-scaffolder/    # /add-format: Scaffolds new package format modules
-│   ├── liquibase-changelog/           # /new-migration: Generates dual-dialect Liquibase changelogs
-│   ├── archunit-boundary-checker/    # /check-boundaries: Audits package visibility & DDD rules
-│   ├── sla-benchmark-runner/          # /gen-benchmark: Generates k6/Gatling load test scripts
-│   ├── persona-e2e-generator/        # /gen-persona-tests: Generates persona-driven acceptance tests
-│   ├── frontend-engineer/             # Front-end engineering, Angular M3, Signals & Storybook
+│   ├── tdd-runner/                    # Red-Green-Refactor loop & fast sub-30s verification
+│   ├── sonar-remediation/             # Static analysis, code smells & Sonar quality gates
+│   ├── test-manager/                  # Quality strategy, protocol verification (L1/L2/L3)
+│   ├── test-engineer/                 # 3-tier test pyramid (*Test/*CT/*IT), AssertJ & ArchUnit
 │   ├── backend-engineer/              # Back-end engineering, Java 25, Quarkus, Mutiny & DDD
-│   └── test-engineer/                 # Test engineering, 3-tier pyramid, AssertJ & ArchUnit
+│   ├── frontend-engineer/             # Front-end engineering, Angular M3, Signals & Storybook
+│   ├── tech-writer/                   # Documentation standards & Mermaid diagram authoring
+│   ├── format-adapter-scaffolder/    # Scaffolds new package format modules
+│   ├── liquibase-changelog/           # Generates dual-dialect Liquibase changelogs
+│   ├── archunit-boundary-checker/    # Audits package visibility & DDD rules
+│   ├── sla-benchmark-runner/          # Generates k6/Gatling load test scripts
+│   └── persona-e2e-generator/        # Generates persona-driven acceptance tests
 └── templates/                         # Offloaded templates loaded on-demand
     ├── adr-template.md                # Template for creating new ADRs
     └── mermaid-templates.md           # Standardized Mermaid sequence and C4 diagram stubs
@@ -80,13 +84,29 @@ The AI Harness resides in the `.agents/` directory at the root of the repository
     "crossRepoMountMsP99": 1.0,
     "s3MinPartSizeBytes": 5242880,
     "proxyCacheRevalidationTtlSeconds": 60,
-    "tombstoneGracePeriodHours": 48
+    "tombstoneGracePeriodHours": 48,
+    "localFeedbackSlaSeconds": 30,
+    "targetBranchCoveragePercent": 80
   },
   "database": {
     "productionDialect": "postgresql",
     "developmentDialect": "h2",
     "migrationEngine": "liquibase",
     "changelogMasterPath": "repo-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
+  },
+  "skills": {
+    "tddRunner": ".agents/skills/tdd-runner/SKILL.md",
+    "sonarRemediation": ".agents/skills/sonar-remediation/SKILL.md",
+    "testManager": ".agents/skills/test-manager/SKILL.md",
+    "testEngineer": ".agents/skills/test-engineer/SKILL.md",
+    "backendEngineer": ".agents/skills/backend-engineer/SKILL.md",
+    "frontendEngineer": ".agents/skills/frontend-engineer/SKILL.md",
+    "techWriter": ".agents/skills/tech-writer/SKILL.md",
+    "formatAdapterScaffolder": ".agents/skills/format-adapter-scaffolder/SKILL.md",
+    "liquibaseChangelog": ".agents/skills/liquibase-changelog/SKILL.md",
+    "archunitBoundaryChecker": ".agents/skills/archunit-boundary-checker/SKILL.md",
+    "slaBenchmarkRunner": ".agents/skills/sla-benchmark-runner/SKILL.md",
+    "personaE2eGenerator": ".agents/skills/persona-e2e-generator/SKILL.md"
   },
   "mcpServers": {
     "archunitChecker": {
@@ -100,7 +120,7 @@ The AI Harness resides in the `.agents/` directory at the root of the repository
     "intellij": {
       "command": "npx",
       "args": ["-y", "@jetbrains/mcp-proxy"],
-      "description": "IntelliJ IDEA MCP Proxy for IDE AST navigation and inspection (Port 63342)",
+      "description": "IntelliJ IDEA Model Context Protocol Server for IDE context inspection and navigation",
       "env": {
         "INTELLIJ_PORT": "63342"
       }
@@ -108,7 +128,7 @@ The AI Harness resides in the `.agents/` directory at the root of the repository
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
-      "description": "GitHub MCP Server for repository issues, pull requests, and workflow automation",
+      "description": "GitHub Model Context Protocol Server for repository issues, PRs, and workflow inspection",
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
@@ -121,7 +141,10 @@ The AI Harness resides in the `.agents/` directory at the root of the repository
 
 ## 3. Custom Agent Skills (`.agents/skills/`)
 
-- **`test-engineer`:** 3-tier test pyramid (*Test/*CT/*IT), AssertJ exclusive assertion rules, `@DisplayName("When ... then ...")` pattern, ArchUnit boundary rules, and JaCoCo 80%+ branch coverage enforcement.
+- **`tdd-runner`:** Enforces the Red (failing test) $\rightarrow$ Green (minimal production code) $\rightarrow$ Refactor (clean format) execution loop with sub-30-second local feedback loops.
+- **`sonar-remediation`:** Static analysis code smell remediation, nullability checks, resource leak prevention, and 80%+ branch coverage enforcement.
+- **`test-manager`:** Overlooks quality strategy, protocol verification levels (Level 1 Snapshot, Level 2 Fuzzing, Level 3 Native Client E2E), mutation score thresholds ($\ge 80\%$), zero flakiness enforcement, and feedback speed protection.
+- **`test-engineer`:** 3-tier test pyramid (*Test/*CT/*IT), AssertJ exclusive assertion rules, `@DisplayName("Given ... - when ... - then ...")` pattern, ArchUnit boundary rules, and JaCoCo 80%+ branch coverage enforcement.
 - **`backend-engineer`:** Java 25 LTS, Quarkus 3.37+, Vert.x Mutiny reactive streams (`Multi<Buffer>`), Hexagonal DDD encapsulation, Panache `@JdbcTypeCode(SqlTypes.JSON)` mappings, and off-heap zero-GC streaming.
 - **`frontend-engineer`:** Angular 18+, Material Design 3 (M3), Signals, `@omni-depot/ui` presentational component rules, and Storybook theme switcher setup.
 - **`/docs` (`tech-writer`):** Documentation generation adhering to User vs Architecture isolation rules and Mermaid standards.
