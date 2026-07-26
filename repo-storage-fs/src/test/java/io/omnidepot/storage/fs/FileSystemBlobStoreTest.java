@@ -1,6 +1,7 @@
 package io.omnidepot.storage.fs;
 
 import io.omnidepot.core.api.storage.BlobDescriptor;
+import io.omnidepot.core.api.storage.BlobReadException;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.test.support.DigestObjectMother;
 import io.omnidepot.storage.fs.test.support.FileSystemTestSupport;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FileSystemBlobStoreTest {
 
@@ -58,6 +60,22 @@ class FileSystemBlobStoreTest {
     }
 
     @Test
+    @DisplayName("Given a stored blob, getDescriptor() returns populated Optional with metadata")
+    void shouldReturnPopulatedDescriptorForExistingBlob() {
+        // Given
+        Sha256Digest digest = DigestObjectMother.emptyPayloadDigest();
+        blobStore.put(digest, "text/plain", FileSystemTestSupport.createSampleStream(), FileSystemTestSupport.getSampleStreamLength()).await().indefinitely();
+
+        // When
+        Optional<BlobDescriptor> descriptorOpt = blobStore.getDescriptor(digest).await().indefinitely();
+
+        // Then
+        assertThat(descriptorOpt).isPresent();
+        assertThat(descriptorOpt.get().digest()).isEqualTo(digest);
+        assertThat(descriptorOpt.get().mediaType()).isEqualTo("application/octet-stream");
+    }
+
+    @Test
     @DisplayName("Given non-existent blob, exists() returns false and descriptor is empty")
     void shouldHandleNonExistentBlob() {
         // Given
@@ -70,6 +88,18 @@ class FileSystemBlobStoreTest {
         // Then
         assertThat(exists).isFalse();
         assertThat(descriptor).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Given non-existent blob, openStream() throws BlobReadException")
+    void shouldThrowBlobReadExceptionForMissingBlobStream() {
+        // Given
+        Sha256Digest missingDigest = DigestObjectMother.alternateDigest();
+
+        // When / Then
+        assertThatThrownBy(() -> blobStore.openStream(missingDigest).await().indefinitely())
+                .isInstanceOf(BlobReadException.class)
+                .hasMessageContaining("Failed to open stream for blob");
     }
 
     @Test
