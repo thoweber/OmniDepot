@@ -5,15 +5,17 @@ import org.jspecify.annotations.Nullable;
 
 public class OciDigestInvalidException extends OciProtocolException {
 
+    private static final String DIGEST_INVALID_CODE = "DIGEST_INVALID";
+
     public OciDigestInvalidException(String message) {
-        super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, null);
+        super(DIGEST_INVALID_CODE, message, Response.Status.BAD_REQUEST, null);
     }
 
     public OciDigestInvalidException(String message, @Nullable Throwable cause) {
-        super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, null, cause);
+        super(DIGEST_INVALID_CODE, message, Response.Status.BAD_REQUEST, null, cause);
     }
 
     public OciDigestInvalidException(String message, @Nullable Object detail) {
-        super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, detail);
+        super(DIGEST_INVALID_CODE, message, Response.Status.BAD_REQUEST, detail);
     }
 }
