@@ -12,7 +12,7 @@ class BlobSizeTest {
     @DisplayName("Given zero bytes - when creating BlobSize - then static ZERO instance is returned")
     void shouldReturnStaticZeroInstanceForZeroBytes() {
         // When
-        BlobSize b1 = BlobSize.zero();
+        BlobSize b1 = BlobSize.ZERO;
         BlobSize b2 = BlobSize.of(0L);
 
         // Then

@@ -9,6 +9,10 @@ public class OciDigestInvalidException extends OciProtocolException {
         super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, null);
     }
 
+    public OciDigestInvalidException(String message, @Nullable Throwable cause) {
+        super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, null, cause);
+    }
+
     public OciDigestInvalidException(String message, @Nullable Object detail) {
         super("DIGEST_INVALID", message, Response.Status.BAD_REQUEST, detail);
     }

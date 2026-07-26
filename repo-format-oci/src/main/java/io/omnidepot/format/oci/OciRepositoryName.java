@@ -10,11 +10,12 @@ import static java.util.Objects.isNull;
 /**
  * Strongly-typed OCI Repository Name Value Object.
  * Implements normalization-first before validation without Optional allocation overhead.
+ * Regex pattern uses possessive quantifiers to eliminate catastrophic backtracking risks (S5852).
  */
 public record OciRepositoryName(String value) implements RepositoryPath {
 
     private static final Pattern REPO_NAME_PATTERN =
-            Pattern.compile("^[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)*$");
+            Pattern.compile("^[a-z0-9]+(?:[._-][a-z0-9]+)*+(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*+)*$");
 
     public OciRepositoryName {
         String normalized = isNull(value) ? "" : value.trim().toLowerCase(Locale.ROOT);

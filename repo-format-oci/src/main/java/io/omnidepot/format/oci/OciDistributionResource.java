@@ -16,7 +16,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
-
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
  * Uses strongly-typed Value Objects (OciRepositoryName, UploadSessionId, Sha256Digest, OciDigest) and functional Optional chains.
@@ -30,6 +29,8 @@ public class OciDistributionResource {
     private static final String V2_PREFIX = "/v2/";
     private static final String BLOBS_PATH = "/blobs/";
     private static final String UPLOADS_PATH = "/blobs/uploads/";
+    private static final String HEADER_LOCATION = "Location";
+    private static final String HEADER_DOCKER_DIGEST = "Docker-Content-Digest";
 
     @GET
     @Path("/")
@@ -56,16 +57,15 @@ public class OciDistributionResource {
             try {
                 mountDigest = Sha256Digest.of(mountDigestOpt.get());
             } catch (IllegalArgumentException ex) {
-                throw new OciDigestInvalidException(ex.getMessage());
+                throw new OciDigestInvalidException(ex.getMessage(), ex);
             }
 
-            OciRepositoryName sourceRepository = OciRepositoryName.of(sourceRepoOpt.get());
             OciDigest ociDigest = OciDigest.fromSha256(mountDigest);
 
             String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
             return Response.status(Response.Status.CREATED)
-                    .header("Location", location)
-                    .header("Docker-Content-Digest", ociDigest.value())
+                    .header(HEADER_LOCATION, location)
+                    .header(HEADER_DOCKER_DIGEST, ociDigest.value())
                     .build();
         }
 
@@ -73,7 +73,7 @@ public class OciDistributionResource {
 
         String location = buildUploadSessionLocation(repositoryName.value(), sessionId.value());
         return Response.status(Response.Status.ACCEPTED)
-                .header("Location", location)
+                .header(HEADER_LOCATION, location)
                 .header("Range", "0-0")
                 .build();
     }
@@ -86,7 +86,6 @@ public class OciDistributionResource {
             @QueryParam("digest") @Nullable String rawDigestParam
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        UploadSessionId sessionId = UploadSessionId.of(rawSessionId);
 
         String digestValue = Optional.ofNullable(rawDigestParam)
                 .filter(s -> !s.isBlank())
@@ -96,14 +95,14 @@ public class OciDistributionResource {
         try {
             digest = Sha256Digest.of(digestValue);
         } catch (IllegalArgumentException ex) {
-            throw new OciDigestInvalidException(ex.getMessage());
+            throw new OciDigestInvalidException(ex.getMessage(), ex);
         }
 
         OciDigest ociDigest = OciDigest.fromSha256(digest);
         String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
-                .header("Location", location)
-                .header("Docker-Content-Digest", ociDigest.value())
+                .header(HEADER_LOCATION, location)
+                .header(HEADER_DOCKER_DIGEST, ociDigest.value())
                 .build();
     }
 
@@ -113,18 +112,16 @@ public class OciDistributionResource {
             @PathParam("name") @NotBlank String rawName,
             @PathParam("digest") String rawDigest
     ) {
-        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-
         Sha256Digest digest;
         try {
             digest = Sha256Digest.of(rawDigest);
         } catch (IllegalArgumentException ex) {
-            throw new OciDigestInvalidException(ex.getMessage());
+            throw new OciDigestInvalidException(ex.getMessage(), ex);
         }
 
         OciDigest ociDigest = OciDigest.fromSha256(digest);
         return Response.ok()
-                .header("Docker-Content-Digest", ociDigest.value())
+                .header(HEADER_DOCKER_DIGEST, ociDigest.value())
                 .header("Content-Length", 0)
                 .build();
     }
