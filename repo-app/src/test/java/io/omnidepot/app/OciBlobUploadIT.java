@@ -64,4 +64,18 @@ class OciBlobUploadIT {
                 .header("Location", equalTo("/v2/library/ubuntu/blobs/" + digest))
                 .header("Docker-Content-Digest", equalTo(digest));
     }
+
+    @Test
+    @DisplayName("Given invalid digest format - when finalizing upload via PUT - then 400 Bad Request with OCI error JSON is returned")
+    void shouldReturnOciCompliantErrorJsonForInvalidDigest() {
+        given()
+                .queryParam("digest", "invalid-hash-value")
+                .when()
+                .put("/v2/library/ubuntu/blobs/uploads/session-789")
+                .then()
+                .statusCode(400)
+                .contentType("application/json")
+                .body("errors[0].code", equalTo("DIGEST_INVALID"))
+                .body("errors[0].message", containsString("invalid-hash-value"));
+    }
 }

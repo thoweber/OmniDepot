@@ -3,22 +3,23 @@ package io.omnidepot.core.api.storage;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.isNull;
+
 /**
  * Value Object representing a validated SHA-256 digest string in lowercase hex format.
- * Implements normalization-first before validation per security analyst directives.
+ * Uses normalization-first before validation without Optional instantiation overhead.
  */
 public record Sha256Digest(String hexValue) {
 
     private static final Pattern SHA256_HEX_PATTERN = Pattern.compile("^[a-f0-9]{64}$");
 
     public Sha256Digest {
-        // Normalization first
-        String normalized = hexValue == null ? "" : hexValue.trim().toLowerCase(Locale.ROOT);
+        String normalized = isNull(hexValue) ? "" : hexValue.trim().toLowerCase(Locale.ROOT);
+
         if (normalized.startsWith("sha256:")) {
             normalized = normalized.substring(7);
         }
 
-        // Validation against normalized data
         if (!SHA256_HEX_PATTERN.matcher(normalized).matches()) {
             throw new IllegalArgumentException("Invalid SHA-256 digest format: " + hexValue);
         }
