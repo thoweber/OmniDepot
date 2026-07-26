@@ -1,6 +1,7 @@
 package io.omnidepot.format.oci;
 
 import io.omnidepot.core.api.storage.Sha256Digest;
+import io.omnidepot.core.api.storage.UploadSessionId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.GET;
@@ -11,13 +12,14 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
+import java.util.Optional;
 
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
- * Uses Jakarta Validation for boundary constraints and normalization-first rules (security-analyst).
- * Path patterns use {name: .+} regex to support multi-segment OCI repository paths (e.g. library/ubuntu).
+ * Uses strongly-typed Value Objects (OciRepositoryName, UploadSessionId, Sha256Digest) and functional Optional chains.
+ * Explicitly marks optional query parameters as @Nullable for JSpecify compliance.
  * Strictly depends ONLY on repo-core-api.
  */
 @Path("/v2")
@@ -35,23 +37,35 @@ public class OciDistributionResource {
     @POST
     @Path("/{name: .+}/blobs/uploads")
     public Response handleBlobUploadOrMount(
-            @PathParam("name") @NotBlank String repositoryName,
-            @QueryParam("mount") String mountDigest,
-            @QueryParam("from") String sourceRepository
+            @PathParam("name") @NotBlank String rawName,
+            @QueryParam("mount") @Nullable String rawMountDigest,
+            @QueryParam("from") @Nullable String rawSourceRepository
     ) {
-        if (mountDigest != null && !mountDigest.isBlank() && sourceRepository != null && !sourceRepository.isBlank()) {
-            // OCI Cross-Repository Blob Mounting (ADR-028): <= 1.0 ms fast path
-            Sha256Digest digest = Sha256Digest.of(mountDigest);
+        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
+
+        Optional<String> mountDigestOpt = Optional.ofNullable(rawMountDigest).filter(s -> !s.isBlank());
+        Optional<String> sourceRepoOpt = Optional.ofNullable(rawSourceRepository).filter(s -> !s.isBlank());
+
+        if (mountDigestOpt.isPresent() && sourceRepoOpt.isPresent()) {
+            Sha256Digest mountDigest;
+            try {
+                mountDigest = Sha256Digest.of(mountDigestOpt.get());
+            } catch (IllegalArgumentException ex) {
+                throw new OciDigestInvalidException(ex.getMessage());
+            }
+
+            OciRepositoryName sourceRepository = OciRepositoryName.of(sourceRepoOpt.get());
+
             return Response.status(Response.Status.CREATED)
-                    .header("Location", "/v2/" + repositoryName + "/blobs/" + digest.toOciDigestString())
-                    .header("Docker-Content-Digest", digest.toOciDigestString())
+                    .header("Location", "/v2/" + repositoryName.value() + "/blobs/" + mountDigest.toOciDigestString())
+                    .header("Docker-Content-Digest", mountDigest.toOciDigestString())
                     .build();
         }
 
-        // Generate persistent upload session ID (ADR-020)
-        String sessionId = UUID.randomUUID().toString();
+        UploadSessionId sessionId = UploadSessionId.generate();
+
         return Response.status(Response.Status.ACCEPTED)
-                .header("Location", "/v2/" + repositoryName + "/blobs/uploads/" + sessionId)
+                .header("Location", "/v2/" + repositoryName.value() + "/blobs/uploads/" + sessionId.value())
                 .header("Range", "0-0")
                 .build();
     }
@@ -59,21 +73,26 @@ public class OciDistributionResource {
     @PUT
     @Path("/{name: .+}/blobs/uploads/{sessionId}")
     public Response finalizeUpload(
-            @PathParam("name") @NotBlank String repositoryName,
-            @PathParam("sessionId") @NotBlank String sessionId,
-            @QueryParam("digest") String digestParam
+            @PathParam("name") @NotBlank String rawName,
+            @PathParam("sessionId") @NotBlank String rawSessionId,
+            @QueryParam("digest") @Nullable String rawDigestParam
     ) {
-        if (digestParam == null || digestParam.isBlank()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Missing required digest parameter")
-                    .build();
+        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
+        UploadSessionId sessionId = UploadSessionId.of(rawSessionId);
+
+        String digestValue = Optional.ofNullable(rawDigestParam)
+                .filter(s -> !s.isBlank())
+                .orElseThrow(() -> new OciDigestInvalidException("Missing required digest parameter"));
+
+        Sha256Digest digest;
+        try {
+            digest = Sha256Digest.of(digestValue);
+        } catch (IllegalArgumentException ex) {
+            throw new OciDigestInvalidException(ex.getMessage());
         }
 
-        // Boundary normalization & validation
-        Sha256Digest digest = Sha256Digest.of(digestParam);
-
         return Response.status(Response.Status.CREATED)
-                .header("Location", "/v2/" + repositoryName + "/blobs/" + digest.toOciDigestString())
+                .header("Location", "/v2/" + repositoryName.value() + "/blobs/" + digest.toOciDigestString())
                 .header("Docker-Content-Digest", digest.toOciDigestString())
                 .build();
     }
@@ -81,10 +100,18 @@ public class OciDistributionResource {
     @HEAD
     @Path("/{name: .+}/blobs/{digest}")
     public Response checkBlobExists(
-            @PathParam("name") @NotBlank String repositoryName,
+            @PathParam("name") @NotBlank String rawName,
             @PathParam("digest") String rawDigest
     ) {
-        Sha256Digest digest = Sha256Digest.of(rawDigest);
+        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
+
+        Sha256Digest digest;
+        try {
+            digest = Sha256Digest.of(rawDigest);
+        } catch (IllegalArgumentException ex) {
+            throw new OciDigestInvalidException(ex.getMessage());
+        }
+
         return Response.ok()
                 .header("Docker-Content-Digest", digest.toOciDigestString())
                 .header("Content-Length", 0)
