@@ -28,6 +28,17 @@ class MavenLayoutTest {
     }
 
     @Test
+    @DisplayName("Given a path starting with leading slash, parse correctly by stripping slash")
+    void shouldParsePathWithLeadingSlash() {
+        String path = "/io/omnidepot/core/my-app/1.2.3/my-app-1.2.3.jar";
+
+        MavenCoordinates coords = MavenCoordinates.parse(path);
+
+        assertThat(coords.groupId()).isEqualTo("io.omnidepot.core");
+        assertThat(coords.artifactId()).isEqualTo("my-app");
+    }
+
+    @Test
     @DisplayName("Given a valid SNAPSHOT POM GAV path, identify snapshot correctly")
     void shouldParseSnapshotPomPath() {
         String path = "com/example/widget/2.0.0-SNAPSHOT/widget-2.0.0-SNAPSHOT.pom";
@@ -59,23 +70,39 @@ class MavenLayoutTest {
     }
 
     @Test
-    @DisplayName("Given byte content, compute sha256, sha1, md5 hashes correctly")
+    @DisplayName("Given byte content, compute sha256, sha1, md5, sha512 hashes correctly")
     void shouldComputeChecksumHashes() {
         byte[] content = "hello omnidepot".getBytes(java.nio.charset.StandardCharsets.UTF_8);
 
         String sha256 = MavenCoordinates.computeChecksum(content, "sha256");
         String sha1 = MavenCoordinates.computeChecksum(content, "sha1");
         String md5 = MavenCoordinates.computeChecksum(content, "md5");
+        String sha512 = MavenCoordinates.computeChecksum(content, "sha512");
 
         assertThat(sha256).hasSize(64);
         assertThat(sha1).hasSize(40);
         assertThat(md5).hasSize(32);
+        assertThat(sha512).hasSize(128);
     }
 
     @Test
-    @DisplayName("Given an invalid path with insufficient elements, throw IllegalArgumentException")
-    void shouldThrowOnInvalidPath() {
+    @DisplayName("Given null, blank, or malformed paths, throw IllegalArgumentException")
+    void shouldThrowOnInvalidPaths() {
+        assertThatThrownBy(() -> MavenCoordinates.parse(null))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> MavenCoordinates.parse("   "))
+                .isInstanceOf(IllegalArgumentException.class);
+
         assertThatThrownBy(() -> MavenCoordinates.parse("invalid-path.jar"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Given an unsupported algorithm, computeChecksum throws IllegalArgumentException")
+    void shouldThrowOnUnsupportedAlgorithm() {
+        byte[] content = "test".getBytes();
+        assertThatThrownBy(() -> MavenCoordinates.computeChecksum(content, "INVALID_ALGO"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

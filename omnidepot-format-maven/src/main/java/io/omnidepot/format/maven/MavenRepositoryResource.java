@@ -33,16 +33,19 @@ public class MavenRepositoryResource {
 
     @Inject
     @Any
+    @Nullable
     Instance<BlobStore> blobStoreInstance;
 
     private final @Nullable BlobStore testBlobStore;
     private final Map<String, MavenArtifactRecord> artifactStore = new ConcurrentHashMap<>();
 
     public MavenRepositoryResource() {
+        this.blobStoreInstance = null;
         this.testBlobStore = null;
     }
 
     MavenRepositoryResource(@Nullable BlobStore testBlobStore) {
+        this.blobStoreInstance = null;
         this.testBlobStore = testBlobStore;
     }
 
