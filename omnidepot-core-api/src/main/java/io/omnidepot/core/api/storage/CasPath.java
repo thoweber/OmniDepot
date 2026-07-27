@@ -1,6 +1,5 @@
 package io.omnidepot.core.api.storage;
 
-import static java.util.Objects.isNull;
 
 /**
  * Value Object representing a canonical Content-Addressable Storage (CAS) path.
@@ -14,7 +13,7 @@ public record CasPath(String value) {
     public static final int CAS_PATH_CAPACITY = CAS_BLOBS_PREFIX.length() + 2 + 1 + 2 + 1 + SHA256_HEX_LENGTH;
 
     public CasPath {
-        String normalized = isNull(value) ? "" : value.trim();
+        String normalized = value.trim();
         if (normalized.isBlank()) {
             throw new IllegalArgumentException("CAS path must not be blank");
         }
@@ -23,14 +22,12 @@ public record CasPath(String value) {
 
     public static CasPath fromSha256(Sha256Digest digest) {
         String hex = digest.hexValue();
-        String path = new StringBuilder(CAS_PATH_CAPACITY)
-                .append(CAS_BLOBS_PREFIX)
-                .append(hex, 0, 2)
-                .append('/')
-                .append(hex, 2, 4)
-                .append('/')
-                .append(hex)
-                .toString();
+        String path = CAS_BLOBS_PREFIX +
+                hex.substring(0, 2) +
+                '/' +
+                hex.substring(2, 4) +
+                '/' +
+                hex;
         return new CasPath(path);
     }
 

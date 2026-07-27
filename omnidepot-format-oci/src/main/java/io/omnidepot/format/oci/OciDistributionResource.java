@@ -17,16 +17,15 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -36,15 +35,12 @@ import static java.util.Objects.nonNull;
  */
 @Path("/v2")
 @ApplicationScoped
-@NullMarked
 public class OciDistributionResource {
 
     private static final String V2_PREFIX = "/v2/";
     private static final String BLOBS_PATH = "/blobs/";
     private static final String UPLOADS_PATH = "/blobs/uploads/";
     private static final String MANIFESTS_PATH = "/manifests/";
-    private static final String HEADER_LOCATION = "Location";
-    private static final String HEADER_DOCKER_DIGEST = "Docker-Content-Digest";
 
     @Inject
     @Any
@@ -65,14 +61,14 @@ public class OciDistributionResource {
         if (nonNull(testBlobStore)) {
             return testBlobStore;
         }
-        return (nonNull(blobStoreInstance) && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
+        return blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
     }
 
     @GET
     @Path("/")
     public Response checkApiVersion() {
         return Response.ok("{}")
-                .header("Docker-Distribution-API-Version", "registry/2.0")
+                .header(OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION.value(), "registry/2.0")
                 .build();
     }
 
@@ -100,8 +96,8 @@ public class OciDistributionResource {
 
             String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
             return Response.status(Response.Status.CREATED)
-                    .header(HEADER_LOCATION, location)
-                    .header(HEADER_DOCKER_DIGEST, ociDigest.value())
+                    .header(HttpHeaders.LOCATION, location)
+                    .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
                     .build();
         }
 
@@ -109,8 +105,8 @@ public class OciDistributionResource {
 
         String location = buildUploadSessionLocation(repositoryName.value(), sessionId.value());
         return Response.status(Response.Status.ACCEPTED)
-                .header(HEADER_LOCATION, location)
-                .header("Range", "0-0")
+                .header(HttpHeaders.LOCATION, location)
+                .header(OciHttpHeader.RANGE.value(), "0-0")
                 .build();
     }
 
@@ -137,8 +133,8 @@ public class OciDistributionResource {
         OciDigest ociDigest = OciDigest.fromSha256(digest);
         String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
-                .header(HEADER_LOCATION, location)
-                .header(HEADER_DOCKER_DIGEST, ociDigest.value())
+                .header(HttpHeaders.LOCATION, location)
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
                 .build();
     }
 
@@ -157,8 +153,8 @@ public class OciDistributionResource {
 
         OciDigest ociDigest = OciDigest.fromSha256(digest);
         return Response.ok()
-                .header(HEADER_DOCKER_DIGEST, ociDigest.value())
-                .header("Content-Length", 0)
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
+                .header(HttpHeaders.CONTENT_LENGTH, 0)
                 .build();
     }
 
@@ -189,8 +185,8 @@ public class OciDistributionResource {
 
         String location = buildManifestLocation(repositoryName.value(), reference);
         return Response.status(Response.Status.CREATED)
-                .header(HEADER_LOCATION, location)
-                .header(HEADER_DOCKER_DIGEST, digest.value())
+                .header(HttpHeaders.LOCATION, location)
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), digest.value())
                 .build();
     }
 
@@ -207,8 +203,8 @@ public class OciDistributionResource {
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
         return Response.ok(stored.jsonPayload())
-                .header("Content-Type", stored.mediaType())
-                .header(HEADER_DOCKER_DIGEST, stored.digest().value())
+                .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
                 .build();
     }
 
@@ -225,45 +221,39 @@ public class OciDistributionResource {
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
         return Response.ok()
-                .header("Content-Type", stored.mediaType())
-                .header(HEADER_DOCKER_DIGEST, stored.digest().value())
+                .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
                 .build();
     }
 
     private void verifyBlobExistsInCas(BlobStore blobStore, String rawDigest) {
         String hexDigest = rawDigest.startsWith("sha256:") ? rawDigest.substring(7) : rawDigest;
         Sha256Digest digest = Sha256Digest.of(hexDigest);
-        Boolean exists = blobStore.exists(digest).await().indefinitely();
-        if (isNull(exists) || !exists) {
+        boolean exists = blobStore.exists(digest).await().indefinitely();
+        if (!exists) {
             throw new OciBlobUnknownException("Referenced layer or config blob missing from CAS: " + rawDigest);
         }
     }
 
     private static String buildBlobLocation(String repoName, String ociDigest) {
-        return new StringBuilder(11 + repoName.length() + ociDigest.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(BLOBS_PATH)
-                .append(ociDigest)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                BLOBS_PATH +
+                ociDigest;
     }
 
     private static String buildUploadSessionLocation(String repoName, String sessionId) {
-        return new StringBuilder(19 + repoName.length() + sessionId.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(UPLOADS_PATH)
-                .append(sessionId)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                UPLOADS_PATH +
+                sessionId;
     }
 
     private static String buildManifestLocation(String repoName, String reference) {
-        return new StringBuilder(14 + repoName.length() + reference.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(MANIFESTS_PATH)
-                .append(reference)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                MANIFESTS_PATH +
+                reference;
     }
 
     private record StoredManifest(String jsonPayload, String mediaType, OciDigest digest) {}

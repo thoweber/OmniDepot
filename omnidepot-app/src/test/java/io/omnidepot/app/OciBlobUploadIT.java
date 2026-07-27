@@ -1,9 +1,13 @@
 package io.omnidepot.app;
 
+import io.omnidepot.format.oci.OciHttpHeader;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.omnidepot.format.oci.OciHttpHeader.DOCKER_CONTENT_DIGEST;
+import static io.omnidepot.format.oci.OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,7 +23,7 @@ class OciBlobUploadIT {
                 .get("/v2/")
                 .then()
                 .statusCode(200)
-                .header("Docker-Distribution-API-Version", equalTo("registry/2.0"));
+                .header(DOCKER_DISTRIBUTION_API_VERSION.value(), equalTo("registry/2.0"));
     }
 
     @Test
@@ -30,8 +34,8 @@ class OciBlobUploadIT {
                 .post("/v2/library/ubuntu/blobs/uploads")
                 .then()
                 .statusCode(202)
-                .header("Location", containsString("/v2/library/ubuntu/blobs/uploads/"))
-                .header("Range", equalTo("0-0"));
+                .header(HttpHeaders.LOCATION, containsString("/v2/library/ubuntu/blobs/uploads/"))
+                .header(OciHttpHeader.RANGE.value(), equalTo("0-0"));
     }
 
     @Test
@@ -46,8 +50,8 @@ class OciBlobUploadIT {
                 .post("/v2/library/my-app/blobs/uploads")
                 .then()
                 .statusCode(201)
-                .header("Location", equalTo("/v2/library/my-app/blobs/" + digest))
-                .header("Docker-Content-Digest", equalTo(digest));
+                .header(HttpHeaders.LOCATION, equalTo("/v2/library/my-app/blobs/" + digest))
+                .header(DOCKER_CONTENT_DIGEST.value(), equalTo(digest));
     }
 
     @Test
@@ -61,8 +65,8 @@ class OciBlobUploadIT {
                 .put("/v2/library/ubuntu/blobs/uploads/session-789")
                 .then()
                 .statusCode(201)
-                .header("Location", equalTo("/v2/library/ubuntu/blobs/" + digest))
-                .header("Docker-Content-Digest", equalTo(digest));
+                .header(HttpHeaders.LOCATION, equalTo("/v2/library/ubuntu/blobs/" + digest))
+                .header(DOCKER_CONTENT_DIGEST.value(), equalTo(digest));
     }
 
     @Test

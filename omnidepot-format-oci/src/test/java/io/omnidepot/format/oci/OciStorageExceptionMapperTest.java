@@ -1,6 +1,7 @@
 package io.omnidepot.format.oci;
 
 import io.omnidepot.core.api.storage.BlobWriteException;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class OciStorageExceptionMapperTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(500);
-        assertThat(response.getHeaderString("Content-Type")).isEqualTo("application/json");
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
 
         OciErrorResponse body = (OciErrorResponse) response.getEntity();
         assertThat(body.errors()).hasSize(1);

@@ -33,7 +33,7 @@ graph TD
 ### Step 2: Architectural Audit & Boundary Check (`lead-architect`)
 1. **Hexagonal Sub-module Scope:** Identify exact reactor sub-modules involved (`omnidepot-format-*`, `omnidepot-core-domain`, `omnidepot-core-api`, `omnidepot-storage-api`).
 2. **Encapsulation & SPI Rules:** Guarantee that concrete classes remain `package-private` and public surface area is strictly restricted to `omnidepot-core-api`.
-3. **SOLID & CUPID Principles:** Enforce Single Responsibility (SRP), Open/Closed SPI extension (OCP), strongly-typed Value Objects (`Sha256Digest`, `CasPath`), pre-allocated `StringBuilder` capacity, JSpecify `@NullMarked` package rules, and zero raw exception handling.
+3. **SOLID & CUPID Principles:** Enforce Single Responsibility (SRP), Open/Closed SPI extension (OCP), strongly-typed Value Objects (`Sha256Digest`, `CasPath`), JSpecify `@NullMarked` package rules, and zero raw exception handling.
 
 ---
 

@@ -15,8 +15,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
 
-import static java.util.Objects.isNull;
-
 /**
  * Immutable record representing an OCI Image Manifest V2 Schema 2 or Docker Schema 2 JSON payload.
  * Provides canonical SHA-256 digest computation and Jackson JSON parsing.
@@ -40,7 +38,7 @@ record OciManifestRecord(
      * @throws OciProtocolException if parsing fails
      */
     public static OciManifestRecord fromJson(String jsonString) {
-        if (isNull(jsonString) || jsonString.isBlank()) {
+        if (jsonString.isBlank()) {
             throw new OciManifestInvalidException("Manifest JSON payload cannot be null or blank");
         }
         try {
@@ -57,7 +55,7 @@ record OciManifestRecord(
      * @return strongly-typed {@link OciDigest}
      */
     public static OciDigest calculateDigest(byte[] manifestBytes) {
-        if (isNull(manifestBytes) || manifestBytes.length == 0) {
+        if (manifestBytes.length == 0) {
             throw new OciManifestInvalidException("Cannot compute digest for empty manifest bytes");
         }
         try {

@@ -1,5 +1,6 @@
-package io.omnidepot.format.oci.test.support;
+package io.omnidepot.format.oci;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,25 +8,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Support class containing reusable AssertJ HTTP response assertions for OCI protocol tests.
  */
-public class OciTestSupport {
+class OciTestSupport {
 
-    public static void assertOciApiVersionHeader(Response response) {
+    static void assertOciApiVersionHeader(Response response) {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.getHeaderString("Docker-Distribution-API-Version")).isEqualTo("registry/2.0");
+        assertThat(response.getHeaderString(OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION.value())).isEqualTo("registry/2.0");
     }
 
-    public static void assertOciMountCreatedResponse(Response response, String expectedRepository, String expectedDigestHex) {
+    static void assertOciMountCreatedResponse(Response response, String expectedRepository, String expectedDigestHex) {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        String location = response.getHeaderString("Location");
+        String location = response.getHeaderString(HttpHeaders.LOCATION);
         assertThat(location).isNotNull().contains("/v2/" + expectedRepository + "/blobs/sha256:" + expectedDigestHex);
     }
 
-    public static void assertOciUploadAcceptedResponse(Response response, String expectedRepository) {
+    static void assertOciUploadAcceptedResponse(Response response, String expectedRepository) {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
-        String location = response.getHeaderString("Location");
+        String location = response.getHeaderString(HttpHeaders.LOCATION);
         assertThat(location).isNotNull().startsWith("/v2/" + expectedRepository + "/blobs/uploads/");
     }
 }
