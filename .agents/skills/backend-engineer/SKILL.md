@@ -19,28 +19,28 @@ This document defines the core standards, reactive streaming mechanics, domain b
 
 ## 1. Domain & Boundary Protection Invariants
 
-OmniDepot enforces strict Hexagonal Bounded Context boundaries across its 15 Maven sub-modules.
+The omnidepot repository enforces strict Hexagonal Bounded Context boundaries across its 15 Maven sub-modules.
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                             PROTOCOL ADAPTERS                               │
-│        repo-format-oci   │   repo-format-maven   │   repo-format-npm        │
+│      omnidepot-format-oci │ omnidepot-format-maven │ omnidepot-format-npm  │
 └───────────────────────────────────┬─────────────────────────────────────────┘
                                     │ (Depends ONLY on API)
 ┌───────────────────────────────────▼─────────────────────────────────────────┐
-│                            repo-core-api (SPIs)                             │
+│                          omnidepot-core-api (SPIs)                          │
 └───────────────────────────────────▲─────────────────────────────────────────┘
                                     │ (Implements / Consumes)
 ┌───────────────────────────────────┴─────────────────────────────────────────┐
-│                            repo-core-domain                                 │
+│                          omnidepot-core-domain                              │
 ├───────────────────────────────────┬─────────────────────────────────────────┤
-│        repo-storage-fs   │   repo-storage-s3     │   repo-infra-db          │
+│      omnidepot-storage-fs │ omnidepot-storage-s3   │ omnidepot-infra-db      │
 └───────────────────────────────────┴─────────────────────────────────────────┘
 ```
 
 ### A. Boundary Rules
-1. **Format Module Isolation (ADR-005):** `repo-format-*` modules MUST depend ONLY on `repo-core-api`. They MUST NEVER import directly from `repo-storage-*`, `repo-infra-db-*`, or `repo-domain-iam`.
-2. **Encapsulation:** Keep concrete SPI implementations `package-private`. Public visibility is strictly reserved for API interfaces in `repo-core-api`.
+1. **Format Module Isolation (ADR-005):** `omnidepot-format-*` modules MUST depend ONLY on `omnidepot-core-api`. They MUST NEVER import directly from `omnidepot-storage-*`, `omnidepot-infra-db-*`, or `omnidepot-domain-iam`.
+2. **Encapsulation:** Keep concrete SPI implementations `package-private`. Public visibility is strictly reserved for API interfaces in `omnidepot-core-api`.
 3. **CDI Dynamic Selection:** Inject storage and identity backends via Quarkus `@LookupIfProperty` on `@ApplicationScoped` beans:
 
 ```java

@@ -1,10 +1,10 @@
-# Getting Started with OmniDepot
+# Getting Started with omnidepot
 
-This guide walks you through setting up and running OmniDepot on your local machine.
+This guide walks you through setting up and running omnidepot on your local machine.
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Java Development Kit (JDK):** Java 25 LTS
 - **Build Tool:** Apache Maven 3.9+ (or included `./mvnw` wrapper)
@@ -12,7 +12,7 @@ This guide walks you through setting up and running OmniDepot on your local mach
 
 ---
 
-## 🚀 Building & Running Locally
+## Building & Running Locally
 
 ### 1. Build the Monolith Reactor
 
@@ -24,7 +24,7 @@ To clean, compile, run all tests, and package the application:
 
 ### 2. Start Infrastructure Dependencies
 
-OmniDepot requires PostgreSQL 16+, RustFS S3 object storage, and Caddy reverse proxy:
+The application requires PostgreSQL 16+, RustFS S3 object storage, and Caddy reverse proxy:
 
 | Service | Default Port | Internal Endpoint / Health Check |
 | :--- | :--- | :--- |
@@ -34,9 +34,9 @@ OmniDepot requires PostgreSQL 16+, RustFS S3 object storage, and Caddy reverse p
 | **RustFS S3** | `9000` / `9001` | `http://localhost:9000` (User: `omnidepot_rustfs` / Pass: `omnidepot_rustfs_secret`) |
 | **Caddy Proxy** | `8443` | `https://localhost:8443/` |
 
-### 3. Launch OmniDepot in Quarkus Dev Mode
+### 3. Launch omnidepot in Quarkus Dev Mode
 
-Start OmniDepot with live coding and instant hot reload:
+Start the application with live coding and instant hot reload:
 
 ```bash
 ./mvnw quarkus:dev -pl repo-app

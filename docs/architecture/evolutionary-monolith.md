@@ -4,7 +4,7 @@ OmniDepot follows the **Evolutionary Modular Monolith** pattern. This architectu
 
 ---
 
-## 📦 Module Structure
+## Module Structure
 
 ```text
 omnidepot-parent/
@@ -26,7 +26,7 @@ omnidepot-parent/
 
 ---
 
-## 🛡️ Boundary Enforcement (ADR-009)
+## Boundary Enforcement (ADR-009)
 
 1. **Package-Private Implementation Classes:** Storage providers (`FileSystemBlobStore`, `S3BlobStore`) are package-private and instantiated via Quarkus CDI property lookup `@LookupIfProperty`.
 2. **ArchUnit Boundary Rule:** `repo-format-*` protocol modules MUST depend ONLY on `repo-core-api` and third-party runtime frameworks—never directly on `repo-storage-*` or `repo-infra-db-*`.

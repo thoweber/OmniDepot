@@ -99,7 +99,7 @@ rl.on('line', (line) => {
                 properties: {
                   module: {
                     type: 'string',
-                    description: 'Maven reactor module to validate (default: repo-infra-db)'
+                    description: 'Maven reactor module to validate (default: omnidepot-infra-db)'
                   },
                   dialects: {
                     type: 'array',
@@ -160,7 +160,7 @@ function handleToolCall(id, params) {
     return;
   }
 
-  const module = args.module || 'repo-infra-db';
+  const module = args.module || 'omnidepot-infra-db';
   let requestedDialects = args.dialects || ['h2', 'postgresql'];
   if (typeof requestedDialects === 'string') {
     requestedDialects = [requestedDialects];

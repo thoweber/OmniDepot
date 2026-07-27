@@ -4,15 +4,15 @@ OmniDepot utilizes a pure **Content-Addressable Storage (CAS)** model for all bi
 
 ---
 
-## 🗄️ Storage Architecture
+## Storage Architecture
 
 ```mermaid
 graph TD
-    Client[Protocol Adapter / Ingestion] --> |Sha256Digest + InputStream| BlobStore[BlobStore SPI]
+    Client["Protocol Adapter / Ingestion"] --> |Sha256Digest + InputStream| BlobStore["BlobStore SPI"]
 
     subgraph Storage Providers
-        FS[repo-storage-fs: FileSystemBlobStore]
-        S3[repo-storage-s3: S3BlobStore]
+        FS["repo-storage-fs: FileSystemBlobStore"]
+        S3["repo-storage-s3: S3BlobStore"]
     end
 
     BlobStore -->|@LookupIfProperty filesystem| FS
@@ -24,7 +24,7 @@ graph TD
 
 ---
 
-## 🔑 Key Invariants & Features
+## Key Invariants & Features
 
 1. **SHA-256 Deduplication (ADR-015):**
    - All physical binary storage paths are determined strictly by the payload's SHA-256 digest: `/blobs/sha256/<first2>/<next2>/<hash>`.

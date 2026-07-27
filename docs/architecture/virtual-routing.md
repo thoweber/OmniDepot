@@ -23,7 +23,7 @@ graph TD
 
 ---
 
-## ⚡ Key Features
+## Key Features
 
 1. **Precedence Ranking & Pattern Filters (ADR-024):**
    - Members are evaluated by integer `precedence` ranks (lowest integer = highest priority).

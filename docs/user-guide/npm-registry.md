@@ -1,12 +1,12 @@
 # NPM Registry Adapter
 
-OmniDepot provides NPM registry endpoints for publishing and retrieving Node.js modules and tarballs.
+The omnidepot repository provides NPM registry endpoints for publishing and retrieving Node.js modules and tarballs.
 
 ---
 
-## ⚙️ Setting Up NPM Config
+## Setting Up NPM Config
 
-Set OmniDepot as your target NPM registry:
+Set omnidepot as your target NPM registry:
 
 ```bash
 npm config set registry http://localhost:8080/npm/
@@ -20,7 +20,7 @@ npm config set @omnidepot:registry http://localhost:8080/npm/
 
 ---
 
-## 📦 Publishing Packages
+## Publishing Packages
 
 Authenticate and publish:
 

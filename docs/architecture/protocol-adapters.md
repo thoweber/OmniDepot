@@ -4,7 +4,7 @@ OmniDepot isolates protocol-specific wire formats from core storage and catalog 
 
 ---
 
-## 🔌 Supported Protocol Adapters
+## Supported Protocol Adapters
 
 ```text
                ┌────────────────────────┐
@@ -24,7 +24,7 @@ OmniDepot isolates protocol-specific wire formats from core storage and catalog 
 
 ---
 
-## 📦 Protocol Specifications
+## Protocol Specifications
 
 ### 1. OCI Distribution Adapter (`repo-format-oci`)
 - Endpoint Prefix: `/v2/`

@@ -32,30 +32,30 @@ FROM eclipse-temurin:25-jdk-alpine AS builder
 WORKDIR /workspace
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
-COPY repo-core-api repo-core-api
-COPY repo-core-domain repo-core-domain
-COPY repo-storage-api repo-storage-api
-COPY repo-storage-fs repo-storage-fs
-COPY repo-storage-s3 repo-storage-s3
-COPY repo-infra-db repo-infra-db
-COPY repo-infra-outbox repo-infra-outbox
-COPY repo-domain-iam repo-domain-iam
-COPY repo-format-oci repo-format-oci
-COPY repo-format-maven repo-format-maven
-COPY repo-format-npm repo-format-npm
-COPY repo-ui repo-ui
-COPY repo-app repo-app
-COPY repo-coverage-report repo-coverage-report
+COPY omnidepot-core-api omnidepot-core-api
+COPY omnidepot-core-domain omnidepot-core-domain
+COPY omnidepot-storage-api omnidepot-storage-api
+COPY omnidepot-storage-fs omnidepot-storage-fs
+COPY omnidepot-storage-s3 omnidepot-storage-s3
+COPY omnidepot-infra-db omnidepot-infra-db
+COPY omnidepot-infra-outbox omnidepot-infra-outbox
+COPY omnidepot-domain-iam omnidepot-domain-iam
+COPY omnidepot-format-oci omnidepot-format-oci
+COPY omnidepot-format-maven omnidepot-format-maven
+COPY omnidepot-format-npm omnidepot-format-npm
+COPY omnidepot-ui omnidepot-ui
+COPY omnidepot-app omnidepot-app
+COPY omnidepot-coverage-report omnidepot-coverage-report
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Runtime Container
 FROM eclipse-temurin:25-jre-alpine
 ENV LANGUAGE='en_US:en'
 WORKDIR /deployments
-COPY --from=builder /workspace/repo-app/target/quarkus-app/lib/ /deployments/lib/
-COPY --from=builder /workspace/repo-app/target/quarkus-app/*.jar /deployments/
-COPY --from=builder /workspace/repo-app/target/quarkus-app/app/ /deployments/app/
-COPY --from=builder /workspace/repo-app/target/quarkus-app/quarkus/ /deployments/quarkus/
+COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/lib/ /deployments/lib/
+COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/*.jar /deployments/
+COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/app/ /deployments/app/
+COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/quarkus/ /deployments/quarkus/
 EXPOSE 8080 9000
 USER 1001:1001
 ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]

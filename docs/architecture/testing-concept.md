@@ -60,7 +60,7 @@ This document defines the binding guidelines for the structure, naming, tools, a
 
 ---
 
-## 🏷️ Naming & Structure Conventions
+## Naming & Structure Conventions
 
 - **Directory Structure:** Mirrors production package structure 1-to-1.
 - **Class Suffixes:**
@@ -87,9 +87,9 @@ void shouldApplyDiscount() {
 
 ---
 
-## 🛡️ ArchUnit Architectural Protection Rules
+## ArchUnit Architectural Protection Rules
 
-In OmniDepot, architecture protection rules are defined in `repo-app` inside [ArchitectureBoundaryTest.java](file:///home/developer/projects/OmniDepot/repo-app/src/test/java/io/omnidepot/app/ArchitectureBoundaryTest.java):
+In omnidepot, architecture protection rules are defined in `repo-app` inside [ArchitectureBoundaryTest.java](file:///home/developer/projects/OmniDepot/repo-app/src/test/java/io/omnidepot/app/ArchitectureBoundaryTest.java):
 
 ```java
 class ArchitectureBoundaryTest {
@@ -130,7 +130,7 @@ class ArchitectureBoundaryTest {
 
 ---
 
-## ⚙️ Maven Build & Execution Configuration
+## Maven Build & Execution Configuration
 
 ```xml
 <build>
@@ -180,7 +180,7 @@ class ArchitectureBoundaryTest {
 
 ---
 
-## 📋 Mandatory PR Checklist
+## Mandatory PR Checklist
 
 - [x] All unit, component, and integration tests pass locally (`./mvnw clean verify`).
 - [x] Every `@Test` method uses `@DisplayName("When ... then ...")`.

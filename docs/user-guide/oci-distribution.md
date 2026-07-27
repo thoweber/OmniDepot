@@ -1,10 +1,10 @@
 # OCI V2 Distribution Registry
 
-OmniDepot implements the official **OCI Distribution Specification (v2.0)** for container images, Helm charts, and arbitrary OCI artifacts.
+The omnidepot repository implements the official **OCI Distribution Specification (v2.0)** for container images, Helm charts, and arbitrary OCI artifacts.
 
 ---
 
-## ⚡ Supported Endpoints
+## Supported Endpoints
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
@@ -17,9 +17,9 @@ OmniDepot implements the official **OCI Distribution Specification (v2.0)** for 
 
 ---
 
-## 🐋 Using with Docker CLI
+## Using with Docker CLI
 
-### 1. Login to OmniDepot
+### 1. Login to omnidepot
 
 ```bash
 docker login localhost:8080 -u devuser -p devpassword

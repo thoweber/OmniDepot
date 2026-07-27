@@ -8,10 +8,10 @@ description: Generates unified Liquibase XML changelogs with dbms attribute isol
 When generating database schema migrations (ADR-023):
 
 ## 1. File Placement & Naming
-Place new versioned changelogs under `repo-infra-db/src/main/resources/db/changelog/v1.0/` and register them in `db.changelog-master.xml`:
+Place new versioned changelogs under `omnidepot-infra-db/src/main/resources/db/changelog/v1.0/` and register them in `db.changelog-master.xml`:
 
 ```text
-repo-infra-db/src/main/resources/db/changelog/
+omnidepot-infra-db/src/main/resources/db/changelog/
 ├── db.changelog-master.xml
 └── v1.0/
     ├── 01-initial-schema.xml
@@ -50,6 +50,6 @@ repo-infra-db/src/main/resources/db/changelog/
 ```
 
 ## 3. Mandatory Dual-Dialect Verification Rule
-Whenever creating or modifying any Liquibase changelog XML file under `repo-infra-db/src/main/resources/db/changelog/`:
+Whenever creating or modifying any Liquibase changelog XML file under `omnidepot-infra-db/src/main/resources/db/changelog/`:
 * You MUST execute dual-dialect validation using the `liquibaseValidator` MCP server tool `validate_liquibase_changelog` (or `node .agents/scripts/liquibase-validator-server.js`).
 * Verification MUST pass cleanly with 0 errors and successful rollback cycles for BOTH `h2` and `postgresql` 16+ dialects before declaring completion.

@@ -42,7 +42,7 @@ OmniDepot captures critical architectural decisions using Architectural Decision
 
 ---
 
-## 📊 Technical Invariant & Consequences Quick-Reference Table
+## Technical Invariant & Consequences Quick-Reference Table
 
 | Layer / Domain | Key Technology / Pattern | Positive Aspect | Negative Trade-Off | Non-Negotiable Architectural Invariant |
 | --- | --- | --- | --- | --- |

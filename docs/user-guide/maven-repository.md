@@ -1,12 +1,12 @@
 # Maven / Gradle Repository Adapter
 
-OmniDepot serves as a enterprise Maven layout repository hosting JARs, POMs, and automatically synthesizing missing checksums (`.sha1`, `.sha256`, `.md5`).
+The omnidepot repository serves as an enterprise Maven layout repository hosting JARs, POMs, and automatically synthesizing missing checksums (`.sha1`, `.sha256`, `.md5`).
 
 ---
 
-## 🛠️ Configuring Maven `settings.xml`
+## Configuring Maven `settings.xml`
 
-Add OmniDepot to your `~/.m2/settings.xml`:
+Add omnidepot to your `~/.m2/settings.xml`:
 
 ```xml
 <settings>
@@ -33,9 +33,9 @@ Add OmniDepot to your `~/.m2/settings.xml`:
 
 ---
 
-## 📦 Deploying Artifacts with Maven
+## Deploying Artifacts with Maven
 
-Deploy artifacts directly to OmniDepot:
+Deploy artifacts directly to the repository:
 
 ```bash
 mvn deploy:deploy-file \

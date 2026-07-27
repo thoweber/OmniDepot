@@ -9,8 +9,8 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>OmniDepot :: Parent</name>
-    <description>OmniDepot Polyglot Package Repository - Modular Monolith Parent POM</description>
+    <name>omnidepot :: Parent</name>
+    <description>omnidepot Polyglot Package Repository - Modular Monolith Parent POM</description>
 
     <properties>
         <java.version>25</java.version>
@@ -34,9 +34,9 @@
 
         <!-- SonarCloud Configuration -->
         <sonar.organization>thoweber</sonar.organization>
-        <sonar.projectKey>OmniDepot</sonar.projectKey>
+        <sonar.projectKey>omnidepot</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/repo-coverage-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/omnidepot-coverage-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Liquibase Default Configuration (Overridable via CLI for PostgreSQL) -->
         <liquibase.driver>org.h2.Driver</liquibase.driver>
@@ -46,20 +46,20 @@
     </properties>
 
     <modules>
-        <module>repo-core-api</module>
-        <module>repo-core-domain</module>
-        <module>repo-storage-api</module>
-        <module>repo-storage-fs</module>
-        <module>repo-storage-s3</module>
-        <module>repo-infra-db</module>
-        <module>repo-infra-outbox</module>
-        <module>repo-domain-iam</module>
-        <module>repo-format-oci</module>
-        <module>repo-format-maven</module>
-        <module>repo-format-npm</module>
-        <module>repo-ui</module>
-        <module>repo-app</module>
-        <module>repo-coverage-report</module>
+        <module>omnidepot-core-api</module>
+        <module>omnidepot-core-domain</module>
+        <module>omnidepot-storage-api</module>
+        <module>omnidepot-storage-fs</module>
+        <module>omnidepot-storage-s3</module>
+        <module>omnidepot-infra-db</module>
+        <module>omnidepot-infra-outbox</module>
+        <module>omnidepot-domain-iam</module>
+        <module>omnidepot-format-oci</module>
+        <module>omnidepot-format-maven</module>
+        <module>omnidepot-format-npm</module>
+        <module>omnidepot-ui</module>
+        <module>omnidepot-app</module>
+        <module>omnidepot-coverage-report</module>
     </modules>
 
     <dependencyManagement>
@@ -104,74 +104,74 @@
             <!-- Internal Sub-modules -->
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-core-api</artifactId>
+                <artifactId>omnidepot-core-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-core-api</artifactId>
+                <artifactId>omnidepot-core-api</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-core-domain</artifactId>
+                <artifactId>omnidepot-core-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-storage-api</artifactId>
+                <artifactId>omnidepot-storage-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-storage-fs</artifactId>
+                <artifactId>omnidepot-storage-fs</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-storage-s3</artifactId>
+                <artifactId>omnidepot-storage-s3</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-infra-db</artifactId>
+                <artifactId>omnidepot-infra-db</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-infra-outbox</artifactId>
+                <artifactId>omnidepot-infra-outbox</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-domain-iam</artifactId>
+                <artifactId>omnidepot-domain-iam</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-format-oci</artifactId>
+                <artifactId>omnidepot-format-oci</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-format-maven</artifactId>
+                <artifactId>omnidepot-format-maven</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-format-npm</artifactId>
+                <artifactId>omnidepot-format-npm</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-ui</artifactId>
+                <artifactId>omnidepot-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.omnidepot</groupId>
-                <artifactId>repo-app</artifactId>
+                <artifactId>omnidepot-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

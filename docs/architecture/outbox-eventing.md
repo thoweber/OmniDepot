@@ -31,7 +31,7 @@ sequenceDiagram
 
 ---
 
-## ⚡ Key Features
+## Key Features
 
 1. **At-Least-Once Delivery Guarantee:**
    - Events are persisted to `outbox_events` within the same database transaction as the domain entity update, ensuring zero lost events during container failures.

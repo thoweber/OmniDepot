@@ -4,7 +4,7 @@ OmniDepot manages relational database schemas using **Liquibase** (`quarkus-liqu
 
 ---
 
-## 🗄️ Database Schema & Dialect Isolation
+## Database Schema & Dialect Isolation
 
 To handle JSON metadata across PostgreSQL and H2 without syntax errors, change sets use dynamic `dbms` attribute filtering:
 

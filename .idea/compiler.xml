@@ -7,7 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
       </profile>
-      <profile name="Annotation profile for OmniDepot :: Parent" enabled="true">
+      <profile name="Annotation profile for omnidepot :: Parent" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -17,7 +17,7 @@
         <module name="repo-format-oci" />
         <module name="repo-storage-s3" />
         <module name="repo-coverage-report" />
-        <module name="repo-app" />
+        <module name="omnidepot-app" />
         <module name="repo-core-domain" />
         <module name="repo-domain-iam" />
         <module name="repo-format-npm" />
@@ -30,9 +30,13 @@
         <module name="repo-storage-api" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="repo-app" target="25" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="omnidepot-app" options="-parameters" />
       <module name="repo-app" options="-parameters" />
       <module name="repo-core-api" options="-parameters" />
       <module name="repo-core-domain" options="-parameters" />

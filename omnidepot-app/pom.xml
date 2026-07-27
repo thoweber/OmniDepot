@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.omnidepot</groupId>
+        <artifactId>omnidepot-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>omnidepot-app</artifactId>
+    <name>omnidepot :: Application Entrypoint &amp; Quarkus Runner</name>
+
+    <dependencies>
+        <!-- Internal Modules -->
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-core-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-storage-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-storage-fs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-storage-s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-infra-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-infra-outbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-domain-iam</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-format-oci</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-format-maven</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-format-npm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.omnidepot</groupId>
+            <artifactId>omnidepot-ui</artifactId>
+        </dependency>
+
+        <!-- Quarkus Extensions -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

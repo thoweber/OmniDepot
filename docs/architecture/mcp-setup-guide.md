@@ -1,20 +1,20 @@
-# OmniDepot: MCP Server Setup & Token Guide
+# omnidepot: MCP Server Setup & Token Guide
 
-This guide details the setup, credentials, environment variables, and permission scopes required to run the **Model Context Protocol (MCP)** servers integrated into **OmniDepot**.
+This guide details the setup, credentials, environment variables, and permission scopes required to run the **Model Context Protocol (MCP)** servers integrated into **omnidepot**.
 
 ---
 
-## 🔌 Integrated MCP Servers Overview
+## Integrated MCP Servers Overview
 
-OmniDepot configures four specialized MCP servers defined in [.mcp.json](file:///home/developer/projects/OmniDepot/.mcp.json) and [.agents/config.json](file:///home/developer/projects/OmniDepot/.agents/config.json):
+The omnidepot repository configures four specialized MCP servers defined in [.mcp.json](file:///home/developer/projects/OmniDepot/.mcp.json) and [.agents/config.json](file:///home/developer/projects/OmniDepot/.agents/config.json):
 
 ```text
-                                OMNIDEPOT MCP ECOSYSTEM
+                                omnidepot MCP ECOSYSTEM
 ┌───────────────────────┬───────────────────────────────┬────────────────────────────────┐
 │ MCP Server            │ Utility / Purpose             │ Authentication / Credentials   │
 ├───────────────────────┼───────────────────────────────┼────────────────────────────────┤
 │ 1. github             │ Repository issues, PRs, CI    │ GITHUB_TOKEN (PAT)             │
-│ 2. intellij           │ Live IDE AST & symbol navigation│ Localhost Port 64343 (No Auth) │
+│ 2. intellij           │ Live IDE AST & symbol navigation│ Direct SSE (127.0.0.1:64343)   │
 │ 3. archunitChecker    │ Package boundary verification │ Node STDIO Server (.agents/scripts/archunit-checker-server.js) │
 │ 4. liquibaseValidator │ DB changelog & rollback validation│ Node STDIO Server (.agents/scripts/liquibase-validator-server.js) │
 └───────────────────────┴───────────────────────────────┴────────────────────────────────┘
@@ -22,9 +22,9 @@ OmniDepot configures four specialized MCP servers defined in [.mcp.json](file://
 
 ---
 
-## 🚀 Recommended Usage: Extensive Refactoring & Complex Coding Tasks
+## Recommended Usage: Extensive Refactoring & Complex Coding Tasks
 
-The **`intellij` MCP server** is strongly recommended for **large-scale refactorings**, multi-module architecture updates, and type-safe code restructurings across OmniDepot's 15 reactor modules.
+The **`intellij` MCP server** is strongly recommended for **large-scale refactorings**, multi-module architecture updates, and type-safe code restructurings across omnidepot's 15 reactor modules.
 
 ### Key Refactoring Capabilities
 
@@ -35,13 +35,14 @@ The **`intellij` MCP server** is strongly recommended for **large-scale refactor
 3. **Real-time IDE Diagnostics (`get_file_problems` & `lint_files`)**:
    * Catches compilation errors, missing generic parameters, and `@NullMarked` annotation violations instantly without waiting for a full Maven reactor build.
 4. **Automated Formatting (`reformat_file`)**:
-   * Ensures modified Java and TypeScript files strictly comply with OmniDepot code style guidelines before commit.
+   * Ensures modified Java and TypeScript files strictly comply with omnidepot code style guidelines before commit.
 
-> 💡 **Best Practice for AI Agents:** When planning multi-file refactorings or domain model updates, use the `/plan` or `/goal` slash commands alongside the `intellij` MCP server tools to safely inspect symbol call graphs before performing modifications.
+> [!NOTE]
+> **Best Practice for AI Agents:** When planning multi-file refactorings or domain model updates, use the `/plan` or `/goal` slash commands alongside the `intellij` MCP server tools to safely inspect symbol call graphs before performing modifications.
 
 ---
 
-## 🔑 Required Tokens & Credentials
+## Required Tokens & Credentials
 
 ### 1. GitHub MCP Server (`github`)
 
@@ -62,9 +63,9 @@ export GITHUB_TOKEN="ghp_yourPersonalAccessTokenHere..."
 
 ---
 
-## ⚡ Leveraging `.env` Files (Automated Credential Management)
+## Leveraging `.env` Files (Automated Credential Management)
 
-Instead of manually executing `export GITHUB_TOKEN="..."` every time you open a terminal, OmniDepot supports automatic environment variable loading via a local **`.env`** file.
+Instead of manually executing `export GITHUB_TOKEN="..."` every time you open a terminal, omnidepot supports automatic environment variable loading via a local **`.env`** file.
 
 ### 1. Quick Setup: Create your `.env` file
 
@@ -84,7 +85,8 @@ QUARKUS_PROFILE=dev
 REPO_AUTH_MODE=disabled
 ```
 
-> ⚠️ **Security Warning:** `.env` is automatically ignored in [.gitignore](file:///home/developer/projects/OmniDepot/.gitignore). Never commit `.env` files containing actual tokens to Git.
+> [!WARNING]
+> **Security Warning:** `.env` is automatically ignored in [.gitignore](file:///home/developer/projects/OmniDepot/.gitignore). Never commit `.env` files containing actual tokens to Git.
 
 ---
 
@@ -124,7 +126,7 @@ npx @dotenvx/dotenvx run -- ./mvnw test
 
 ---
 
-## 🛠️ Verification & Troubleshooting
+## Verification & Troubleshooting
 
 ### Test MCP Server Connection
 You can test and inspect active MCP servers using the official MCP Inspector tool:
@@ -134,8 +136,8 @@ You can test and inspect active MCP servers using the official MCP Inspector too
 export $(grep -v '^#' .env | xargs)
 npx -y @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-github
 
-# Test IntelliJ MCP Server
-npx -y @modelcontextprotocol/inspector npx -y @jetbrains/mcp-proxy
+# Test IntelliJ Direct SSE Connection
+curl -i -N -H "IJ_MCP_SERVER_PROJECT_PATH: /home/developer/projects/OmniDepot" http://127.0.0.1:64343/sse
 ```
 
 ### Common Issues
@@ -145,5 +147,5 @@ npx -y @modelcontextprotocol/inspector npx -y @jetbrains/mcp-proxy
    - Confirm token has not expired and holds `repo` scope permissions.
 
 2. **IntelliJ MCP Connection Refused (`port 64343`):**
-   - Ensure IntelliJ IDEA is open with the OmniDepot project loaded.
+   - Ensure IntelliJ IDEA is open with the omnidepot project loaded.
    - Verify built-in server port in IntelliJ settings (**Build, Execution, Deployment** $\rightarrow$ **Debugger** $\rightarrow$ **Built-in Server** = `64343`).

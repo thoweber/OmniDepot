@@ -1,6 +1,6 @@
-# OmniDepot Developer Onboarding & Architecture Guide
+# omnidepot Developer Onboarding & Architecture Guide
 
-Welcome to the **OmniDepot Developer Onboarding Guide**. This document outlines the prerequisites, infrastructure container setup, database migration workflows, local feedback loops, Domain-Driven Design (DDD), Hexagonal Architecture invariants, and coding standards.
+Welcome to the developer onboarding guide for omnidepot. This document outlines the prerequisites, infrastructure container setup, database migration workflows, local feedback loops, Domain-Driven Design (DDD), Hexagonal Architecture invariants, and coding standards.
 
 ---
 
@@ -22,7 +22,7 @@ graph TD
     end
 
     subgraph Cloud Services
-        SONAR["SonarCloud Analysis (OmniDepot)"]
+        SONAR["SonarCloud Analysis (omnidepot)"]
         GH["GitHub Actions CI / PR Checks"]
     end
 
@@ -38,7 +38,7 @@ graph TD
 
 ## 2. Architecture: Domain-Driven Design (DDD) & Hexagonal Ports & Adapters
 
-OmniDepot is built as an **Evolutionary Modular Monolith** structured strictly around **Hexagonal Architecture (Ports and Adapters)** and **Domain-Driven Design (DDD)** principles (`ADR-001`, `ADR-004`).
+The omnidepot repository is built as an **Evolutionary Modular Monolith** structured strictly around **Hexagonal Architecture (Ports and Adapters)** and **Domain-Driven Design (DDD)** principles (`ADR-001`, `ADR-004`).
 
 ```mermaid
 graph LR
@@ -85,7 +85,7 @@ graph LR
 
 ## 3. Strongly-Typed Value Objects & Nullability Rules
 
-OmniDepot strictly avoids **Primitive Obsession** by encapsulating all domain identifiers and coordinates into strongly-typed Java 25 `record` Value Objects.
+The domain model avoids **Primitive Obsession** by encapsulating all domain identifiers and coordinates into strongly-typed Java 25 `record` Value Objects.
 
 ### A. Primitive Obsession Prevention
 Instead of passing raw `String` or `long` primitives across layers, encapsulate them into dedicated Value Objects that implement tagging interfaces:
@@ -197,7 +197,7 @@ Execute Liquibase changelog updates and rollback validations against the local d
 ---
 
 ### Step 4: Execute Local Verification Loops ($< 30\text{ s}$)
-To iterate fast without waiting for remote CI/CD, run the sub-30-second local verification loops enforced by `AGENTS.md`:
+To iterate fast without waiting for remote CI/CD, run the sub-30-second local verification loops enforced by [AGENTS.md](file:///home/developer/projects/OmniDepot/AGENTS.md):
 
 ```bash
 # 1. Compile & Fast Unit Tests (< 10 s)
@@ -239,16 +239,16 @@ To run the autonomous AI pair programmer equipped with all local credentials:
 
 ## 6. Key Repository Guidelines & Coding Standards
 
-* ** Strongly-Typed Domain Exceptions:** Never throw raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
-* ** 1-to-1 Target-Class Test Mapping:** Every production class must have a dedicated 1-to-1 unit test class (`<ClassName>Test.java`).
-* ** Pre-sized `StringBuilder` Capacity:** Hot-path URI/header formatting must allocate explicit capacity to eliminate dynamic array resizing.
-* ** Liquibase Migration Rollbacks:** Every database changeSet must define an explicit `<rollback>` block.
+* **Strongly-Typed Domain Exceptions:** Never throw raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
+* **1-to-1 Target-Class Test Mapping:** Every production class must have a dedicated 1-to-1 unit test class (`<ClassName>Test.java`).
+* **Pre-sized `StringBuilder` Capacity:** Hot-path URI/header formatting must allocate explicit capacity to eliminate dynamic array resizing.
+* **Liquibase Migration Rollbacks:** Every database changeSet must define an explicit `<rollback>` block.
 
 ---
 
 ## 7. Recommended Slash Commands & MCP Workflows for Refactoring
 
-When conducting extensive refactorings, multi-module domain model updates, or cross-cutting API changes across OmniDepot's 15 Maven reactor modules, pair programming with the AI harness is significantly enhanced by leveraging **Slash Commands** alongside the **`intellij` MCP Server**.
+When conducting extensive refactorings, multi-module domain model updates, or cross-cutting API changes across omnidepot's 15 Maven reactor modules, pair programming with the AI harness is significantly enhanced by leveraging **Slash Commands** alongside the **`intellij` MCP Server**.
 
 ### Recommended Slash Commands
 
@@ -267,4 +267,3 @@ The **`intellij` MCP server** (configured via direct SSE at `http://127.0.0.1:64
 2. **Call Hierarchy Analysis (`analyze_calls` & `search_symbol`)**: Safely traces upstream callers and downstream implementation dependencies before modifying core interfaces.
 3. **Real-time IDE Diagnostics (`get_file_problems` & `lint_files`)**: Instantly catches compilation errors and `@NullMarked` contract violations without waiting for full Maven reactor build cycles.
 4. **Automated Formatting (`reformat_file`)**: Enforces code style rules on all modified files.
-

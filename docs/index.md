@@ -1,14 +1,14 @@
-# OmniDepot Documentation
+# omnidepot Documentation
 
-Welcome to the **OmniDepot** documentation portal. OmniDepot is an open-source, high-performance polyglot package repository supporting **OCI Distribution**, **Maven/Gradle**, and **NPM** formats, designed as an **Evolutionary Modular Monolith** on **Java 25 LTS** and **Quarkus 3.37+**.
+Welcome to the **omnidepot** documentation portal. The omnidepot package repository is an open-source, high-performance polyglot package repository supporting **OCI Distribution**, **Maven/Gradle**, and **NPM** formats, designed as an **Evolutionary Modular Monolith** on **Java 25 LTS** and **Quarkus 3.37+**.
 
 ---
 
-## 📚 Documentation Sections
+## Documentation Sections
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────┐
-│                          OmniDepot Documentation                          │
+│                          omnidepot Documentation                          │
 └──────────────┬─────────────────────────────┬──────────────────────────────┘
                │                             │
   ┌────────────▼────────────┐   ┌────────────▼────────────┐   ┌─────────────▼────────────┐
@@ -21,18 +21,18 @@ Welcome to the **OmniDepot** documentation portal. OmniDepot is an open-source, 
   └─────────────────────────┘   └─────────────────────────┘   └──────────────────────────┘
 ```
 
-### [🛠️ Developer Onboarding & Environment Guide](developer-guide/index.md)
+### [Developer Onboarding & Environment Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/index.md)
 Complete step-by-step developer documentation for setting up a local development environment, starting Docker containers, running database migrations, executing fast local feedback loops, and running Quarkus live dev mode.
 
-### [🚀 User Documentation](user-guide/index.md)
-Instructions on installing, running, and configuring OmniDepot as a developer or administrator. Learn how to push and pull Docker/OCI images, publish Java Maven/Gradle artifacts, and host NPM packages.
+### [User Documentation](file:///home/developer/projects/OmniDepot/docs/user-guide/index.md)
+Instructions on installing, running, and configuring omnidepot as a developer or administrator. Learn how to push and pull Docker/OCI images, publish Java Maven/Gradle artifacts, and host NPM packages.
 
-### [🏛️ Architecture](architecture/index.md)
+### [Architecture](file:///home/developer/projects/OmniDepot/docs/architecture/index.md)
 Technical specifications detailing the Evolutionary Modular Monolith design, Hexagonal DDD SPI boundaries, Liquibase database migrations, and 31 Architectural Decision Records (ADRs).
 
 ---
 
-## ⚡ Key Highlights
+## Key Highlights
 
 - **Java 25 LTS:** Harnesses Virtual Threads, Records, Sealed Classes, and Pattern Matching.
 - **Polyglot Protocol Adapters:** Native support for OCI V2 (`/v2/`), Maven (`/maven/`), and NPM (`/npm/`).

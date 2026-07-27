@@ -4,7 +4,7 @@ OmniDepot supports three validated deployment matrix topologies ranging from loc
 
 ---
 
-## 🏗️ Supported Topologies
+## Supported Topologies
 
 | Topology | Database | Storage Backend | Identity / Auth | TLS Termination | Eventing |
 | :--- | :--- | :--- | :--- | :--- | :--- |

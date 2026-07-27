@@ -1,10 +1,10 @@
-# OmniDepot Core Architecture Invariants
+# omnidepot Core Architecture Invariants
 
 > **Master Architecture Reference:** Consult `PROJECT_CONTEXT.md` and `docs/architecture/adrs/index.md` (ADR-001 through ADR-031) for complete architectural context.
 
 ## 1. Domain & Boundary Protection (ADR-001, ADR-005, ADR-009)
-* **Format Isolation:** Format modules (`repo-format-*`) MUST depend ONLY on `repo-core-api`. They MUST NEVER import directly from `repo-storage-*`, `repo-infra-db-*`, or `repo-domain-iam`.
-* **Package Encapsulation:** Keep concrete SPI implementations `package-private`. Public visibility is strictly reserved for API interfaces in `repo-core-api`.
+* **Format Isolation:** Format modules (`omnidepot-format-*`) MUST depend ONLY on `omnidepot-core-api`. They MUST NEVER import directly from `omnidepot-storage-*`, `omnidepot-infra-db-*`, or `omnidepot-domain-iam`.
+* **Package Encapsulation:** Keep concrete SPI implementations `package-private`. Public visibility is strictly reserved for API interfaces in `omnidepot-core-api`.
 * **CDI Selection:** Select storage, database, or identity providers via `@LookupIfProperty` on `@ApplicationScoped` beans.
 * **Decoupled Health Probes (ADR-010):** Keep `/q/health/live` restricted to JVM deadlocks on management port `9000`. Database and S3 checks belong strictly in `/q/health/ready`.
 

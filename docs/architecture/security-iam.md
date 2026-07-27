@@ -4,7 +4,7 @@ OmniDepot provides identity management, authentication, and scoped token issuanc
 
 ---
 
-## 🔑 Core Interfaces
+## Core Interfaces
 
 ### `TokenBroker`
 ```java

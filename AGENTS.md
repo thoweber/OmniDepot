@@ -11,7 +11,7 @@
 * **Core Framework:** Quarkus 3.37.4 + Eclipse Vert.x (Non-blocking reactive streaming)
 * **Architecture Style:** Evolutionary Modular Monolith (15 Maven reactor modules under `io.omnidepot`)
 * **Databases:** PostgreSQL 16+ (Production / Clustered), Embedded H2 (Dev / Test)
-* **Database Migrations:** Liquibase dual-dialect XML changelogs (`repo-infra-db`)
+* **Database Migrations:** Liquibase dual-dialect XML changelogs (`omnidepot-infra-db`)
 * **Front-End:** Angular 18+ Standalone Components & Signals (`@omni-depot/ui`)
 * **Storage Provider:** Content-Addressable Storage (CAS) on AWS S3 / RustFS and Local Filesystem
 
@@ -55,9 +55,10 @@ All feature development, bug fixes, and protocol adapter additions MUST follow t
 ## 4. Autonomous Agent Directives
 
 1. **Never Guess Schemas or Paths:** Always inspect authoritative files (`pom.xml`, `config.json`, Liquibase XML, SPI interfaces) before generating code.
-2. **Strict Encapsulation:** Concrete implementations must remain `package-private`. Only interfaces in `repo-core-api` are `public`.
+2. **Strict Encapsulation:** Concrete implementations must remain `package-private`. Only interfaces in `omnidepot-core-api` are `public`.
 3. **Jakarta Validation & @NullMarked:** Enforce boundary checks using Jakarta Validation (`@NotNull`, `@NotBlank`, `@Valid`) at REST/Kafka/DB entrypoints. Never use `org.junit.jupiter.api.Assertions`. All production packages require `@NullMarked` in `package-info.java`.
 4. **Hermetic Testcontainers:** Integration tests (`*IT.java`) must bring up isolated containers (PostgreSQL 16, RustFS, Kafka) and tear down without leaving state side-effects.
 5. **Pipeline & DevOps Automation:** Whenever building or updating CI/CD build pipelines (`.github/workflows/*`), Dockerfiles (`src/main/docker/*`), Kubernetes manifests, or Helm charts, ALWAYS activate and adhere to the `devops-engineer` skill.
 6. **Mandatory SonarCloud Audit:** Before declaring completion on any feature, bug fix, or refactoring task, the agent MUST inspect SonarCloud for open code smells, bugs, or vulnerabilities via the `sonarcloud` MCP server (or `sonar-remediation` skill), ensuring zero open critical or major issues.
-7. **Mandatory Dual-Dialect Liquibase Validation:** Whenever creating or modifying any Liquibase XML changelog under `repo-infra-db/src/main/resources/db/changelog/`, the agent MUST execute dual-dialect validation across BOTH `h2` and `postgresql` 16+ using the `liquibaseValidator` MCP tool (or `node .agents/scripts/liquibase-validator-server.js`) and ensure 0 errors and successful rollback cycles before declaring completion.
+7. **Mandatory Dual-Dialect Liquibase Validation:** Whenever creating or modifying any Liquibase XML changelog under `omnidepot-infra-db/src/main/resources/db/changelog/`, the agent MUST execute dual-dialect validation across BOTH `h2` and `postgresql` 16+ using the `liquibaseValidator` MCP tool (or `node .agents/scripts/liquibase-validator-server.js`) and ensure 0 errors and successful rollback cycles before declaring completion.
+8. **Mandatory Global Writing Standards:** Whenever producing technical documentation (`/docs`), agent summaries, rule files, or pull request descriptions, the agent MUST strictly adhere to the global writing rules in [.agents/rules/04-writing-standards.md](file:///home/developer/projects/OmniDepot/.agents/rules/04-writing-standards.md) (concise GFM, active voice, mandatory `file://` scheme links, strategic GFM alerts, clean Mermaid diagrams, zero fluff, zero emojis except sparingly in root `README.md`, and 100% lowercase product branding `omnidepot`).

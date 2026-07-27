@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/omnidepot-agent-config.json",
   "project": {
-    "name": "OmniDepot",
+    "name": "omnidepot",
     "version": "1.0.0-SNAPSHOT",
     "javaVersion": "25",
     "quarkusVersion": "3.37.4",
@@ -15,20 +15,20 @@
     "localDevHost": "https://localhost:8443"
   },
   "modules": {
-    "coreApi": "repo-core-api",
-    "coreDomain": "repo-core-domain",
-    "storageApi": "repo-storage-api",
-    "storageFs": "repo-storage-fs",
-    "storageS3": "repo-storage-s3",
-    "infraDb": "repo-infra-db",
-    "infraOutbox": "repo-infra-outbox",
-    "domainIam": "repo-domain-iam",
-    "formatOci": "repo-format-oci",
-    "formatMaven": "repo-format-maven",
-    "formatNpm": "repo-format-npm",
-    "ui": "repo-ui",
-    "app": "repo-app",
-    "coverageReport": "repo-coverage-report"
+    "coreApi": "omnidepot-core-api",
+    "coreDomain": "omnidepot-core-domain",
+    "storageApi": "omnidepot-storage-api",
+    "storageFs": "omnidepot-storage-fs",
+    "storageS3": "omnidepot-storage-s3",
+    "infraDb": "omnidepot-infra-db",
+    "infraOutbox": "omnidepot-infra-outbox",
+    "domainIam": "omnidepot-domain-iam",
+    "formatOci": "omnidepot-format-oci",
+    "formatMaven": "omnidepot-format-maven",
+    "formatNpm": "omnidepot-format-npm",
+    "ui": "omnidepot-ui",
+    "app": "omnidepot-app",
+    "coverageReport": "omnidepot-coverage-report"
   },
   "qualityGoalsAndSLA": {
     "nativeMemoryIdleMb": 80,
@@ -48,7 +48,7 @@
     "productionDialect": "postgresql",
     "developmentDialect": "h2",
     "migrationEngine": "liquibase",
-    "changelogMasterPath": "repo-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
+    "changelogMasterPath": "omnidepot-infra-db/src/main/resources/db/changelog/db.changelog-master.xml"
   },
   "skills": {
     "securityAnalyst": ".agents/skills/security-analyst/SKILL.md",
