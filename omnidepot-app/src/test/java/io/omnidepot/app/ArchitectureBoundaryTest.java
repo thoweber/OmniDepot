@@ -47,7 +47,8 @@ class ArchitectureBoundaryTest {
                                 "io.smallrye..",
                                 "org.eclipse.microprofile..",
                                 "org.jspecify..",
-                                "org.projectlombok.."
+                                "org.projectlombok..",
+                                "com.fasterxml.."
                         )
                 )
                 .allowEmptyShould(true);
