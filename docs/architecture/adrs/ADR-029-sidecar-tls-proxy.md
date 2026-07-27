@@ -6,7 +6,7 @@
 Package CLIs enforce HTTPS by default, but managing TLS certificates inside application code adds unnecessary complexity and crypto overhead.
 
 ## Decision
-OmniDepot runs strictly as plain HTTP on port 8080 (and port 9000 for management). Production TLS termination is offloaded to external Ingress/Service Mesh infrastructure. Local development (`docker-compose.yml`) uses a lightweight Caddy reverse proxy sidecar paired with `mkcert` to serve locally trusted HTTPS on `https://localhost:8443`.
+omnidepot runs strictly as plain HTTP on port 8080 (and port 9000 for management). Production TLS termination is offloaded to external Ingress/Service Mesh infrastructure. Local development (`docker-compose.yml`) uses a lightweight Caddy reverse proxy sidecar paired with `mkcert` to serve locally trusted HTTPS on `https://localhost:8443`.
 
 ## Consequences
 

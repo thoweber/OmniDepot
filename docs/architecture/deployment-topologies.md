@@ -1,6 +1,6 @@
 # Deployment Topologies & Operational Matrix
 
-OmniDepot supports three validated deployment matrix topologies ranging from local developer setups to clustered high-availability enterprise environments (ADR-010, ADR-029, ADR-031).
+omnidepot supports three validated deployment matrix topologies ranging from local developer setups to clustered high-availability enterprise environments (ADR-010, ADR-029, ADR-031).
 
 ---
 

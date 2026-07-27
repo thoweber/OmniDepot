@@ -1,6 +1,6 @@
 ---
 name: frontend-engineer
-description: Front-end architecture, UI/UX design system, Angular Material 3 theming, component guidelines, and Storybook protocols for OmniDepot (@omni-depot/ui).
+description: Front-end architecture, UI/UX design system, Angular Material 3 theming, component guidelines, and Storybook protocols for omnidepot (@omni-depot/ui).
 version: 1.0.0
 tech_stack:
   framework: Angular (22+, Standalone, Signals)
@@ -10,15 +10,15 @@ tech_stack:
   styling: SCSS + M3 CSS Design Tokens
 ---
 
-# Front-End Architecture & Design System Skill: OmniDepot
+# Front-End Architecture & Design System Skill: omnidepot
 
-This document defines the core standards, visual identity, accessibility requirements, and component patterns for building the OmniDepot Angular Web UI and its shared presentation library.
+This document defines the core standards, visual identity, accessibility requirements, and component patterns for building the omnidepot Angular Web UI and its shared presentation library.
 
 ---
 
 ## 1. Visual Identity & Color Tokens
 
-OmniDepot uses a **dark-mode-first** visual identity designed for high-performance developer tools, paired with WCAG AA/AAA compliant light and high-contrast modes.
+omnidepot uses a **dark-mode-first** visual identity designed for high-performance developer tools, paired with WCAG AA/AAA compliant light and high-contrast modes.
 
 ### A. Color Palette Matrix
 

@@ -1,7 +1,7 @@
-site_name: OmniDepot Documentation
+site_name: omnidepot Documentation
 site_description: Polyglot Package Repository (OCI, Maven, NPM) - Evolutionary Modular Monolith
-site_author: OmniDepot Team
-repo_name: OmniDepot
+site_author: omnidepot Team
+repo_name: omnidepot
 repo_url: https://github.com/omnidepot/omnidepot
 
 theme:

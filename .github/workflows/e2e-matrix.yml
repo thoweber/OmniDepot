@@ -1,4 +1,4 @@
-name: OmniDepot 3x3 E2E Matrix Validation (Disabled)
+name: omnidepot 3x3 E2E Matrix Validation (Disabled)
 
 # Disabled for automated Push/PR runs - reserved for future manual/scheduled E2E matrix testing
 on:
@@ -38,7 +38,7 @@ jobs:
           docker compose up -d postgres rustfs
           docker compose exec -T postgres pg_isready -U omnidepot -d omnidepot || sleep 5
 
-      - name: Build OmniDepot Modular Monolith
+      - name: Build omnidepot Modular Monolith
         run: |
           ./mvnw clean package -DskipTests
 

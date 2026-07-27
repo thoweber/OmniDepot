@@ -35,8 +35,7 @@ The repository is structured as an **Evolutionary Modular Monolith** across **15
 
 ### Encapsulation & Visibility Invariants
 1. **Public API Surface:** Only interfaces, SPIs, tagging interfaces, and Value Objects in `omnidepot-core-api` are `public`.
-2. **Package-Private Implementations:** All concrete provider implementations (`FileSystemBlobStore`, `S3BlobStore`, `OciDistributionResource`, `MavenRepositoryResource`) **MUST** remain `package-private` to enforce compilation-level isolation (`ADR-004`).
-3. **Zero Circular Dependencies:** Protocol adapters (`omnidepot-format-*`) depend strictly on `omnidepot-core-api` and `omnidepot-storage-api`. They MUST NEVER import directly from concrete storage or DB modules.
+2. **Zero Circular Dependencies:** Protocol adapters (`omnidepot-format-*`) depend strictly on `omnidepot-core-api` and `omnidepot-storage-api`. They MUST NEVER import directly from concrete storage or DB modules.
 
 ---
 
@@ -71,19 +70,11 @@ Encapsulate all domain primitives into strongly-typed Java 25 `record` Value Obj
 * **`OciRepositoryName`**: Normalized, validated OCI namespace.
 
 ### B. Nullability Guardrails
-* **JSpecify `@NullMarked`:** All production packages require `@NullMarked` in `package-info.java`.
-* **Static Null Checks:** Never use raw `== null` or `!= null`. Statically import and use `isNull(val)` or `nonNull(val)`.
 * **No `null` Returns:** Query methods return `Optional<T>`. Collection methods return immutable empty collections (`List.of()`, `Set.of()`).
 
-### C. Functional Optional Chains over Ternary Branching
-Avoid ternary conditional branching (`a ? b : c`). Use functional `Optional` pipelines for parameter normalization and fallback handling (`Optional.ofNullable().filter().orElseThrow()`).
-
-### D. Zero Raw Exceptions Rule
-Prohibit throwing or catching raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
 
 ---
 
 ## 5. Architectural Quality Gates
 
 * **ArchUnit Boundary Enforcement:** Run `./mvnw test -Dtest=ArchitectureBoundaryTest` to verify zero visibility or layer boundary violations.
-* **1-to-1 Unit Test Coverage:** Every production class MUST have a corresponding unit test class (`<ClassName>Test.java`).

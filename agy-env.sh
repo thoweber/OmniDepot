@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OmniDepot AGY Launcher Script
+# omnidepot AGY Launcher Script
 # Automatically loads environment variables from agy.env and passes all arguments to agy
 
 set -euo pipefail

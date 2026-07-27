@@ -1,13 +1,13 @@
-# OmniDepot: Master System Architecture Context & Implementation Blueprint
+# omnidepot: Master System Architecture Context & Implementation Blueprint
 
 > **Notice for Antigravity CLI Agent:**
-> You are bootstrapping **OmniDepot**, an open-source polyglot package repository (OCI, Maven, NPM) designed as an Evolutionary Modular Monolith. Strictly adhere to the architecture, boundary rules, database conventions, and 31 Architectural Decision Records (ADRs) specified below.
+> You are bootstrapping **omnidepot**, an open-source polyglot package repository (OCI, Maven, NPM) designed as an Evolutionary Modular Monolith. Strictly adhere to the architecture, boundary rules, database conventions, and 31 Architectural Decision Records (ADRs) specified below.
 
 ---
 
 ## 1. System Identity & Core Tech Stack
 
-* **System Name:** OmniDepot
+* **System Name:** omnidepot
 * **Architecture Style:** Evolutionary Modular Monolith (Hexagonal DDD Boundaries)
 * **Java Version:** Java 25 LTS (Records, Sealed Classes, Pattern Matching, Virtual Threads)
 * **Core Framework:** Quarkus 3.x + Eclipse Vert.x (Non-blocking reactive streaming)

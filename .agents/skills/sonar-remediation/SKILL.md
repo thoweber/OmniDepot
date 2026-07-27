@@ -1,6 +1,6 @@
 ---
 name: sonar-remediation
-description: Static analysis audit and SonarQube / SonarScanner code smell remediation skill enforcing zero-bug, zero-vulnerability, and 80%+ branch coverage rules for OmniDepot.
+description: Static analysis audit and SonarQube / SonarScanner code smell remediation skill enforcing zero-bug, zero-vulnerability, and 80%+ branch coverage rules for omnidepot.
 version: 1.0.0
 ---
 
@@ -10,12 +10,6 @@ This skill governs static analysis checks, code smell remediation, security vuln
 
 ---
 
-## 1. Mandatory Task Workflow Directives
-
-* **Mandatory Pre-Completion Audit:** Before concluding any feature, bug fix, or refactoring task, the agent MUST inspect SonarCloud for open code smells, bugs, security hotspots, or Quality Gate regressions using the `sonarcloud` MCP server (or `./mvnw sonar:sonar`).
-* **Zero Open Regressions:** The agent MUST resolve any critical/major code smells or bugs introduced during the task before declaring completion.
-
----
 
 ## 2. Quality Gate Thresholds
 
@@ -48,15 +42,11 @@ Ensure all Netty `ByteBuf` streams and Vert.x file channels are closed or releas
 
 ---
 
-## 4. Local Execution & SonarCloud MCP Commands
+## 4. SonarCloud Execution Commands
 
 * **SonarCloud MCP Inspection (`sonarcloud` server in `.agents/config.json`):**
-  Uses `SONAR_TOKEN` environment variable to query open issues, security hotspots, and Quality Gate status directly for project `OmniDepot`.
-* **Run Spotless Auto-Formatter:**  
-  `./mvnw spotless:apply`
-* **Run Aggregated Coverage & Verification:**  
-  `./mvnw clean verify`
-* **Run SonarCloud Analysis:**  
+  Uses `SONAR_TOKEN` environment variable to query open issues, security hotspots, and Quality Gate status directly for project `omnidepot`.
+* **Run SonarCloud Analysis:**
   `./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true`
-* **Inspect Aggregated JaCoCo Report:**  
+* **Inspect Aggregated JaCoCo Report:**
   `repo-coverage-report/target/site/jacoco-aggregate/index.html`

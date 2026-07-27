@@ -1,6 +1,6 @@
 # Protocol Adapters & Wire Translators
 
-OmniDepot isolates protocol-specific wire formats from core storage and catalog domain models using dedicated Hexagonal Protocol Adapters (ADR-004, ADR-005).
+omnidepot isolates protocol-specific wire formats from core storage and catalog domain models using dedicated Hexagonal Protocol Adapters (ADR-004, ADR-005).
 
 ---
 

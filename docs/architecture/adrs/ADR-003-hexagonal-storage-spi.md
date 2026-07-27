@@ -3,7 +3,7 @@
 * **Status:** Accepted
 
 ## Context
-OmniDepot must support multiple storage backends (AWS S3, RustFS, Local File System) and database engines (PostgreSQL 16+, H2) without coupling domain logic to specific cloud SDKs or drivers.
+omnidepot must support multiple storage backends (AWS S3, RustFS, Local File System) and database engines (PostgreSQL 16+, H2) without coupling domain logic to specific cloud SDKs or drivers.
 
 ## Decision
 Define decoupled Service Provider Interfaces (SPIs)—`BlobStore` and `UploadSessionRepository`—in `repo-core-api`. Implement storage backends in dedicated modules (`repo-storage-s3`, `repo-storage-fs`) selected dynamically at boot via Quarkus `@LookupIfProperty`.

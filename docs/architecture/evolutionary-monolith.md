@@ -1,6 +1,6 @@
 # Evolutionary Modular Monolith Design
 
-OmniDepot follows the **Evolutionary Modular Monolith** pattern. This architecture balances high developer velocity and zero-network-latency inter-module calls with clear physical boundaries that allow extracting microservices if future scale requires it.
+omnidepot follows the **Evolutionary Modular Monolith** pattern. This architecture balances high developer velocity and zero-network-latency inter-module calls with clear physical boundaries that allow extracting microservices if future scale requires it.
 
 ---
 

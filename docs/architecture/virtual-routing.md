@@ -1,6 +1,6 @@
 # Virtual Repositories & Precedence Routing
 
-OmniDepot allows aggregating multiple hosted and proxy repositories into unified virtual endpoints (`VirtualRepository`) with prioritized resolution rules (ADR-024, ADR-027).
+omnidepot allows aggregating multiple hosted and proxy repositories into unified virtual endpoints (`VirtualRepository`) with prioritized resolution rules (ADR-024, ADR-027).
 
 ---
 

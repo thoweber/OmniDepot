@@ -1,6 +1,6 @@
 # Security & IAM SPI
 
-OmniDepot provides identity management, authentication, and scoped token issuance via the core `TokenBroker` SPI.
+omnidepot provides identity management, authentication, and scoped token issuance via the core `TokenBroker` SPI.
 
 ---
 

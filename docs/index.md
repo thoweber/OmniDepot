@@ -21,13 +21,13 @@ Welcome to the **omnidepot** documentation portal. The omnidepot package reposit
   └─────────────────────────┘   └─────────────────────────┘   └──────────────────────────┘
 ```
 
-### [Developer Onboarding & Environment Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/index.md)
-Complete step-by-step developer documentation for setting up a local development environment, starting Docker containers, running database migrations, executing fast local feedback loops, and running Quarkus live dev mode. Also includes the [Story Creation Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/story-creation-workflow.md) and [Autonomous AI Story Execution Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/ai-story-workflow.md) for processing stories with `/goal`.
+### [Developer Onboarding & Environment Guide](file:///home/developer/projects/omnidepot/docs/developer-guide/index.md)
+Complete step-by-step developer documentation for setting up a local development environment, starting Docker containers, running database migrations, executing fast local feedback loops, and running Quarkus live dev mode. Also includes the [Story Creation Workflow Guide](file:///home/developer/projects/omnidepot/docs/developer-guide/story-creation-workflow.md) and [Autonomous AI Story Execution Workflow Guide](file:///home/developer/projects/omnidepot/docs/developer-guide/ai-story-workflow.md) for processing stories with `/goal`.
 
-### [User Documentation](file:///home/developer/projects/OmniDepot/docs/user-guide/index.md)
+### [User Documentation](file:///home/developer/projects/omnidepot/docs/user-guide/index.md)
 Instructions on installing, running, and configuring omnidepot as a developer or administrator. Learn how to push and pull Docker/OCI images, publish Java Maven/Gradle artifacts, and host NPM packages.
 
-### [Architecture](file:///home/developer/projects/OmniDepot/docs/architecture/index.md)
+### [Architecture](file:///home/developer/projects/omnidepot/docs/architecture/index.md)
 Technical specifications detailing the Evolutionary Modular Monolith design, Hexagonal DDD SPI boundaries, Liquibase database migrations, and 31 Architectural Decision Records (ADRs).
 
 ---

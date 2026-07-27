@@ -11,19 +11,19 @@ This skill governs the authoring, refinement, and validation of feature story de
 
 ## 1. Mandatory Persona Linking & Formatting Invariant Rule
 
-Whenever referencing any stakeholder persona in user stories, issue descriptions, architectural requirements, or agent communications, the reference **MUST** be formatted as **`[Name (Role)]`** and hyperlinked directly to its official definition in [stakeholders-personas.md](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md) on its **very first mention** in the document or response.
+Whenever referencing any stakeholder persona in user stories, issue descriptions, architectural requirements, or agent communications, the reference **MUST** be formatted as **`[Name (Role)]`** and hyperlinked directly to its official definition in [stakeholders-personas.md](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md) on its **very first mention** in the document or response.
 
 ### Canonical Persona Link Matrix
 
 | Stakeholder Persona | Official Role | Clickable `file://` Persona Reference Link |
 | :--- | :--- | :--- |
-| **Mateo Rossi** | Senior Full-Stack Developer | [Mateo Rossi (Senior Full-Stack Developer)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-1-mateo-rossi--senior-full-stack-developer) |
-| **Sven Lindqvist** | Senior SRE & Platform Lead | [Sven Lindqvist (Senior SRE & Platform Lead)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-2-sven-lindqvist--senior-sre--platform-lead) |
-| **Elena Rostova** | Lead DevSecOps & Security Auditor | [Elena Rostova (Lead DevSecOps & Security Auditor)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-3-elena-rostova--lead-devsecops--security-auditor) |
-| **Priya Sharma** | Cloud FinOps Lead | [Priya Sharma (Cloud FinOps Lead)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-4-priya-sharma--cloud-finops-lead) |
-| **Dr. Marcus Vance** | Enterprise CTO & Principal Architect | [Dr. Marcus Vance (Enterprise CTO & Principal Architect)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-5-dr-marcus-vance--enterprise-cto--principal-architect) |
-| **Thomas Dubois** | OSPO Lead & Legal Counsel | [Thomas Dubois (OSPO Lead & Legal Counsel)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-6-thomas-dubois--ospo-lead--legal-counsel) |
-| **Alex Mercer** | Third-Party SPI Extension Developer | [Alex Mercer (Third-Party SPI Extension Developer)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-7-alex-mercer--third-party-spi-extension-developer) |
+| **Mateo Rossi** | Senior Full-Stack Developer | [Mateo Rossi (Senior Full-Stack Developer)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-1-mateo-rossi--senior-full-stack-developer) |
+| **Sven Lindqvist** | Senior SRE & Platform Lead | [Sven Lindqvist (Senior SRE & Platform Lead)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-2-sven-lindqvist--senior-sre--platform-lead) |
+| **Elena Rostova** | Lead DevSecOps & Security Auditor | [Elena Rostova (Lead DevSecOps & Security Auditor)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-3-elena-rostova--lead-devsecops--security-auditor) |
+| **Priya Sharma** | Cloud FinOps Lead | [Priya Sharma (Cloud FinOps Lead)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-4-priya-sharma--cloud-finops-lead) |
+| **Dr. Marcus Vance** | Enterprise CTO & Principal Architect | [Dr. Marcus Vance (Enterprise CTO & Principal Architect)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-5-dr-marcus-vance--enterprise-cto--principal-architect) |
+| **Thomas Dubois** | OSPO Lead & Legal Counsel | [Thomas Dubois (OSPO Lead & Legal Counsel)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-6-thomas-dubois--ospo-lead--legal-counsel) |
+| **Alex Mercer** | Third-Party SPI Extension Developer | [Alex Mercer (Third-Party SPI Extension Developer)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-7-alex-mercer--third-party-spi-extension-developer) |
 
 ---
 
@@ -48,7 +48,7 @@ Every story definition authored under the `product-owner` skill MUST adhere to t
 > Architectural decision records: <ADR-IDs>. Primary modules: `omnidepot-<module>`.
 
 #### User Story
-As **[<Persona Name> (<Role>)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#<fragment>)**, I want **omnidepot** to <capability>, so that <business value / objective>.
+As **[<Persona Name> (<Role>)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#<fragment>)**, I want **omnidepot** to <capability>, so that <business value / objective>.
 
 #### Product Goal Contribution
 - **Master Goal Alignment:** <How this story directly advances polyglot registry capabilities, storage efficiency, or architecture goals>.
@@ -81,8 +81,4 @@ As **[<Persona Name> (<Role>)](file:///home/developer/projects/OmniDepot/docs/ar
 
 ## 4. Global Writing Standards Alignment
 
-All story definitions authored by the `product-owner` skill MUST strictly comply with [.agents/rules/04-writing-standards.md](file:///home/developer/projects/OmniDepot/.agents/rules/04-writing-standards.md):
-1. **100% Lowercase Product Branding:** The product name is strictly `omnidepot` (never capitalized).
-2. **Zero Emojis:** Emojis are strictly prohibited in technical documentation, story definitions, commit messages, and agent responses.
-3. **Active Voice & GFM Formatting:** Clear, active voice sentences and standard GitHub-Flavored Markdown.
-4. **Draft Markdown Cleanup:** Once an issue is published on GitHub, delete the local draft markdown file under `docs/architecture/stories/` so GitHub issues remain the single source of truth.
+All story definitions MUST comply with [04-writing-standards.md](file:///home/developer/projects/OmniDepot/.agents/rules/04-writing-standards.md). Additionally: once an issue is published on GitHub, delete the local draft markdown file under `docs/architecture/stories/` — GitHub issues are the single source of truth.

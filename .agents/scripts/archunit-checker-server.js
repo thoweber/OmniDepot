@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * OmniDepot ArchUnit Checker MCP Server
+ * omnidepot ArchUnit Checker MCP Server
  * Model Context Protocol (MCP) server wrapping ArchUnit boundary verification via Maven.
  */
 

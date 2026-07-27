@@ -1,6 +1,6 @@
 # Data Model & Liquibase Dialect Isolation
 
-OmniDepot manages relational database schemas using **Liquibase** (`quarkus-liquibase`), supporting both production-grade PostgreSQL 16+ and embedded H2 test databases.
+omnidepot manages relational database schemas using **Liquibase** (`quarkus-liquibase`), supporting both production-grade PostgreSQL 16+ and embedded H2 test databases.
 
 ---
 

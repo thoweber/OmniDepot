@@ -1,7 +1,7 @@
-# OmniDepot: Repository Agent Guidelines & Autonomous Guardrails
+# omnidepot: Repository Agent Guidelines & Autonomous Guardrails
 
 > **Notice for Antigravity CLI Agent (`agy`):**
-> This file defines non-negotiable repository guardrails, local feedback verification loops, and the mandatory Test-Driven Development (TDD) execution protocol for autonomous multi-file development in OmniDepot.
+> This file defines non-negotiable repository guardrails, local feedback verification loops, and the mandatory Test-Driven Development (TDD) execution protocol for autonomous multi-file development in omnidepot.
 
 ---
 
@@ -12,7 +12,7 @@
 * **Architecture Style:** Evolutionary Modular Monolith (15 Maven reactor modules under `io.omnidepot`)
 * **Databases:** PostgreSQL 16+ (Production / Clustered), Embedded H2 (Dev / Test)
 * **Database Migrations:** Liquibase dual-dialect XML changelogs (`omnidepot-infra-db`)
-* **Front-End:** Angular 18+ Standalone Components & Signals (`@omni-depot/ui`)
+* **Front-End:** Angular 22+ Standalone Components & Signals (`@omni-depot/ui`)
 * **Storage Provider:** Content-Addressable Storage (CAS) on AWS S3 / RustFS and Local Filesystem
 
 ---
@@ -56,15 +56,15 @@ All feature development, bug fixes, and protocol adapter additions MUST follow t
 
 1. **Never Guess Schemas or Paths:** Always inspect authoritative files (`pom.xml`, `config.json`, Liquibase XML, SPI interfaces) before generating code.
 2. **Strict Encapsulation:** Concrete implementations must remain `package-private`. Only interfaces in `omnidepot-core-api` are `public`.
-3. **Jakarta Validation & @NullMarked:** Enforce boundary checks using Jakarta Validation (`@NotNull`, `@NotBlank`, `@Valid`) at REST/Kafka/DB entrypoints. Never use `org.junit.jupiter.api.Assertions`. All production packages require `@NullMarked` in `package-info.java`.
+3. **Jakarta Validation at Boundaries:** Enforce `@NotNull`, `@NotBlank`, `@Valid` at all REST/Kafka/DB entrypoints. Internal domain code assumes non-null inside `@NullMarked` packages.
 4. **Hermetic Testcontainers:** Integration tests (`*IT.java`) must bring up isolated containers (PostgreSQL 16, RustFS, Kafka) and tear down without leaving state side-effects.
 5. **Pipeline & DevOps Automation:** Whenever building or updating CI/CD build pipelines (`.github/workflows/*`), Dockerfiles (`src/main/docker/*`), Kubernetes manifests, or Helm charts, ALWAYS activate and adhere to the `devops-engineer` skill.
-6. **Mandatory SonarCloud Audit:** Before declaring completion on any feature, bug fix, or refactoring task, the agent MUST inspect SonarCloud for open code smells, bugs, or vulnerabilities via the `sonarcloud` MCP server (or `sonar-remediation` skill), ensuring zero open critical or major issues.
-7. **Mandatory Dual-Dialect Liquibase Validation:** Whenever creating or modifying any Liquibase XML changelog under `omnidepot-infra-db/src/main/resources/db/changelog/`, the agent MUST execute dual-dialect validation across BOTH `h2` and `postgresql` 16+ using the `liquibaseValidator` MCP tool (or `node .agents/scripts/liquibase-validator-server.js`) and ensure 0 errors and successful rollback cycles before declaring completion.
-8. **Mandatory Global Writing Standards:** Whenever producing technical documentation (`/docs`), agent summaries, rule files, or pull request descriptions, the agent MUST strictly adhere to the global writing rules in [.agents/rules/04-writing-standards.md](file:///home/developer/projects/OmniDepot/.agents/rules/04-writing-standards.md) (concise GFM, active voice, mandatory `file://` scheme links, strategic GFM alerts, clean Mermaid diagrams, zero fluff, zero emojis except sparingly in root `README.md`, and 100% lowercase product branding `omnidepot`).
-9. **Mandatory Test-Manager Protocol Verification Breakdown:** Whenever planning new feature stories, protocol adapters, or story definitions, the agent MUST activate the `test-manager` skill and provide explicit Level 1 (In-Memory Unit & Adapter Snapshot), Level 2 (API Contract & Schema Fuzzing), and Level 3 (Black-Box E2E Native CLI via Testcontainers) test scenario specifications where applicable.
-10. **Mandatory Persona Traceability & Value Generation Rules:** Whenever authoring story definitions, user stories, or architecture context, the agent MUST activate the `product-owner` skill, format persona references on first mention as `[Name (Role)]` hyperlinked directly to [docs/architecture/stakeholders-personas.md](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md), and explicitly include **Product Goal Contribution** and **Value Generation** sections.
-11. **Mandatory Lead-Architect Design & Coding Governance:** Whenever planning new feature stories, designing features, writing domain code, or refactoring modules, the agent MUST activate the `lead-architect` skill and enforce Hexagonal DDD isolation, SOLID/CUPID principles, strongly-typed Value Objects (preventing primitive obsession), JSpecify `@NullMarked` nullability rules, static `isNull()` / `nonNull()` checks, and zero raw exception handling.
+6. **SonarCloud Audit:** Before declaring any task complete, query the `sonarcloud` MCP server and resolve all critical/major issues.
+7. **Liquibase Dual-Dialect Validation:** Whenever modifying any changelog under `omnidepot-infra-db/src/main/resources/db/changelog/`, validate via the `liquibaseValidator` MCP tool across both `h2` and `postgresql`. Zero errors and successful rollbacks required.
+8. **Global Writing Standards:** All docs, PR descriptions, and agent summaries MUST comply with [04-writing-standards.md](file:///home/developer/projects/OmniDepot/.agents/rules/04-writing-standards.md).
+9. **Test Strategy Planning:** Whenever planning feature stories or adapters, activate the `test-manager` skill. Provide L1 (unit/snapshot) and L2 (API contract) specs for all stories; L3 (native CLI via Testcontainers) only for protocol-facing stories or adapter changes.
+10. **Mandatory Persona Traceability & Value Generation Rules:** Whenever authoring story definitions, user stories, or architecture context, the agent MUST activate the `product-owner` skill, format persona references on first mention as `[Name (Role)]`, and explicitly include **Product Goal Contribution** and **Value Generation** sections for user stories describing new feature blocks.
+11. **Lead-Architect Governance:** Whenever planning, designing, or writing domain code, activate the `lead-architect` skill.
 12. **Mandatory GitHub Sub-Issue Tracking:** Whenever executing story goals with `/goal`, the agent MUST decompose multi-step story tasks into explicit GitHub **sub-issues** with meaningful descriptions (specifying target sub-module `omnidepot-*`, scope, and acceptance criteria), track execution progress, and close sub-issues with test evidence before closing the parent story issue.
 13. **Mandatory Feature Branch Naming Pattern:** Whenever processing a feature story or issue, the agent MUST create and execute work on a dedicated Git feature branch following the exact pattern `feature/STORY-XXX-short-description-not-too-long` (e.g. `feature/STORY-002-oci-manifest-ingestion`). Direct commits to `main` during feature story execution are strictly forbidden.
 14. **Mandatory GitHub CLI (`gh`) Environment Assumption:** Whenever executing `gh` CLI commands, the agent MUST ALWAYS assume `GITHUB_TOKEN` is already present in the execution environment and MUST NOT prepend inline token assignments (`GITHUB_TOKEN=` or `GH_TOKEN=`) to command lines.

@@ -3,7 +3,7 @@
 * **Status:** Accepted
 
 ## Context
-OmniDepot supports embedded H2 for local dev and PostgreSQL 16+ for enterprise production. Database migrations must support dialect-specific features (e.g., PostgreSQL GIN indexes, JSONB) without duplicating migration files.
+omnidepot supports embedded H2 for local dev and PostgreSQL 16+ for enterprise production. Database migrations must support dialect-specific features (e.g., PostgreSQL GIN indexes, JSONB) without duplicating migration files.
 
 ## Decision
 Adopt Liquibase (`quarkus-liquibase`) using a master changelog structure (`db.changelog-master.xml`). Use standard Liquibase change types for ANSI SQL, and isolate dialect-specific SQL using the `dbms="postgresql"` and `dbms="h2"` attributes within the same changelog.

@@ -1,4 +1,4 @@
-name: OmniDepot CI & SonarCloud Pipeline
+name: omnidepot CI & SonarCloud Pipeline
 
 on:
   push:

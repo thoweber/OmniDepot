@@ -1,4 +1,4 @@
-# OmniDepot Quality Goals & SLA Enforcement
+# omnidepot Quality Goals & SLA Enforcement
 
 > All numerical SLA thresholds are configured strictly in `.agents/config.json` under `qualityGoalsAndSLA`.
 

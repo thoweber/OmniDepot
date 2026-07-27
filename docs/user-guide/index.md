@@ -6,10 +6,10 @@ Welcome to the omnidepot user guide. This section provides step-by-step instruct
 
 ## Topics Covered
 
-- **[Getting Started](file:///home/developer/projects/OmniDepot/docs/user-guide/getting-started.md):** Prerequisites, Docker Compose startup, RustFS S3 configuration, and Caddy TLS proxy setup.
-- **[OCI V2 Distribution Registry](file:///home/developer/projects/OmniDepot/docs/user-guide/oci-distribution.md):** Pushing and pulling container images using `docker`, `podman`, or `nerdctl`.
-- **[Maven / Gradle Repository](file:///home/developer/projects/OmniDepot/docs/user-guide/maven-repository.md):** Deploying and resolving JARs, POMs, and checksums (`.sha1`, `.sha256`, `.md5`) with Apache Maven or Gradle.
-- **[NPM Registry](file:///home/developer/projects/OmniDepot/docs/user-guide/npm-registry.md):** Publishing and downloading Node.js tarballs and package metadata using `npm` or `yarn`.
+- **[Getting Started](file:///home/developer/projects/omnidepot/docs/user-guide/getting-started.md):** Prerequisites, Docker Compose startup, RustFS S3 configuration, and Caddy TLS proxy setup.
+- **[OCI V2 Distribution Registry](file:///home/developer/projects/omnidepot/docs/user-guide/oci-distribution.md):** Pushing and pulling container images using `docker`, `podman`, or `nerdctl`.
+- **[Maven / Gradle Repository](file:///home/developer/projects/omnidepot/docs/user-guide/maven-repository.md):** Deploying and resolving JARs, POMs, and checksums (`.sha1`, `.sha256`, `.md5`) with Apache Maven or Gradle.
+- **[NPM Registry](file:///home/developer/projects/omnidepot/docs/user-guide/npm-registry.md):** Publishing and downloading Node.js tarballs and package metadata using `npm` or `yarn`.
 
 ---
 

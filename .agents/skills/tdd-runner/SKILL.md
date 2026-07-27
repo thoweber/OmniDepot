@@ -1,6 +1,6 @@
 ---
 name: tdd-runner
-description: Autonomous Test-Driven Development (TDD) execution skill enforcing the Red-Green-Refactor loop, AssertJ rules, and sub-30-second local feedback loops for OmniDepot.
+description: Autonomous Test-Driven Development (TDD) execution skill enforcing the Red-Green-Refactor loop, AssertJ rules, and sub-30-second local feedback loops for omnidepot.
 version: 1.0.0
 ---
 
@@ -39,19 +39,8 @@ This skill governs the autonomous TDD execution flow within `antigravity-cli` (`
 
 ---
 
-## 2. Assertion & Verification Rules
+## 2. Hermetic Execution
 
-* **AssertJ Exclusive:** Only use `org.assertj.core.api.Assertions.assertThat`. Standard JUnit assertions (`org.junit.jupiter.api.Assertions`) are strictly forbidden and blocked by ArchUnit.
-* **Given-When-Then Naming:** Every test method must be annotated with `@DisplayName("Given [precondition] - when [action] - then [expected outcome]")`.
 * **Zero Flakiness:** Tests must be hermetic and repeatable without depending on thread execution order or random ports.
 
----
 
-## 3. Fast Verification Commands
-
-* **Single Test Class ($< 5\text{ s}$):**  
-  `./mvnw test -Dtest=MyTargetTest`
-* **Unit Tests Suite ($< 10\text{ s}$):**  
-  `./mvnw test -Dtest=*Test`
-* **Architecture Boundary Audit ($< 5\text{ s}$):**  
-  `./mvnw test -Dtest=ArchitectureBoundaryTest`

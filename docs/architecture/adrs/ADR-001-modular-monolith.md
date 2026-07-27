@@ -3,10 +3,10 @@
 * **Status:** Accepted
 
 ## Context
-OmniDepot requires high development velocity without the operational overhead of microservices, while preserving a clear extraction path if specific domain components scale independently.
+omnidepot requires high development velocity without the operational overhead of microservices, while preserving a clear extraction path if specific domain components scale independently.
 
 ## Decision
-Build OmniDepot as a Modular Monolith inside a single deployment container, strictly enforcing Hexagonal Bounded Context boundaries via Maven multi-module isolation (`repo-core-api`, `repo-core-domain`, `repo-storage-*`, `repo-infra-*`, `repo-format-*`).
+Build omnidepot as a Modular Monolith inside a single deployment container, strictly enforcing Hexagonal Bounded Context boundaries via Maven multi-module isolation (`repo-core-api`, `repo-core-domain`, `repo-storage-*`, `repo-infra-*`, `repo-format-*`).
 
 ## Consequences
 

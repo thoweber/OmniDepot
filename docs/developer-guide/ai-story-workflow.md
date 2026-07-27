@@ -9,7 +9,7 @@
 ## 1. Overview & Execution Philosophy
 
 The development lifecycle in **omnidepot** is split into two distinct workflows:
-1. **Workflow 1: [Story Creation & Refinement Workflow](file:///home/developer/projects/OmniDepot/docs/developer-guide/story-creation-workflow.md)** — Interactive authoring, lead architect auditing, test strategy breakdown, and GitHub issue publication.
+1. **Workflow 1: [Story Creation & Refinement Workflow](file:///home/developer/projects/omnidepot/docs/developer-guide/story-creation-workflow.md)** — Interactive authoring, lead architect auditing, test strategy breakdown, and GitHub issue publication.
 2. **Workflow 2: Autonomous AI Story Execution Workflow (`/goal`)** — Autonomous execution of published GitHub issues using the `/goal` slash command.
 
 When a published GitHub issue is assigned to the autonomous AI harness using `/goal` (e.g., `/goal Implement issue #4`), the agent operates autonomously through 6 structured phases to fetch the story from GitHub, decompose story tasks into tracked GitHub sub-issues, execute TDD development, verify boundaries, run tests, and close the sub-issues and parent issue.

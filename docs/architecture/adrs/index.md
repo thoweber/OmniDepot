@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADRs)
 
-OmniDepot captures critical architectural decisions using Architectural Decision Records (ADRs). Below is the complete catalog of all 31 ADRs governing the system's core architecture, storage, security, database migration, user interface, and operational pipeline.
+omnidepot captures critical architectural decisions using Architectural Decision Records (ADRs). Below is the complete catalog of all 31 ADRs governing the system's core architecture, storage, security, database migration, user interface, and operational pipeline.
 
 ---
 

@@ -1,6 +1,6 @@
 # Storage Context & Content-Addressable Storage (CAS)
 
-OmniDepot utilizes a pure **Content-Addressable Storage (CAS)** model for all binary artifact payloads across all supported formats (OCI, Maven, NPM).
+omnidepot utilizes a pure **Content-Addressable Storage (CAS)** model for all binary artifact payloads across all supported formats (OCI, Maven, NPM).
 
 ---
 

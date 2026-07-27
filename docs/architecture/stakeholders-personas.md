@@ -1,13 +1,13 @@
-# OmniDepot: Stakeholder Matrix & Persona Context Specification
+# omnidepot: Stakeholder Matrix & Persona Context Specification
 
-> **Master Specification for OmniDepot Architecture & Development**
-> This document defines the complete stakeholder landscape, Mendelow Power-Interest Matrix, persona profiles, and persona-driven acceptance criteria for **OmniDepot**. Use this specification during code generation, API design, UI/UX implementation, and test suite generation to ensure all technical decisions align with stakeholder requirements and SLAs.
+> **Master Specification for omnidepot Architecture & Development**
+> This document defines the complete stakeholder landscape, Mendelow Power-Interest Matrix, persona profiles, and persona-driven acceptance criteria for **omnidepot**. Use this specification during code generation, API design, UI/UX implementation, and test suite generation to ensure all technical decisions align with stakeholder requirements and SLAs.
 
 ---
 
 ## 1. Stakeholder Classification & Ecosystem Map
 
-OmniDepot serves five distinct stakeholder groups spanning internal development teams, platform operations, enterprise executive leadership, cloud cost management, and the broader open-source ecosystem.
+omnidepot serves five distinct stakeholder groups spanning internal development teams, platform operations, enterprise executive leadership, cloud cost management, and the broader open-source ecosystem.
 
 ```text
                                OMNIDEPOT STAKEHOLDER ECOSYSTEM
@@ -82,7 +82,7 @@ Stakeholders are mapped according to their **Influence (Power)** over system dec
   - Friction when Docker CLI fails locally due to plain HTTP / SSL handshake errors.
   - Cluttered management web UIs that force tedious mouse clicking to find a package.
 - **Core Requirements:**
-  1. **Zero-Auth Local Mode (`repo.auth.mode=disabled`):** Boots OmniDepot locally without configuring OAuth or LDAP.
+  1. **Zero-Auth Local Mode (`repo.auth.mode=disabled`):** Boots omnidepot locally without configuring OAuth or LDAP.
   2. **Sub-100ms Command Palette (`Cmd+K`):** Keyboard-driven global search across all repositories, tags, and settings.
   3. **Local Dev TLS Proxy:** Works out of the box with `docker-compose` and `mkcert` (`https://localhost:8443`) without modifying `/etc/docker/daemon.json` or adding `insecure-registries` flags.
 - **Key ADR Alignment:** ADR-011, ADR-014, ADR-021, ADR-023, ADR-028, ADR-029.

@@ -1,4 +1,4 @@
-# OmniDepot Coding Standards & Patterns
+# omnidepot Coding Standards & Patterns
 
 ## 1. Java 25 & Quarkus Conventions
 * Use modern Java 25 constructs: `record` for immutable DTOs/Value Objects, pattern matching in `switch` expressions, and `sealed` interfaces for domain events.
@@ -10,7 +10,6 @@
 * **Manual Null Checks:** Use `isNull(val)` or `nonNull(val)` with static imports (`import static java.util.Objects.isNull; import static java.util.Objects.nonNull;`) for manual null checks (never raw `== null` or `!= null`).
 * **Optional Return Types:** Use `Optional<T>` for any query or getter method return type that may not produce a value.
 * **Empty Collections:** Never return `null` for collection return types — always return an immutable empty collection (`List.of()`, `Set.of()`, `Map.of()`).
-* **Functional Optional Chains over Ternaries:** Avoid ternary operators (`a ? b : c`) whenever possible. Prefer functional `Optional` chains (`Optional.ofNullable(val).map(...).orElse(...)`) for parameter normalization and default fallbacks.
 
 ## 3. Strongly-Typed Domain Exceptions (ADR-005, ADR-008)
 * **No Raw Exception / RuntimeException:** Production code MUST NEVER throw raw `RuntimeException` or `Exception`. Always throw domain-appropriate, strongly-typed exception classes (`StorageException`, `BlobWriteException`, `OciProtocolException`).
@@ -32,7 +31,7 @@
 * Normalize data first (lowercase, canonicalize paths, strip prefixes) before validation. Discard unnormalized inputs in favor of normalized representations.
 * Internal domain methods within `@NullMarked` packages assume non-null parameters and MUST NOT pollute domain logic with redundant defensive null checks.
 
-## 7. Angular 17+ Signals & Material Design 3 (ADR-011-014)
+## 7. Angular 22+ Signals & Material Design 3 (ADR-011-014)
 * Use fine-grained Angular `signal()`, `computed()`, and `effect()` primitives for UI state. Avoid legacy RxJS `BehaviorSubject` where signals suffice.
 * Presentational components must receive input via `input()` signals and emit changes via `output()` events, maintaining zero HTTP dependencies.
 * Style UI components using Material Design 3 design tokens meeting WCAG AA accessibility contrast standards.

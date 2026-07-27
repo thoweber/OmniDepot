@@ -158,8 +158,8 @@ Ensure the following tools are installed on your workstation prior to setting up
 Clone the repository and instantiate your local environment credentials file (`agy.env`):
 
 ```bash
-git clone https://github.com/thoweber/OmniDepot.git
-cd OmniDepot
+git clone https://github.com/thoweber/omnidepot.git
+cd omnidepot
 
 # Copy example environment configuration to agy.env
 cp agy.env.example agy.env
@@ -197,7 +197,7 @@ Execute Liquibase changelog updates and rollback validations against the local d
 ---
 
 ### Step 4: Execute Local Verification Loops ($< 30\text{ s}$)
-To iterate fast without waiting for remote CI/CD, run the sub-30-second local verification loops enforced by [AGENTS.md](file:///home/developer/projects/OmniDepot/AGENTS.md):
+To iterate fast without waiting for remote CI/CD, run the sub-30-second local verification loops enforced by [AGENTS.md](file:///home/developer/projects/omnidepot/AGENTS.md):
 
 ```bash
 # 1. Compile & Fast Unit Tests (< 10 s)
@@ -272,5 +272,5 @@ The **`intellij` MCP server** (configured via direct SSE at `http://127.0.0.1:64
 ## 8. AI Development Workflows & Governance
 
 For step-by-step guidance on authoring stories and executing autonomous goal tasks, see the dedicated workflow guides:
-* **Workflow 1:** [Story Creation & Refinement Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/story-creation-workflow.md) — Authoring, lead architect auditing, persona linking, test strategy breakdown, and GitHub issue creation.
-* **Workflow 2:** [Autonomous AI Story Execution Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/ai-story-workflow.md) — Autonomous execution of published GitHub issues using the `/goal` slash command.
+* **Workflow 1:** [Story Creation & Refinement Workflow Guide](file:///home/developer/projects/omnidepot/docs/developer-guide/story-creation-workflow.md) — Authoring, lead architect auditing, persona linking, test strategy breakdown, and GitHub issue creation.
+* **Workflow 2:** [Autonomous AI Story Execution Workflow Guide](file:///home/developer/projects/omnidepot/docs/developer-guide/ai-story-workflow.md) — Autonomous execution of published GitHub issues using the `/goal` slash command.

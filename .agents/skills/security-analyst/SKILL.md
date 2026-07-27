@@ -1,19 +1,18 @@
 ---
 name: security-analyst
-description: Security analysis, secure data handling, input normalization before validation, zero-trust boundary validation via Jakarta Validation, JWT token security, and OWASP compliance for OmniDepot.
+description: Security analysis, secure data handling, input normalization before validation, zero-trust boundary validation via Jakarta Validation, JWT token security, and OWASP compliance for omnidepot.
 version: 1.0.0
 ---
 
 # Security Analyst & Data Handling Skill (`security-analyst`)
 
-This skill governs security analysis, secure data handling, boundary validation, input normalization, and cryptographic hygiene across OmniDepot.
+This skill governs security analysis, secure data handling, boundary validation, input normalization, and cryptographic hygiene across omnidepot.
 
 ---
 
 ## 1. Core Security & Data Handling Principles
 
-### A. Jakarta Validation & JSpecify Boundary-Only Nullability Rule
-* **JSpecify Boundary Nullability:** We use **JSpecify** (`@NullMarked`, `@Nullable`) to declare nullability contracts across all production packages.
+### A. Jakarta Validation & Boundary-Only Null Enforcement
 * **Jakarta Validation at Boundaries:** All null-checks, non-blank checks, string size constraints, and format validations MUST be declared and executed ONLY at application boundaries (REST Controllers, Vert.x Handlers, Kafka Event Consumers, and Database Repositories) using standard **Jakarta Validation annotations** (`jakarta.validation.constraints.*`: `@NotNull`, `@NotBlank`, `@Size`, `@Pattern`, `@Valid`).
 * **Internal Domain Methods:** Internal domain methods within `@NullMarked` packages assume non-null parameters and MUST NOT pollute domain logic with redundant defensive null checks (`Objects.requireNonNull` or `if (param == null)`).
 

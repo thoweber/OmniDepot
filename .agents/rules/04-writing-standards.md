@@ -1,4 +1,4 @@
-# OmniDepot Global Writing & Documentation Standards
+# omnidepot Global Writing & Documentation Standards
 
 > **Master Reference:** Applicable globally across all documentation (`/docs`), agent responses, rule files, skills, and pull request descriptions.
 
@@ -13,8 +13,8 @@
 
 ## 3. Mandatory Clickable File Links
 * **`file://` Scheme Required:** Every mention of a file path, script, configuration file, or code symbol MUST be formatted as a clickable GFM link using the `file://` URI scheme:
-  * **File:** `[AGENTS.md](file:///home/developer/projects/OmniDepot/AGENTS.md)`
-  * **Line Range:** `[pom.xml:L40-L60](file:///home/developer/projects/OmniDepot/pom.xml#L40-L60)`
+  * **File:** `[AGENTS.md](file:///home/developer/projects/omnidepot/AGENTS.md)`
+  * **Line Range:** `[pom.xml:L40-L60](file:///home/developer/projects/omnidepot/pom.xml#L40-L60)`
 * **Readable Link Text:** Use file basenames or descriptive symbol names for link text (never unformatted raw paths).
 
 ## 4. Strategic GitHub-Style Alerts
@@ -38,5 +38,5 @@ Use GFM alert callouts to emphasize critical operational context:
 * **Root README Exception:** Emojis are permitted ONLY in the repository root `README.md`, where they may be used sparingly to highlight major section headers.
 
 ## 8. Product Branding Casing (`omnidepot`)
-* **Strict Lowercase Branding:** The product name is **"omnidepot"** — it is NEVER capitalized (never "OmniDepot", "Omnidepot", or "OMNIDEPOT"). It must always be 100% lowercase.
+* **Strict Lowercase Branding:** The product name is **"omnidepot"** — it is NEVER capitalized (never "omnidepot", "Omnidepot", or "OMNIDEPOT"). It must always be 100% lowercase.
 * **Sentence Placement:** Avoid starting sentences with "omnidepot" unless the sentence starts a new paragraph.

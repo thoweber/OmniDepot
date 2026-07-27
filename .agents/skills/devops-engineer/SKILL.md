@@ -1,207 +1,55 @@
 ---
 name: devops-engineer
-description: Containerization, Kubernetes manifests, Helm charts, Docker multistage builds, GitHub Actions workflows, matrix builds, RustFS/S3 storage integration, and CI/CD automation for OmniDepot.
+description: Containerization, Kubernetes manifests, Helm charts, Docker multistage builds, GitHub Actions workflows, matrix builds, RustFS/S3 storage integration, and CI/CD automation for omnidepot.
 version: 1.0.0
 ---
 
 # DevOps Engineer Skill (`devops-engineer`)
 
-This skill governs containerization, Kubernetes manifest orchestration, Helm charts, Docker multistage builds, GitHub Actions CI/CD workflows, and production cloud infrastructure automation for OmniDepot.
+This skill governs containerization, Kubernetes manifest orchestration, Helm charts, Docker multistage builds, GitHub Actions CI/CD workflows, and production cloud infrastructure automation for omnidepot.
 
 ---
 
-## 1. Core DevOps Philosophy & Directives
+## 1. Core Philosophy
 
-### A. Sub-30-Second Local Feedback & Ephemeral Environments
-* **Fast Feedback Loops:** CI/CD and local development pipelines must execute verification checks in under 30 seconds for unit/component tests and under 5 minutes for full end-to-end integration tests.
-* **Ephemeral Infrastructure:** Use Testcontainers or ephemeral Docker Compose stacks (`postgres:16`, `rustfs/rustfs:latest`) that spin up automatically, execute isolated tests, and tear down cleanly without leaving residual state side-effects.
-
-### B. Rootless & Security Hardened Containers
-* **Distroless Base Images:** Use minimal distroless or Alpine Linux runtime images for Quarkus JVM and Native container builds.
-* **Non-Root User Enforcement:** Containers MUST run under unprivileged non-root user `1001:1001` (`USER 1001`).
-* **Zero Secret Hardcoding:** Secrets (JWT private keys, S3 access keys, database passwords) MUST be injected strictly via environment variables (`env`), Kubernetes Secrets, or GitHub Actions Encrypted Secrets.
+* **Fast feedback:** unit and component tests must complete in under 30 seconds; full end-to-end integration checks in under 5 minutes.
+* **Ephemeral infrastructure:** use Testcontainers or ephemeral Docker Compose stacks (`postgres:16`, `rustfs/rustfs:latest`) that spin up, execute, and tear down without leaving residual state.
+* **Zero secret hardcoding:** secrets (JWT private keys, S3 access keys, database passwords) MUST be injected via environment variables, Kubernetes Secrets, or GitHub Actions Encrypted Secrets — never inlined as plaintext in workflow or config files.
 
 ---
 
-## 2. Docker & Containerization Standards
+## 2. Docker & Container Standards
 
-### Multi-Stage Quarkus JVM/Native Dockerfile Pattern (`src/main/docker/Dockerfile.jvm`)
-```dockerfile
-# Stage 1: Build Java 25 reactor with Maven
-FROM eclipse-temurin:25-jdk-alpine AS builder
-WORKDIR /workspace
-COPY pom.xml mvnw ./
-COPY .mvn .mvn
-COPY omnidepot-core-api omnidepot-core-api
-COPY omnidepot-core-domain omnidepot-core-domain
-COPY omnidepot-storage-api omnidepot-storage-api
-COPY omnidepot-storage-fs omnidepot-storage-fs
-COPY omnidepot-storage-s3 omnidepot-storage-s3
-COPY omnidepot-infra-db omnidepot-infra-db
-COPY omnidepot-infra-outbox omnidepot-infra-outbox
-COPY omnidepot-domain-iam omnidepot-domain-iam
-COPY omnidepot-format-oci omnidepot-format-oci
-COPY omnidepot-format-maven omnidepot-format-maven
-COPY omnidepot-format-npm omnidepot-format-npm
-COPY omnidepot-ui omnidepot-ui
-COPY omnidepot-app omnidepot-app
-COPY omnidepot-coverage-report omnidepot-coverage-report
-RUN ./mvnw clean package -DskipTests
-
-# Stage 2: Runtime Container
-FROM eclipse-temurin:25-jre-alpine
-ENV LANGUAGE='en_US:en'
-WORKDIR /deployments
-COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/lib/ /deployments/lib/
-COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/*.jar /deployments/
-COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/app/ /deployments/app/
-COPY --from=builder /workspace/omnidepot-app/target/quarkus-app/quarkus/ /deployments/quarkus/
-EXPOSE 8080 9000
-USER 1001:1001
-ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
-```
+* **Multi-stage builds:** stage 1 builds the full Maven reactor with `eclipse-temurin:25-jdk-alpine`; stage 2 copies only the Quarkus fast-jar layout into a minimal `eclipse-temurin:25-jre-alpine` runtime image.
+* **Module copy order:** copy modules in dependency order (`omnidepot-core-api` → `omnidepot-core-domain` → storage → infra → format → `omnidepot-app`) to maximise Docker layer caching.
+* **Exposed ports:** `8080` (application), `9000` (management/health).
+* **Non-root user:** containers MUST run as unprivileged user `1001:1001` (`USER 1001`).
+* **Distroless / Alpine runtime:** use minimal base images; never ship a JDK in the runtime stage.
+* **Build flag:** skip tests during Docker build (`-DskipTests`); testing is the CI pipeline's responsibility.
 
 ---
 
-## 3. GitHub Actions CI/CD Pipeline Standards (`.github/workflows/ci.yml`)
+## 3. GitHub Actions CI/CD Pipeline
 
-### Pipeline Best Practices
-1. **Caching:** Cache Maven local repository (`~/.m2/repository`) using `actions/cache` keyed on `pom.xml` hash.
-2. **Matrix Builds:** Execute automated matrix builds across JDK 25 and supported OS environments (Linux `ubuntu-latest`).
-3. **Automated Verification:**
-   - `./mvnw spotless:check` (Auto-format compliance).
-   - `./mvnw test` (Fast unit & component tests).
-   - `./mvnw verify` (Failsafe integration tests against PostgreSQL 16 & RustFS service containers).
-4. **Artifact Uploads:** Upload JaCoCo test coverage reports and JaCoCo badge artifacts.
+> Canonical pipeline definitions: [ci.yml](file:///home/developer/projects/OmniDepot/.github/workflows/ci.yml) and [e2e-matrix.yml](file:///home/developer/projects/OmniDepot/.github/workflows/e2e-matrix.yml).
 
-```yaml
-name: OmniDepot CI Build Pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    types: [ opened, synchronize, reopened ]
-    branches: [ main ]
-
-jobs:
-  build-and-verify:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: omnidepot
-          POSTGRES_USER: omnidepot
-          POSTGRES_PASSWORD: omnidepot_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      rustfs:
-        image: rustfs/rustfs:latest
-        env:
-          RUSTFS_ACCESS_KEY: omnidepot_rustfs
-          RUSTFS_SECRET_KEY: omnidepot_rustfs_secret
-        ports:
-          - 9000:9000
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Code Formatting Check
-        run: ./mvnw spotless:check
-
-      - name: Build, Test & Analyze with SonarCloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true
-
-  # Disabled for now - reserved for future Level 3 Black-Box E2E Matrix Testing across native CLI clients
-  # e2e-matrix-test:
-  #   name: E2E Matrix Test (${{ matrix.client }})
-  #   needs: build-and-analyze
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       client: [docker, helm, maven, npm]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Run Native Client E2E Verification
-  #       run: echo "Future E2E black-box test suite for ${{ matrix.client }}"
-```
+* **Triggers:** `push` to `main` and `pull_request` targeting `main`.
+* **Maven cache:** use `actions/cache` keyed on `pom.xml` hash, targeting `~/.m2/repository`.
+* **JDK:** `actions/setup-java@v4` with `java-version: '25'` and `distribution: 'temurin'`.
+* **Step order:**
+  1. `./mvnw spotless:check` — format compliance gate.
+  2. `./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true` — build, test, and SonarCloud quality gate.
+* **Service containers:** use `postgres:16-alpine` and `rustfs/rustfs:latest` as GitHub Actions service containers; inject credentials via `${{ secrets.* }}` only.
+* **Artifact uploads:** upload JaCoCo aggregated coverage reports as pipeline artifacts.
 
 ---
 
-## 4. Kubernetes & Helm Manifest Standards
+## 4. Kubernetes & Helm Standards
 
-### Kubernetes Health Probes Protocol
-* **Liveness Probe:** `GET /q/health/live` on port `9000` (Management Port).
-* **Readiness Probe:** `GET /q/health/ready` on port `9000` (Verifies DB connection pool and RustFS S3 accessibility).
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: omnidepot
-  namespace: omnidepot
-  labels:
-    app.kubernetes.io/name: omnidepot
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: omnidepot
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: omnidepot
-    spec:
-      containers:
-        - name: omnidepot
-          image: omnidepot/repo-app:1.0.0
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
-              name: http
-            - containerPort: 9000
-              name: management
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "1Gi"
-              cpu: "1000m"
-          livenessProbe:
-            httpGet:
-              path: /q/health/live
-              port: 9000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /q/health/ready
-              port: 9000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1001
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-```
+* **Health probes:** liveness → `GET /q/health/live` on port `9000`; readiness → `GET /q/health/ready` on port `9000`.
+* **Liveness scope:** checks JVM thread deadlocks only. MUST NOT probe database or S3 connectivity.
+* **Readiness scope:** evaluates PostgreSQL connection pool and RustFS S3 bucket accessibility.
+* **Security context:** `runAsNonRoot: true`, `runAsUser: 1001`, `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`.
+* **Resource requests/limits:** define explicit CPU and memory requests and limits on every container spec.
+* **Replicas:** minimum 3 replicas for production deployments to support rolling updates without downtime.
+* **Image pull policy:** `IfNotPresent` for versioned tags; `Always` only for mutable floating tags (avoid floating tags in production).

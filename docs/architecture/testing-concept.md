@@ -1,6 +1,6 @@
-# OmniDepot Automated Testing & Quality Concept
+# omnidepot Automated Testing & Quality Concept
 
-This document defines the binding guidelines for the structure, naming, tools, architectural enforcement, and quality assurance of all automated tests in **OmniDepot**.
+This document defines the binding guidelines for the structure, naming, tools, architectural enforcement, and quality assurance of all automated tests in **omnidepot**.
 
 ---
 
@@ -89,7 +89,7 @@ void shouldApplyDiscount() {
 
 ## ArchUnit Architectural Protection Rules
 
-In omnidepot, architecture protection rules are defined in `repo-app` inside [ArchitectureBoundaryTest.java](file:///home/developer/projects/OmniDepot/repo-app/src/test/java/io/omnidepot/app/ArchitectureBoundaryTest.java):
+In omnidepot, architecture protection rules are defined in `repo-app` inside [ArchitectureBoundaryTest.java](file:///home/developer/projects/omnidepot/repo-app/src/test/java/io/omnidepot/app/ArchitectureBoundaryTest.java):
 
 ```java
 class ArchitectureBoundaryTest {

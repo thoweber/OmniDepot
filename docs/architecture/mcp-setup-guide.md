@@ -6,7 +6,7 @@ This guide details the setup, credentials, environment variables, and permission
 
 ## Integrated MCP Servers Overview
 
-The omnidepot repository configures four specialized MCP servers defined in [.mcp.json](file:///home/developer/projects/OmniDepot/.mcp.json) and [.agents/config.json](file:///home/developer/projects/OmniDepot/.agents/config.json):
+The omnidepot repository configures four specialized MCP servers defined in [.mcp.json](file:///home/developer/projects/omnidepot/.mcp.json) and [.agents/config.json](file:///home/developer/projects/omnidepot/.agents/config.json):
 
 ```text
                                 omnidepot MCP ECOSYSTEM
@@ -69,7 +69,7 @@ Instead of manually executing `export GITHUB_TOKEN="..."` every time you open a 
 
 ### 1. Quick Setup: Create your `.env` file
 
-Copy the provided [.env.example](file:///home/developer/projects/OmniDepot/.env.example) template to `.env`:
+Copy the provided [.env.example](file:///home/developer/projects/omnidepot/.env.example) template to `.env`:
 
 ```bash
 cp .env.example .env
@@ -86,7 +86,7 @@ REPO_AUTH_MODE=disabled
 ```
 
 > [!WARNING]
-> **Security Warning:** `.env` is automatically ignored in [.gitignore](file:///home/developer/projects/OmniDepot/.gitignore). Never commit `.env` files containing actual tokens to Git.
+> **Security Warning:** `.env` is automatically ignored in [.gitignore](file:///home/developer/projects/omnidepot/.gitignore). Never commit `.env` files containing actual tokens to Git.
 
 ---
 
@@ -137,7 +137,7 @@ export $(grep -v '^#' .env | xargs)
 npx -y @modelcontextprotocol/inspector npx -y @modelcontextprotocol/server-github
 
 # Test IntelliJ Direct SSE Connection
-curl -i -N -H "IJ_MCP_SERVER_PROJECT_PATH: /home/developer/projects/OmniDepot" http://127.0.0.1:64343/sse
+curl -i -N -H "IJ_MCP_SERVER_PROJECT_PATH: /home/developer/projects/omnidepot" http://127.0.0.1:64343/sse
 ```
 
 ### Common Issues

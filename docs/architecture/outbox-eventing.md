@@ -1,6 +1,6 @@
 # Transactional Outbox Engine & Event-Driven Architecture
 
-OmniDepot guarantees atomic event publishing and data consistency using the **Transactional Outbox Pattern** (ADR-016, ADR-026).
+omnidepot guarantees atomic event publishing and data consistency using the **Transactional Outbox Pattern** (ADR-016, ADR-026).
 
 ---
 

@@ -24,7 +24,7 @@ graph TD
 ## 2. Phase-by-Phase Workflow Specification
 
 ### Step 1: Draft User Story & Value Proposition (`product-owner`)
-1. **Persona Reference:** Select the relevant stakeholder persona from [docs/architecture/stakeholders-personas.md](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md) and format on first mention as **`[Name (Role)]`** hyperlinked directly to their profile (e.g. `[Mateo Rossi (Senior Full-Stack Developer)](file:///home/developer/projects/OmniDepot/docs/architecture/stakeholders-personas.md#persona-1-mateo-rossi--senior-full-stack-developer)`).
+1. **Persona Reference:** Select the relevant stakeholder persona from [docs/architecture/stakeholders-personas.md](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md) and format on first mention as **`[Name (Role)]`** hyperlinked directly to their profile (e.g. `[Mateo Rossi (Senior Full-Stack Developer)](file:///home/developer/projects/omnidepot/docs/architecture/stakeholders-personas.md#persona-1-mateo-rossi--senior-full-stack-developer)`).
 2. **Product Goal Contribution:** Explicitly detail how the story advances omnidepot's master product goals (polyglot OCI/Maven/NPM repository, Evolutionary Modular Monolith on Java 25 LTS, zero vendor lock-in, 70%+ CAS deduplication).
 3. **Value Generation:** Detail explicitly the quantitative or qualitative business, operational, and developer velocity value delivered by the story.
 

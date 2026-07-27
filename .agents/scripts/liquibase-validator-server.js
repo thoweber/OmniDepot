@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * OmniDepot Liquibase Validator MCP Server
+ * omnidepot Liquibase Validator MCP Server
  * Model Context Protocol (MCP) server wrapping dual-dialect Liquibase update and rollback testing
  * for H2 embedded database and PostgreSQL 16+.
  */

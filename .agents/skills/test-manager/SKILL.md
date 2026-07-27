@@ -1,12 +1,12 @@
 ---
 name: test-manager
-description: Overlooks quality strategy, test architecture, protocol verification levels (L1/L2/L3), mutation testing, contract coverage, and native CLI Testcontainers enforcement for OmniDepot.
+description: Overlooks quality strategy, test architecture, protocol verification levels (L1/L2/L3), mutation testing, contract coverage, and native CLI Testcontainers enforcement for omnidepot.
 version: 1.0.0
 ---
 
 # Test Manager & Quality Strategy Skill (`test-manager`)
 
-This document defines the high-level quality strategy, test architecture governance, protocol testing taxonomy, and quality gates for OmniDepot backend services, protocol adapters, and presentation layers.
+This document defines the high-level quality strategy, test architecture governance, protocol testing taxonomy, and quality gates for omnidepot backend services, protocol adapters, and presentation layers.
 
 ---
 

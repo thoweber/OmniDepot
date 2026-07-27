@@ -1,7 +1,7 @@
-# OmniDepot: AI Harness & Agent System Context Specification
+# omnidepot: AI Harness & Agent System Context Specification
 
-> **Master Specification for OmniDepot AI Governance & `antigravity-cli`**
-> This document defines the complete AI Harness specification (`AGENTS.md`, `.agents/` directory structure, configuration schema, coding rules, quality goals, custom agent skills, and MCP server integrations) for **OmniDepot**. Use this specification to initialize, configure, and govern automated code generation, refactoring, test creation, and architectural auditing within `antigravity-cli`.
+> **Master Specification for omnidepot AI Governance & `antigravity-cli`**
+> This document defines the complete AI Harness specification (`AGENTS.md`, `.agents/` directory structure, configuration schema, coding rules, quality goals, custom agent skills, and MCP server integrations) for **omnidepot**. Use this specification to initialize, configure, and govern automated code generation, refactoring, test creation, and architectural auditing within `antigravity-cli`.
 
 ---
 
@@ -46,7 +46,7 @@ AGENTS.md                              # Root repository agent guidelines & TDD 
 {
   "$schema": "https://json.schemastore.org/omnidepot-agent-config.json",
   "project": {
-    "name": "OmniDepot",
+    "name": "omnidepot",
     "version": "1.0.0-SNAPSHOT",
     "javaVersion": "25",
     "quarkusVersion": "3.37.4",
