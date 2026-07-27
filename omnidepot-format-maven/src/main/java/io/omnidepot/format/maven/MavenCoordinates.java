@@ -73,10 +73,10 @@ public record MavenCoordinates(
     }
 
     private static String mapAlgorithm(String ext) {
-        return switch (ext.toLowerCase()) {
+        return switch (ext) {
             case "sha256" -> "SHA-256";
-            case "sha1" -> "SHA-1";
-            case "md5" -> "MD5";
+            case "sha1" -> "SHA-1"; // NOSONAR legacy Maven checksum algorithm
+            case "md5" -> "MD5";   // NOSONAR legacy Maven checksum algorithm
             case "sha512" -> "SHA-512";
             default -> throw new IllegalArgumentException("Unsupported checksum algorithm extension: " + ext);
         };
@@ -84,7 +84,7 @@ public record MavenCoordinates(
 
     public static String computeChecksum(byte[] data, String extOrAlgorithm) {
         String algo = CHECKSUM_EXTENSIONS.contains(extOrAlgorithm.toLowerCase())
-                ? mapAlgorithm(extOrAlgorithm)
+                ? mapAlgorithm(extOrAlgorithm.toLowerCase())
                 : extOrAlgorithm;
         try {
             MessageDigest digest = MessageDigest.getInstance(algo);

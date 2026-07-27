@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Objects.nonNull;
+
 /**
  * Maven/Gradle Protocol Adapter Resource Endpoint (ADR-004, ADR-005).
  * Supports GAV path deployment for JARs, POMs, WARs, and checksum files via PUT,
@@ -42,6 +44,14 @@ public class MavenRepositoryResource {
 
     MavenRepositoryResource(@Nullable BlobStore testBlobStore) {
         this.testBlobStore = testBlobStore;
+    }
+
+    @Nullable
+    BlobStore resolveBlobStore() {
+        if (nonNull(testBlobStore)) {
+            return testBlobStore;
+        }
+        return blobStoreInstance != null && blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
     }
 
     @PUT
@@ -146,13 +156,37 @@ public class MavenRepositoryResource {
     private String determineContentType(String path) {
         if (path.endsWith(".jar") || path.endsWith(".war") || path.endsWith(".ear")) {
             return "application/java-archive";
-        } else if (path.endsWith(".pom") || path.endsWith(".xml")) {
+        }
+        if (path.endsWith(".pom") || path.endsWith(".xml")) {
             return MediaType.APPLICATION_XML;
-        } else if (path.endsWith(".sha256") || path.endsWith(".sha1") || path.endsWith(".md5") || path.endsWith(".sha512")) {
+        }
+        if (path.endsWith(".sha256") || path.endsWith(".sha1") || path.endsWith(".md5") || path.endsWith(".sha512")) {
             return MediaType.TEXT_PLAIN;
         }
         return MediaType.APPLICATION_OCTET_STREAM;
     }
 
-    private record MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {}
+    private static final class MavenArtifactRecord {
+        private final byte[] payload;
+        private final String contentType;
+        private final MavenCoordinates coords;
+
+        private MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {
+            this.payload = payload.clone();
+            this.contentType = contentType;
+            this.coords = coords;
+        }
+
+        public byte[] payload() {
+            return payload.clone();
+        }
+
+        public String contentType() {
+            return contentType;
+        }
+
+        public MavenCoordinates coords() {
+            return coords;
+        }
+    }
 }
