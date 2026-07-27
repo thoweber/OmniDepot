@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+
 class MavenRepositoryResourceTest {
 
     private MavenRepositoryResource mavenResource;
@@ -16,13 +18,15 @@ class MavenRepositoryResourceTest {
     }
 
     @Test
-    @DisplayName("Given a GET request for .sha256 checksum file, resource synthesizes checksum dynamically (ADR-004)")
+    @DisplayName("Given a GET request for .sha256 checksum file of a deployed artifact, resource synthesizes checksum dynamically (ADR-004)")
     void shouldSynthesizeSha256Checksum() {
         // Given
-        String path = "org/omnidepot/my-app/1.0.0/my-app-1.0.0.jar.sha256";
+        String path = "org/omnidepot/my-app/1.0.0/my-app-1.0.0.jar";
+        byte[] payload = "test jar binary content".getBytes(StandardCharsets.UTF_8);
+        mavenResource.deployArtifact("releases", path, payload);
 
         // When
-        Response response = mavenResource.getArtifact("releases", path);
+        Response response = mavenResource.getArtifact("releases", path + ".sha256");
 
         // Then
         MavenTestSupport.assertSynthesizedChecksumResponse(response);
@@ -33,6 +37,8 @@ class MavenRepositoryResourceTest {
     void shouldReturnMavenArtifactPayload() {
         // Given
         String path = "org/omnidepot/my-app/1.0.0/my-app-1.0.0.jar";
+        byte[] payload = "test jar binary content".getBytes(StandardCharsets.UTF_8);
+        mavenResource.deployArtifact("releases", path, payload);
 
         // When
         Response response = mavenResource.getArtifact("releases", path);
