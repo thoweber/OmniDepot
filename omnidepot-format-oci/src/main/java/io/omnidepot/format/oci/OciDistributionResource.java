@@ -44,16 +44,19 @@ public class OciDistributionResource {
 
     @Inject
     @Any
+    @Nullable
     Instance<BlobStore> blobStoreInstance;
 
     private final @Nullable BlobStore testBlobStore;
     private final Map<String, StoredManifest> manifestStore = new ConcurrentHashMap<>();
 
     public OciDistributionResource() {
+        this.blobStoreInstance = null;
         this.testBlobStore = null;
     }
 
     OciDistributionResource(@Nullable BlobStore testBlobStore) {
+        this.blobStoreInstance = null;
         this.testBlobStore = testBlobStore;
     }
 
