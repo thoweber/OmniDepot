@@ -1,5 +1,6 @@
 package io.omnidepot.format.oci;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ class OciDistributionResourceTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getHeaderString("Docker-Distribution-API-Version")).isEqualTo("registry/2.0");
+        assertThat(response.getHeaderString(OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION.value())).isEqualTo("registry/2.0");
     }
 
     @Test
@@ -36,8 +37,8 @@ class OciDistributionResourceTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(202);
-        assertThat(response.getHeaderString("Location")).startsWith("/v2/test-repo/blobs/uploads/");
-        assertThat(response.getHeaderString("Range")).isEqualTo("0-0");
+        assertThat(response.getHeaderString(HttpHeaders.LOCATION)).startsWith("/v2/test-repo/blobs/uploads/");
+        assertThat(response.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-0");
     }
 
     @Test
@@ -52,7 +53,7 @@ class OciDistributionResourceTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(201);
-        assertThat(response.getHeaderString("Location")).isEqualTo("/v2/app-image/blobs/" + mountDigest);
+        assertThat(response.getHeaderString(HttpHeaders.LOCATION)).isEqualTo("/v2/app-image/blobs/" + mountDigest);
     }
 
     @Test
@@ -74,8 +75,8 @@ class OciDistributionResourceTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(201);
-        assertThat(response.getHeaderString("Location")).isEqualTo("/v2/test-repo/blobs/" + digest);
-        assertThat(response.getHeaderString("Docker-Content-Digest")).isEqualTo(digest);
+        assertThat(response.getHeaderString(HttpHeaders.LOCATION)).isEqualTo("/v2/test-repo/blobs/" + digest);
+        assertThat(response.getHeaderString(OciHttpHeader.DOCKER_CONTENT_DIGEST.value())).isEqualTo(digest);
     }
 
     @Test
@@ -96,7 +97,7 @@ class OciDistributionResourceTest {
 
         // Then
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getHeaderString("Docker-Content-Digest")).isEqualTo(digest);
-        assertThat(response.getHeaderString("Content-Length")).isEqualTo("0");
+        assertThat(response.getHeaderString(OciHttpHeader.DOCKER_CONTENT_DIGEST.value())).isEqualTo(digest);
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH)).isEqualTo("0");
     }
 }
