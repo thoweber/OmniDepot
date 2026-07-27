@@ -70,18 +70,15 @@ Encapsulate all domain primitives into strongly-typed Java 25 `record` Value Obj
 * **`UploadSessionId`**: Unique upload session identifier.
 * **`OciRepositoryName`**: Normalized, validated OCI namespace.
 
-### B. Pre-Allocated `StringBuilder` Capacity
-Hot-path URI and digest string formatters MUST pre-allocate explicit initial capacity (e.g., `CAS_PATH_CAPACITY`) to eliminate dynamic array resizing and GC overhead on high-throughput paths.
-
-### C. Nullability Guardrails
+### B. Nullability Guardrails
 * **JSpecify `@NullMarked`:** All production packages require `@NullMarked` in `package-info.java`.
 * **Static Null Checks:** Never use raw `== null` or `!= null`. Statically import and use `isNull(val)` or `nonNull(val)`.
 * **No `null` Returns:** Query methods return `Optional<T>`. Collection methods return immutable empty collections (`List.of()`, `Set.of()`).
 
-### D. Functional Optional Chains over Ternary Branching
+### C. Functional Optional Chains over Ternary Branching
 Avoid ternary conditional branching (`a ? b : c`). Use functional `Optional` pipelines for parameter normalization and fallback handling (`Optional.ofNullable().filter().orElseThrow()`).
 
-### E. Zero Raw Exceptions Rule
+### D. Zero Raw Exceptions Rule
 Prohibit throwing or catching raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
 
 ---

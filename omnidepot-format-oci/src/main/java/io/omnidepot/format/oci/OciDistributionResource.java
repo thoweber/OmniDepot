@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -62,7 +61,7 @@ public class OciDistributionResource {
         if (nonNull(testBlobStore)) {
             return testBlobStore;
         }
-        return (nonNull(blobStoreInstance) && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
+        return blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
     }
 
     @GET
@@ -230,37 +229,31 @@ public class OciDistributionResource {
     private void verifyBlobExistsInCas(BlobStore blobStore, String rawDigest) {
         String hexDigest = rawDigest.startsWith("sha256:") ? rawDigest.substring(7) : rawDigest;
         Sha256Digest digest = Sha256Digest.of(hexDigest);
-        Boolean exists = blobStore.exists(digest).await().indefinitely();
-        if (isNull(exists) || !exists) {
+        boolean exists = blobStore.exists(digest).await().indefinitely();
+        if (!exists) {
             throw new OciBlobUnknownException("Referenced layer or config blob missing from CAS: " + rawDigest);
         }
     }
 
     private static String buildBlobLocation(String repoName, String ociDigest) {
-        return new StringBuilder(11 + repoName.length() + ociDigest.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(BLOBS_PATH)
-                .append(ociDigest)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                BLOBS_PATH +
+                ociDigest;
     }
 
     private static String buildUploadSessionLocation(String repoName, String sessionId) {
-        return new StringBuilder(19 + repoName.length() + sessionId.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(UPLOADS_PATH)
-                .append(sessionId)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                UPLOADS_PATH +
+                sessionId;
     }
 
     private static String buildManifestLocation(String repoName, String reference) {
-        return new StringBuilder(14 + repoName.length() + reference.length())
-                .append(V2_PREFIX)
-                .append(repoName)
-                .append(MANIFESTS_PATH)
-                .append(reference)
-                .toString();
+        return V2_PREFIX +
+                repoName +
+                MANIFESTS_PATH +
+                reference;
     }
 
     private record StoredManifest(String jsonPayload, String mediaType, OciDigest digest) {}

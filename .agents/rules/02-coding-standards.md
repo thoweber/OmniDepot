@@ -17,7 +17,6 @@
 * Catch low-level technical exceptions (`IOException`, `SQLException`, `S3Exception`) at system boundaries and wrap them inside domain-appropriate exception hierarchies with rich diagnostic context.
 
 ## 4. Hot-Path Performance & Zero-GC Rules (ADR-002, ADR-006, ADR-019)
-* **Hot-Path String Formatting:** Avoid raw `+` operator string concatenation in high-throughput hot paths (e.g. URI/header building, digest formatting, CAS path calculation). Use pre-allocated static path constants and pre-sized `StringBuilder` instances with exact capacity allocation (`new StringBuilder(exactCapacity)`).
 * Handle binary streams reactively using Mutiny `Multi<Buffer>` or Vert.x `ReadStream<Buffer>`.
 * Pass Netty direct byte buffers directly from network sockets to storage channels without copying bytes onto the Java heap.
 * Never call blocking code on Vert.x event loops. Offload blocking execution using `Uni.createFrom().item(...).runSubscriptionOn(Infrastructure.getDefaultWorkerPool())`.

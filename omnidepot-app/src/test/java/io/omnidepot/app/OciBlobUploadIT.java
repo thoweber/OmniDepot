@@ -1,5 +1,6 @@
 package io.omnidepot.app;
 
+import io.omnidepot.format.oci.OciHttpHeader;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;

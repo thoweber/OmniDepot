@@ -241,7 +241,6 @@ To run the autonomous AI pair programmer equipped with all local credentials:
 
 * **Strongly-Typed Domain Exceptions:** Never throw raw `RuntimeException` or `Exception` in production code. Throw domain-appropriate exceptions (`StorageException`, `BlobWriteException`, `OciProtocolException`).
 * **1-to-1 Target-Class Test Mapping:** Every production class must have a dedicated 1-to-1 unit test class (`<ClassName>Test.java`).
-* **Pre-sized `StringBuilder` Capacity:** Hot-path URI/header formatting must allocate explicit capacity to eliminate dynamic array resizing.
 * **Liquibase Migration Rollbacks:** Every database changeSet must define an explicit `<rollback>` block.
 
 ---

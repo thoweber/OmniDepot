@@ -10,7 +10,7 @@ package io.omnidepot.format.oci;
  * @see <a href="https://github.com/opencontainers/distribution-spec/blob/main/spec.md">OCI Distribution Spec</a>
  * @see jakarta.ws.rs.core.HttpHeaders
  */
-enum OciHttpHeader {
+public enum OciHttpHeader {
 
     /** {@code Docker-Content-Digest} — the canonical OCI digest of a blob or manifest response body. */
     DOCKER_CONTENT_DIGEST("Docker-Content-Digest"),

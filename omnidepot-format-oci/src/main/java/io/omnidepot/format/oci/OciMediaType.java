@@ -8,7 +8,7 @@ package io.omnidepot.format.oci;
  *
  * @see <a href="https://github.com/opencontainers/image-spec/blob/main/media-types.md">OCI Media Types</a>
  */
-enum OciMediaType {
+public enum OciMediaType {
 
     /** OCI Image Manifest V1 — {@code application/vnd.oci.image.manifest.v1+json}. */
     OCI_IMAGE_MANIFEST("application/vnd.oci.image.manifest.v1+json"),

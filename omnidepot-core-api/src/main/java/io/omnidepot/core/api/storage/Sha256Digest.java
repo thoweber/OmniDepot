@@ -1,9 +1,8 @@
 package io.omnidepot.core.api.storage;
 
+
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import static java.util.Objects.isNull;
 
 /**
  * Value Object representing a validated SHA-256 digest in lowercase hex format.
@@ -15,7 +14,7 @@ public record Sha256Digest(String hexValue) {
     private static final String SHA256_PREFIX = "sha256:";
 
     public Sha256Digest {
-        String normalized = isNull(hexValue) ? "" : hexValue.trim().toLowerCase(Locale.ROOT);
+        String normalized = hexValue.trim().toLowerCase(Locale.ROOT);
 
         if (normalized.startsWith(SHA256_PREFIX)) {
             normalized = normalized.substring(SHA256_PREFIX.length());
