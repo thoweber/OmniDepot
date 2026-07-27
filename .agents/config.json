@@ -64,7 +64,8 @@
     "archunitBoundaryChecker": ".agents/skills/archunit-boundary-checker/SKILL.md",
     "slaBenchmarkRunner": ".agents/skills/sla-benchmark-runner/SKILL.md",
     "personaE2eGenerator": ".agents/skills/persona-e2e-generator/SKILL.md",
-    "devopsEngineer": ".agents/skills/devops-engineer/SKILL.md"
+    "devopsEngineer": ".agents/skills/devops-engineer/SKILL.md",
+    "productOwner": ".agents/skills/product-owner/SKILL.md"
   },
   "mcpServers": {
     "archunitChecker": {
