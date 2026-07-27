@@ -267,3 +267,11 @@ The **`intellij` MCP server** (configured via direct SSE at `http://127.0.0.1:64
 2. **Call Hierarchy Analysis (`analyze_calls` & `search_symbol`)**: Safely traces upstream callers and downstream implementation dependencies before modifying core interfaces.
 3. **Real-time IDE Diagnostics (`get_file_problems` & `lint_files`)**: Instantly catches compilation errors and `@NullMarked` contract violations without waiting for full Maven reactor build cycles.
 4. **Automated Formatting (`reformat_file`)**: Enforces code style rules on all modified files.
+
+---
+
+## 8. AI Development Workflows & Governance
+
+For step-by-step guidance on authoring stories and executing autonomous goal tasks, see the dedicated workflow guides:
+* **Workflow 1:** [Story Creation & Refinement Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/story-creation-workflow.md) — Authoring, lead architect auditing, persona linking, test strategy breakdown, and GitHub issue creation.
+* **Workflow 2:** [Autonomous AI Story Execution Workflow Guide](file:///home/developer/projects/OmniDepot/docs/developer-guide/ai-story-workflow.md) — Autonomous execution of published GitHub issues using the `/goal` slash command.

@@ -85,3 +85,4 @@ All story definitions authored by the `product-owner` skill MUST strictly comply
 1. **100% Lowercase Product Branding:** The product name is strictly `omnidepot` (never capitalized).
 2. **Zero Emojis:** Emojis are strictly prohibited in technical documentation, story definitions, commit messages, and agent responses.
 3. **Active Voice & GFM Formatting:** Clear, active voice sentences and standard GitHub-Flavored Markdown.
+4. **Draft Markdown Cleanup:** Once an issue is published on GitHub, delete the local draft markdown file under `docs/architecture/stories/` so GitHub issues remain the single source of truth.

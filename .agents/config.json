@@ -65,7 +65,8 @@
     "slaBenchmarkRunner": ".agents/skills/sla-benchmark-runner/SKILL.md",
     "personaE2eGenerator": ".agents/skills/persona-e2e-generator/SKILL.md",
     "devopsEngineer": ".agents/skills/devops-engineer/SKILL.md",
-    "productOwner": ".agents/skills/product-owner/SKILL.md"
+    "productOwner": ".agents/skills/product-owner/SKILL.md",
+    "leadArchitect": ".agents/skills/lead-architect/SKILL.md"
   },
   "mcpServers": {
     "archunitChecker": {
