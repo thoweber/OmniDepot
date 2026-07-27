@@ -14,11 +14,30 @@ OmniDepot configures four specialized MCP servers defined in [.mcp.json](file://
 │ MCP Server            │ Utility / Purpose             │ Authentication / Credentials   │
 ├───────────────────────┼───────────────────────────────┼────────────────────────────────┤
 │ 1. github             │ Repository issues, PRs, CI    │ GITHUB_TOKEN (PAT)             │
-│ 2. intellij           │ Live IDE AST & symbol navigation│ Localhost Port 63342 (No Auth) │
-│ 3. archunitChecker    │ Package boundary verification │ Local Maven Runner (Zero Auth) │
-│ 4. liquibaseValidator │ DB changelog & rollback validation│ Local Maven Runner (Zero Auth) │
+│ 2. intellij           │ Live IDE AST & symbol navigation│ Localhost Port 64343 (No Auth) │
+│ 3. archunitChecker    │ Package boundary verification │ Node STDIO Server (.agents/scripts/archunit-checker-server.js) │
+│ 4. liquibaseValidator │ DB changelog & rollback validation│ Node STDIO Server (.agents/scripts/liquibase-validator-server.js) │
 └───────────────────────┴───────────────────────────────┴────────────────────────────────┘
 ```
+
+---
+
+## 🚀 Recommended Usage: Extensive Refactoring & Complex Coding Tasks
+
+The **`intellij` MCP server** is strongly recommended for **large-scale refactorings**, multi-module architecture updates, and type-safe code restructurings across OmniDepot's 15 reactor modules.
+
+### Key Refactoring Capabilities
+
+1. **AST-Aware Symbol Renaming (`rename_refactoring`)**:
+   * Automatically updates class, method, and variable usages across all 15 Maven reactor modules simultaneously, avoiding broken cross-module imports.
+2. **Call Hierarchy Analysis (`analyze_calls` & `search_symbol`)**:
+   * Inspects upstream callers and downstream implementation dependencies before modifying core interface signatures in `repo-core-api`.
+3. **Real-time IDE Diagnostics (`get_file_problems` & `lint_files`)**:
+   * Catches compilation errors, missing generic parameters, and `@NullMarked` annotation violations instantly without waiting for a full Maven reactor build.
+4. **Automated Formatting (`reformat_file`)**:
+   * Ensures modified Java and TypeScript files strictly comply with OmniDepot code style guidelines before commit.
+
+> 💡 **Best Practice for AI Agents:** When planning multi-file refactorings or domain model updates, use the `/plan` or `/goal` slash commands alongside the `intellij` MCP server tools to safely inspect symbol call graphs before performing modifications.
 
 ---
 
@@ -60,7 +79,7 @@ Edit `.env` and fill in your actual credentials:
 ```ini
 # .env (git-ignored secret file)
 GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz
-INTELLIJ_PORT=63342
+INTELLIJ_PORT=64343
 QUARKUS_PROFILE=dev
 REPO_AUTH_MODE=disabled
 ```
@@ -125,6 +144,6 @@ npx -y @modelcontextprotocol/inspector npx -y @jetbrains/mcp-proxy
    - Verify `GITHUB_TOKEN` is loaded (`echo $GITHUB_TOKEN`).
    - Confirm token has not expired and holds `repo` scope permissions.
 
-2. **IntelliJ MCP Connection Refused (`port 63342`):**
+2. **IntelliJ MCP Connection Refused (`port 64343`):**
    - Ensure IntelliJ IDEA is open with the OmniDepot project loaded.
-   - Verify built-in server port in IntelliJ settings (**Build, Execution, Deployment** $\rightarrow$ **Debugger** $\rightarrow$ **Built-in Server** = `63342`).
+   - Verify built-in server port in IntelliJ settings (**Build, Execution, Deployment** $\rightarrow$ **Debugger** $\rightarrow$ **Built-in Server** = `64343`).

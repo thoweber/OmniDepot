@@ -68,19 +68,19 @@
   },
   "mcpServers": {
     "archunitChecker": {
-      "command": "./mvnw",
-      "args": ["test", "-Dtest=ArchitectureBoundaryTest"]
+      "command": "node",
+      "args": [".agents/scripts/archunit-checker-server.js"]
     },
     "liquibaseValidator": {
-      "command": "./mvnw",
-      "args": ["compile", "liquibase:updateTestingRollback", "-pl", "repo-infra-db"]
+      "command": "node",
+      "args": [".agents/scripts/liquibase-validator-server.js"]
     },
     "intellij": {
-      "command": "npx",
-      "args": ["-y", "@jetbrains/mcp-proxy"],
+      "type": "sse",
+      "url": "http://127.0.0.1:64343/sse",
       "description": "IntelliJ IDEA Model Context Protocol Server for IDE context inspection and navigation",
-      "env": {
-        "INTELLIJ_PORT": "63342"
+      "headers": {
+        "IJ_MCP_SERVER_PROJECT_PATH": "/home/developer/projects/OmniDepot"
       }
     },
     "github": {

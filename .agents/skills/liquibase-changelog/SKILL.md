@@ -48,3 +48,8 @@ repo-infra-db/src/main/resources/db/changelog/
     </changeSet>
 </databaseChangeLog>
 ```
+
+## 3. Mandatory Dual-Dialect Verification Rule
+Whenever creating or modifying any Liquibase changelog XML file under `repo-infra-db/src/main/resources/db/changelog/`:
+* You MUST execute dual-dialect validation using the `liquibaseValidator` MCP server tool `validate_liquibase_changelog` (or `node .agents/scripts/liquibase-validator-server.js`).
+* Verification MUST pass cleanly with 0 errors and successful rollback cycles for BOTH `h2` and `postgresql` 16+ dialects before declaring completion.

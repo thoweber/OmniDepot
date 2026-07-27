@@ -243,3 +243,28 @@ To run the autonomous AI pair programmer equipped with all local credentials:
 * ** 1-to-1 Target-Class Test Mapping:** Every production class must have a dedicated 1-to-1 unit test class (`<ClassName>Test.java`).
 * ** Pre-sized `StringBuilder` Capacity:** Hot-path URI/header formatting must allocate explicit capacity to eliminate dynamic array resizing.
 * ** Liquibase Migration Rollbacks:** Every database changeSet must define an explicit `<rollback>` block.
+
+---
+
+## 7. Recommended Slash Commands & MCP Workflows for Refactoring
+
+When conducting extensive refactorings, multi-module domain model updates, or cross-cutting API changes across OmniDepot's 15 Maven reactor modules, pair programming with the AI harness is significantly enhanced by leveraging **Slash Commands** alongside the **`intellij` MCP Server**.
+
+### Recommended Slash Commands
+
+| Slash Command | Purpose & Best Practice in Refactoring Workflows |
+| :--- | :--- |
+| **`/plan`** | **Plan & Blueprint First:** Use `/plan` to generate a structured, step-by-step refactoring blueprint before mutating shared SPI interfaces in `repo-core-api`. |
+| **`/grill-me`** | **Interactive Design Alignment:** Trigger `/grill-me` to resolve architectural trade-offs, package encapsulation choices, or Hexagonal boundary decisions prior to writing code. |
+| **`/goal`** | **Autonomous Refactoring Goal:** Use `/goal` for large-scale, long-running refactorings, directing the agent to iterate through unit tests, ArchUnit checks, and Sonar audits until the goal is fully achieved. |
+| **`/learn`** | **Persist Learned Context:** Use `/learn` when a complex refactoring pattern or workspace configuration fix is discovered so future agent sessions adopt the behavior. |
+
+### Leveraging the `intellij` MCP Server
+
+The **`intellij` MCP server** (configured via direct SSE at `http://127.0.0.1:64343/sse` or `idea stdioMcpServer`) is strongly recommended during refactorings:
+
+1. **AST-Aware Renaming (`rename_refactoring`)**: Automatically updates class, method, and variable usages across all 15 reactor modules without broken cross-module imports.
+2. **Call Hierarchy Analysis (`analyze_calls` & `search_symbol`)**: Safely traces upstream callers and downstream implementation dependencies before modifying core interfaces.
+3. **Real-time IDE Diagnostics (`get_file_problems` & `lint_files`)**: Instantly catches compilation errors and `@NullMarked` contract violations without waiting for full Maven reactor build cycles.
+4. **Automated Formatting (`reformat_file`)**: Enforces code style rules on all modified files.
+

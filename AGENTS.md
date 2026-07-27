@@ -29,8 +29,8 @@ Remote CI/CD runs are too slow for autonomous iteration. Execute these fast loca
   `./mvnw clean verify`
 * **Auto-Format Code:**  
   `./mvnw spotless:apply` (or IDE SCSS/TS formatters for `@omni-depot/ui`)
-* **Database Changelog Validation:**  
-  `./mvnw compile liquibase:updateTestingRollback -pl repo-infra-db`
+* **Database Changelog Validation (Mandatory Dual-Dialect H2 & PostgreSQL):**  
+  `node .agents/scripts/liquibase-validator-server.js` (or `validate_liquibase_changelog` tool)
 
 ---
 
@@ -60,3 +60,4 @@ All feature development, bug fixes, and protocol adapter additions MUST follow t
 4. **Hermetic Testcontainers:** Integration tests (`*IT.java`) must bring up isolated containers (PostgreSQL 16, RustFS, Kafka) and tear down without leaving state side-effects.
 5. **Pipeline & DevOps Automation:** Whenever building or updating CI/CD build pipelines (`.github/workflows/*`), Dockerfiles (`src/main/docker/*`), Kubernetes manifests, or Helm charts, ALWAYS activate and adhere to the `devops-engineer` skill.
 6. **Mandatory SonarCloud Audit:** Before declaring completion on any feature, bug fix, or refactoring task, the agent MUST inspect SonarCloud for open code smells, bugs, or vulnerabilities via the `sonarcloud` MCP server (or `sonar-remediation` skill), ensuring zero open critical or major issues.
+7. **Mandatory Dual-Dialect Liquibase Validation:** Whenever creating or modifying any Liquibase XML changelog under `repo-infra-db/src/main/resources/db/changelog/`, the agent MUST execute dual-dialect validation across BOTH `h2` and `postgresql` 16+ using the `liquibaseValidator` MCP tool (or `node .agents/scripts/liquibase-validator-server.js`) and ensure 0 errors and successful rollback cycles before declaring completion.

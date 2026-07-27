@@ -123,7 +123,7 @@ AGENTS.md                              # Root repository agent guidelines & TDD 
       "args": ["-y", "@jetbrains/mcp-proxy"],
       "description": "IntelliJ IDEA Model Context Protocol Server for IDE context inspection and navigation",
       "env": {
-        "INTELLIJ_PORT": "63342"
+        "INTELLIJ_PORT": "64343"
       }
     },
     "github": {

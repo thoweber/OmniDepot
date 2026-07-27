@@ -13,7 +13,8 @@ if [[ -f "${ENV_FILE}" ]]; then
     source "${ENV_FILE}"
     set +o allexport
 else
-    echo "[WARN] agy.env file not found at ${ENV_FILE}. Copy agy.env.example to agy.env to configure local credentials." >&2
+    echo "[ERROR] agy.env file not found at ${ENV_FILE}. Copy agy.env.example to agy.env to configure local credentials." >&2
+    exit 1
 fi
 
 exec agy "$@"
