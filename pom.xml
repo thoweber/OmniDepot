@@ -298,7 +298,7 @@
                 <plugin>
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
-                    <version>4.33.0</version>
+                    <version>5.0.3</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
