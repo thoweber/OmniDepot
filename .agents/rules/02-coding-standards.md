@@ -3,8 +3,7 @@
 ## 1. Java 25 & Quarkus Conventions
 * Use modern Java 25 constructs: `record` for immutable DTOs/Value Objects, pattern matching in `switch` expressions, and `sealed` interfaces for domain events.
 * Use `@ApplicationScoped` for CDI singletons and `@RequestScoped` strictly when request context state is mandatory. 
-* **Use Constructor Injection:** Always pass dependencies as constructor arguments rather than annotating fields with `@Inject`.
-* **Immutability:** Declare all injected dependency fields as `final` and use `@RequiredArgsConstructor`.
+* **Use Constructor Injection:** Always pass dependencies as constructor arguments rather than annotating fields with `@Inject`. Declare all injected dependency fields as `final` and use `@RequiredArgsConstructor`.
 * Annotate Panache entities with Hibernate 6 `@JdbcTypeCode(SqlTypes.JSON)` for complex JSONB fields (`attributes`, `provider_state`).
 
 ## 2. Strongly-Typed Value Objects & Nullability Rules

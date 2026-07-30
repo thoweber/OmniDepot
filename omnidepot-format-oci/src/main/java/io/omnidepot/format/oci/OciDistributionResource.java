@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -45,25 +46,39 @@ public class OciDistributionResource {
     private static final String UPLOADS_PATH = "/blobs/uploads/";
     private static final String MANIFESTS_PATH = "/manifests/";
 
-    @Inject
-    @Any
-    Instance<BlobStore> blobStoreInstance;
-
-    @Inject
-    @Any
-    Instance<ManifestStore> manifestStoreInstance;
-
-    private @Nullable BlobStore testBlobStore;
-    private @Nullable ManifestStore testManifestStore;
+    private final @Nullable Instance<BlobStore> blobStoreInstance;
+    private final @Nullable Instance<ManifestStore> manifestStoreInstance;
+    private final @Nullable BlobStore testBlobStore;
+    private final @Nullable ManifestStore testManifestStore;
 
     public OciDistributionResource() {
+        this(null, null, null, new InMemoryManifestStore());
+    }
+
+    @Inject
+    public OciDistributionResource(
+            @Any Instance<BlobStore> blobStoreInstance,
+            @Any Instance<ManifestStore> manifestStoreInstance
+    ) {
+        this(blobStoreInstance, manifestStoreInstance, null, null);
     }
 
     OciDistributionResource(@Nullable BlobStore testBlobStore) {
-        this(testBlobStore, new InMemoryManifestStore());
+        this(null, null, testBlobStore, new InMemoryManifestStore());
     }
 
     OciDistributionResource(@Nullable BlobStore testBlobStore, @Nullable ManifestStore testManifestStore) {
+        this(null, null, testBlobStore, testManifestStore);
+    }
+
+    private OciDistributionResource(
+            @Nullable Instance<BlobStore> blobStoreInstance,
+            @Nullable Instance<ManifestStore> manifestStoreInstance,
+            @Nullable BlobStore testBlobStore,
+            @Nullable ManifestStore testManifestStore
+    ) {
+        this.blobStoreInstance = blobStoreInstance;
+        this.manifestStoreInstance = manifestStoreInstance;
         this.testBlobStore = testBlobStore;
         this.testManifestStore = testManifestStore;
     }
@@ -72,14 +87,14 @@ public class OciDistributionResource {
         if (nonNull(testBlobStore)) {
             return testBlobStore;
         }
-        return (blobStoreInstance != null && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
+        return (nonNull(blobStoreInstance) && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
     }
 
     private @Nullable ManifestStore resolveManifestStore() {
         if (nonNull(testManifestStore)) {
             return testManifestStore;
         }
-        return (manifestStoreInstance != null && manifestStoreInstance.isResolvable()) ? manifestStoreInstance.get() : null;
+        return (nonNull(manifestStoreInstance) && manifestStoreInstance.isResolvable()) ? manifestStoreInstance.get() : null;
     }
 
     @GET
@@ -229,7 +244,7 @@ public class OciDistributionResource {
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
         ManifestStore manifestStore = resolveManifestStore();
-        if (manifestStore == null) {
+        if (isNull(manifestStore)) {
             throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
         }
 
@@ -251,7 +266,7 @@ public class OciDistributionResource {
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
         ManifestStore manifestStore = resolveManifestStore();
-        if (manifestStore == null) {
+        if (isNull(manifestStore)) {
             throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
         }
 

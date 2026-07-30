@@ -3,10 +3,10 @@ package io.omnidepot.infra.db.oci;
 import io.omnidepot.core.api.oci.ManifestStore;
 import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.Sha256Digest;
+import io.omnidepot.core.api.storage.StorageException;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.logging.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -16,10 +16,10 @@ import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Objects.isNull;
+
 @ApplicationScoped
 class PanacheManifestStore implements ManifestStore {
-
-    private static final Logger LOG = Logger.getLogger(PanacheManifestStore.class);
 
     @Override
     public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
@@ -30,7 +30,7 @@ class PanacheManifestStore implements ManifestStore {
 
     private StoredManifestRecord doSaveManifest(String repositoryName, String reference, String mediaType, String payload) {
         RepositoryEntity repo = RepositoryEntity.<RepositoryEntity>find("name", repositoryName).firstResult();
-        if (repo == null) {
+        if (isNull(repo)) {
             repo = new RepositoryEntity();
             repo.id = UUID.randomUUID().toString();
             repo.name = repositoryName;
@@ -45,7 +45,7 @@ class PanacheManifestStore implements ManifestStore {
         String canonicalDigestStr = "sha256:" + computedHex;
 
         OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, canonicalDigestStr).firstResult();
-        if (manifest == null) {
+        if (isNull(manifest)) {
             manifest = new OciManifestEntity();
             manifest.id = UUID.randomUUID().toString();
             manifest.repositoryId = repo.id;
@@ -59,7 +59,7 @@ class PanacheManifestStore implements ManifestStore {
 
         if (!reference.startsWith("sha256:")) {
             OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
-            if (tag == null) {
+            if (isNull(tag)) {
                 tag = new OciTagEntity();
                 tag.id = UUID.randomUUID().toString();
                 tag.repositoryId = repo.id;
@@ -82,7 +82,7 @@ class PanacheManifestStore implements ManifestStore {
 
     private Optional<StoredManifestRecord> doFindManifest(String repositoryName, String reference) {
         RepositoryEntity repo = RepositoryEntity.<RepositoryEntity>find("name", repositoryName).firstResult();
-        if (repo == null) {
+        if (isNull(repo)) {
             return Optional.empty();
         }
 
@@ -91,13 +91,13 @@ class PanacheManifestStore implements ManifestStore {
             manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, reference).firstResult();
         } else {
             OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
-            if (tag == null) {
+            if (isNull(tag)) {
                 return Optional.empty();
             }
             manifest = OciManifestEntity.findById(tag.manifestId);
         }
 
-        if (manifest == null) {
+        if (isNull(manifest)) {
             return Optional.empty();
         }
 
@@ -128,7 +128,7 @@ class PanacheManifestStore implements ManifestStore {
             byte[] hash = digest.digest(bytes);
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 algorithm unavailable", e);
+            throw new StorageException("SHA-256 algorithm unavailable", e);
         }
     }
 }
