@@ -65,9 +65,9 @@ class OciManifestPersistenceCT {
         assertThat(response.getHeaderString("Docker-Content-Digest")).startsWith("sha256:");
 
         // Verify stored in ManifestStore
-        Optional<StoredManifestRecord> record = manifestStore.findManifest("my-org/alpine", "1.0.0").await().indefinitely();
-        assertThat(record).isPresent();
-        assertThat(record.get().payload()).isEqualTo(VALID_MANIFEST_JSON);
+        Optional<StoredManifestRecord> storedRecord = manifestStore.findManifest("my-org/alpine", "1.0.0").await().indefinitely();
+        assertThat(storedRecord).isPresent();
+        assertThat(storedRecord.get().payload()).isEqualTo(VALID_MANIFEST_JSON);
     }
 
     @Test
@@ -153,7 +153,7 @@ class OciManifestPersistenceCT {
         @Override
         public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
             OciDigest digest = OciManifestRecord.calculateDigest(payload.getBytes());
-            StoredManifestRecord record = new StoredManifestRecord(
+            StoredManifestRecord storedRecord = new StoredManifestRecord(
                     UUID.randomUUID().toString(),
                     repositoryName,
                     Sha256Digest.of(digest.value()),
@@ -162,9 +162,9 @@ class OciManifestPersistenceCT {
                     payload,
                     Instant.now()
             );
-            store.put(repositoryName + ":" + reference, record);
-            store.put(repositoryName + ":" + digest.value(), record);
-            return Uni.createFrom().item(record);
+            store.put(repositoryName + ":" + reference, storedRecord);
+            store.put(repositoryName + ":" + digest.value(), storedRecord);
+            return Uni.createFrom().item(storedRecord);
         }
 
         @Override

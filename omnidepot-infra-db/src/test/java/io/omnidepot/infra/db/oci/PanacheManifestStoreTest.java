@@ -87,4 +87,42 @@ class PanacheManifestStoreTest {
         assertThat(currentLatest).isPresent();
         assertThat(currentLatest.get().digest().hexValue()).isEqualTo(v2.digest().hexValue());
     }
+
+    @Test
+    @DisplayName("Given saving directly with a digest reference - when saving manifest - then manifest is saved without creating a tag")
+    void shouldSaveManifestWithDigestReference() {
+        StoredManifestRecord saved = manifestStore.saveManifest(
+                "library/ubuntu",
+                "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "application/vnd.oci.image.manifest.v1+json",
+                PAYLOAD
+        ).await().indefinitely();
+
+        assertThat(saved).isNotNull();
+        String digestStr = "sha256:" + saved.digest().hexValue();
+
+        Optional<StoredManifestRecord> found = manifestStore.findManifest("library/ubuntu", digestStr)
+                .await().indefinitely();
+        assertThat(found).isPresent();
+    }
+
+    @Test
+    @DisplayName("Given nonexistent repository or missing reference - when finding manifest - then Optional.empty is returned")
+    void shouldReturnEmptyForNonexistentRepoOrReference() {
+        Optional<StoredManifestRecord> noRepo = manifestStore.findManifest("nonexistent/repo", "latest")
+                .await().indefinitely();
+        assertThat(noRepo).isEmpty();
+
+        // Create repo first
+        manifestStore.saveManifest("existing/repo", "1.0", "application/vnd.oci.image.manifest.v1+json", PAYLOAD)
+                .await().indefinitely();
+
+        Optional<StoredManifestRecord> noTag = manifestStore.findManifest("existing/repo", "missing-tag")
+                .await().indefinitely();
+        assertThat(noTag).isEmpty();
+
+        Optional<StoredManifestRecord> noDigest = manifestStore.findManifest("existing/repo", "sha256:0000000000000000000000000000000000000000000000000000000000000000")
+                .await().indefinitely();
+        assertThat(noDigest).isEmpty();
+    }
 }

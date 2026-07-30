@@ -42,6 +42,7 @@ public class OciDistributionResource {
     private static final String BLOBS_PATH = "/blobs/";
     private static final String UPLOADS_PATH = "/blobs/uploads/";
     private static final String MANIFESTS_PATH = "/manifests/";
+    private static final String SHA256_PREFIX = "sha256:";
 
     private final Instance<BlobStore> blobStoreInstance;
     private final Instance<ManifestStore> manifestStoreInstance;
@@ -188,7 +189,7 @@ public class OciDistributionResource {
         String location = buildManifestLocation(repositoryName.value(), reference);
         return Response.status(Response.Status.CREATED)
                 .header(HttpHeaders.LOCATION, location)
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
@@ -210,7 +211,7 @@ public class OciDistributionResource {
 
         return Response.ok(stored.payload())
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
@@ -232,12 +233,12 @@ public class OciDistributionResource {
 
         return Response.ok()
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
     private void verifyBlobExistsInCas(BlobStore blobStore, String rawDigest) {
-        String hexDigest = rawDigest.startsWith("sha256:") ? rawDigest.substring(7) : rawDigest;
+        String hexDigest = rawDigest.startsWith(SHA256_PREFIX) ? rawDigest.substring(7) : rawDigest;
         Sha256Digest digest = Sha256Digest.of(hexDigest);
         boolean exists = blobStore.exists(digest).await().indefinitely();
         if (!exists) {

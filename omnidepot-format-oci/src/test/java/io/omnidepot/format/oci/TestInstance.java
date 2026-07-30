@@ -60,6 +60,7 @@ public class TestInstance<T> implements Instance<T> {
 
     @Override
     public void destroy(T instance) {
+        // No-op for lightweight test double instances
     }
 
     @Override

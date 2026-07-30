@@ -21,6 +21,8 @@ import static java.util.Objects.isNull;
 @ApplicationScoped
 class PanacheManifestStore implements ManifestStore {
 
+    private static final String SHA256_PREFIX = "sha256:";
+
     @Override
     public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
         return Uni.createFrom().item(() ->
@@ -42,7 +44,7 @@ class PanacheManifestStore implements ManifestStore {
         }
 
         String computedHex = calculateSha256Hex(payload.getBytes(StandardCharsets.UTF_8));
-        String canonicalDigestStr = "sha256:" + computedHex;
+        String canonicalDigestStr = SHA256_PREFIX + computedHex;
 
         OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, canonicalDigestStr).firstResult();
         if (isNull(manifest)) {
@@ -57,7 +59,7 @@ class PanacheManifestStore implements ManifestStore {
             manifest.persist();
         }
 
-        if (!reference.startsWith("sha256:")) {
+        if (!reference.startsWith(SHA256_PREFIX)) {
             OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
             if (isNull(tag)) {
                 tag = new OciTagEntity();
@@ -86,22 +88,18 @@ class PanacheManifestStore implements ManifestStore {
             return Optional.empty();
         }
 
-        OciManifestEntity manifest;
-        if (reference.startsWith("sha256:")) {
-            manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, reference).firstResult();
-        } else {
-            OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
-            if (isNull(tag)) {
-                return Optional.empty();
-            }
-            manifest = OciManifestEntity.findById(tag.manifestId);
+        if (reference.startsWith(SHA256_PREFIX)) {
+            OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, reference).firstResult();
+            return Optional.ofNullable(manifest).map(m -> toRecord(repositoryName, m));
         }
 
-        if (isNull(manifest)) {
+        OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
+        if (isNull(tag)) {
             return Optional.empty();
         }
 
-        return Optional.of(toRecord(repositoryName, manifest));
+        OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>findById(tag.manifestId);
+        return Optional.ofNullable(manifest).map(m -> toRecord(repositoryName, m));
     }
 
     @Override
@@ -110,7 +108,7 @@ class PanacheManifestStore implements ManifestStore {
     }
 
     private StoredManifestRecord toRecord(String repoName, OciManifestEntity entity) {
-        String hex = entity.digest.startsWith("sha256:") ? entity.digest.substring(7) : entity.digest;
+        String hex = entity.digest.startsWith(SHA256_PREFIX) ? entity.digest.substring(7) : entity.digest;
         return new StoredManifestRecord(
                 entity.id,
                 repoName,

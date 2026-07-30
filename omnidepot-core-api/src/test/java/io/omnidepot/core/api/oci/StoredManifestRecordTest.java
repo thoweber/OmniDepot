@@ -21,7 +21,7 @@ class StoredManifestRecordTest {
         String payload = "{}";
         Instant createdAt = Instant.now();
 
-        StoredManifestRecord record = new StoredManifestRecord(
+        StoredManifestRecord storedRecord = new StoredManifestRecord(
                 id,
                 repoName,
                 digest,
@@ -31,12 +31,12 @@ class StoredManifestRecordTest {
                 createdAt
         );
 
-        assertThat(record.id()).isEqualTo(id);
-        assertThat(record.repositoryName()).isEqualTo(repoName);
-        assertThat(record.digest()).isEqualTo(digest);
-        assertThat(record.mediaType()).isEqualTo(mediaType);
-        assertThat(record.sizeBytes()).isEqualTo(sizeBytes);
-        assertThat(record.payload()).isEqualTo(payload);
-        assertThat(record.createdAt()).isEqualTo(createdAt);
+        assertThat(storedRecord.id()).isEqualTo(id);
+        assertThat(storedRecord.repositoryName()).isEqualTo(repoName);
+        assertThat(storedRecord.digest()).isEqualTo(digest);
+        assertThat(storedRecord.mediaType()).isEqualTo(mediaType);
+        assertThat(storedRecord.sizeBytes()).isEqualTo(sizeBytes);
+        assertThat(storedRecord.payload()).isEqualTo(payload);
+        assertThat(storedRecord.createdAt()).isEqualTo(createdAt);
     }
 }
