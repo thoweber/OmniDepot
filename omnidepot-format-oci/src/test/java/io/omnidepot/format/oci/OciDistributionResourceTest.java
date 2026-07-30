@@ -15,7 +15,7 @@ class OciDistributionResourceTest {
 
     @BeforeEach
     void setUp() {
-        resource = new OciDistributionResource();
+        resource = new OciDistributionResource(TestInstance.empty(), TestInstance.empty());
     }
 
     @Test

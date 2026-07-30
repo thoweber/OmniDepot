@@ -5,7 +5,6 @@ import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
-import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -25,9 +24,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -46,54 +43,23 @@ public class OciDistributionResource {
     private static final String UPLOADS_PATH = "/blobs/uploads/";
     private static final String MANIFESTS_PATH = "/manifests/";
 
-    private final @Nullable Instance<BlobStore> blobStoreInstance;
-    private final @Nullable Instance<ManifestStore> manifestStoreInstance;
-    private final @Nullable BlobStore testBlobStore;
-    private final @Nullable ManifestStore testManifestStore;
-
-    public OciDistributionResource() {
-        this(null, null, null, new InMemoryManifestStore());
-    }
+    private final Instance<BlobStore> blobStoreInstance;
+    private final Instance<ManifestStore> manifestStoreInstance;
 
     @Inject
     public OciDistributionResource(
             @Any Instance<BlobStore> blobStoreInstance,
             @Any Instance<ManifestStore> manifestStoreInstance
     ) {
-        this(blobStoreInstance, manifestStoreInstance, null, null);
-    }
-
-    OciDistributionResource(@Nullable BlobStore testBlobStore) {
-        this(null, null, testBlobStore, new InMemoryManifestStore());
-    }
-
-    OciDistributionResource(@Nullable BlobStore testBlobStore, @Nullable ManifestStore testManifestStore) {
-        this(null, null, testBlobStore, testManifestStore);
-    }
-
-    private OciDistributionResource(
-            @Nullable Instance<BlobStore> blobStoreInstance,
-            @Nullable Instance<ManifestStore> manifestStoreInstance,
-            @Nullable BlobStore testBlobStore,
-            @Nullable ManifestStore testManifestStore
-    ) {
         this.blobStoreInstance = blobStoreInstance;
         this.manifestStoreInstance = manifestStoreInstance;
-        this.testBlobStore = testBlobStore;
-        this.testManifestStore = testManifestStore;
     }
 
     private @Nullable BlobStore resolveBlobStore() {
-        if (nonNull(testBlobStore)) {
-            return testBlobStore;
-        }
         return (nonNull(blobStoreInstance) && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
     }
 
     private @Nullable ManifestStore resolveManifestStore() {
-        if (nonNull(testManifestStore)) {
-            return testManifestStore;
-        }
         return (nonNull(manifestStoreInstance) && manifestStoreInstance.isResolvable()) ? manifestStoreInstance.get() : null;
     }
 
@@ -212,22 +178,12 @@ public class OciDistributionResource {
         }
 
         ManifestStore manifestStore = resolveManifestStore();
-        StoredManifestRecord stored;
-        if (nonNull(manifestStore)) {
-            stored = manifestStore.saveManifest(repositoryName.value(), reference, manifestRecord.mediaType(), jsonPayload)
-                    .await().indefinitely();
-        } else {
-            OciDigest computedDigest = OciManifestRecord.calculateDigest(jsonPayload.getBytes());
-            stored = new StoredManifestRecord(
-                    "temp-id",
-                    repositoryName.value(),
-                    Sha256Digest.of(computedDigest.value()),
-                    manifestRecord.mediaType(),
-                    jsonPayload.getBytes().length,
-                    jsonPayload,
-                    java.time.Instant.now()
-            );
+        if (isNull(manifestStore)) {
+            throw new OciBlobUnknownException("Manifest store unavailable");
         }
+
+        StoredManifestRecord stored = manifestStore.saveManifest(repositoryName.value(), reference, manifestRecord.mediaType(), jsonPayload)
+                .await().indefinitely();
 
         String location = buildManifestLocation(repositoryName.value(), reference);
         return Response.status(Response.Status.CREATED)
@@ -299,36 +255,5 @@ public class OciDistributionResource {
 
     private static String buildManifestLocation(String repoName, String reference) {
         return V2_PREFIX + repoName + MANIFESTS_PATH + reference;
-    }
-
-    private static class InMemoryManifestStore implements ManifestStore {
-        private final Map<String, StoredManifestRecord> store = new ConcurrentHashMap<>();
-
-        @Override
-        public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
-            OciDigest digest = OciManifestRecord.calculateDigest(payload.getBytes());
-            StoredManifestRecord rec = new StoredManifestRecord(
-                    java.util.UUID.randomUUID().toString(),
-                    repositoryName,
-                    Sha256Digest.of(digest.value()),
-                    mediaType,
-                    payload.getBytes().length,
-                    payload,
-                    java.time.Instant.now()
-            );
-            store.put(repositoryName + ":" + reference, rec);
-            store.put(repositoryName + ":" + digest.value(), rec);
-            return Uni.createFrom().item(rec);
-        }
-
-        @Override
-        public Uni<Optional<StoredManifestRecord>> findManifest(String repositoryName, String reference) {
-            return Uni.createFrom().item(Optional.ofNullable(store.get(repositoryName + ":" + reference)));
-        }
-
-        @Override
-        public Uni<Boolean> manifestExists(String repositoryName, String reference) {
-            return Uni.createFrom().item(store.containsKey(repositoryName + ":" + reference));
-        }
     }
 }

@@ -50,7 +50,7 @@ class OciManifestPersistenceCT {
     void setUp() {
         blobStore = new StubBlobStore();
         manifestStore = new StubManifestStore();
-        resource = new OciDistributionResource(blobStore, manifestStore);
+        resource = new OciDistributionResource(TestInstance.of(blobStore), TestInstance.of(manifestStore));
     }
 
     @Test

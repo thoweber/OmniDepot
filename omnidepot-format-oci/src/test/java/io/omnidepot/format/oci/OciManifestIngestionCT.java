@@ -1,5 +1,7 @@
 package io.omnidepot.format.oci;
 
+import io.omnidepot.core.api.oci.ManifestStore;
+import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobDescriptor;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
@@ -15,6 +17,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,6 +30,7 @@ class OciManifestIngestionCT {
 
     private OciDistributionResource resource;
     private InMemoryBlobStore stubBlobStore;
+    private InMemoryManifestStore manifestStore;
 
     private static final String CONFIG_DIGEST = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     private static final String LAYER_DIGEST = "a5be02727d5be41f79f22c08d9073d965e6488339b647d431f456d953fb3033f";
@@ -52,7 +57,8 @@ class OciManifestIngestionCT {
     @BeforeEach
     void setUp() {
         stubBlobStore = new InMemoryBlobStore();
-        resource = new OciDistributionResource(stubBlobStore);
+        manifestStore = new InMemoryManifestStore();
+        resource = new OciDistributionResource(TestInstance.of(stubBlobStore), TestInstance.of(manifestStore));
     }
 
     @Test
@@ -128,6 +134,37 @@ class OciManifestIngestionCT {
         @Override
         public Uni<Boolean> delete(Sha256Digest digest) {
             return Uni.createFrom().item(storage.remove(digest) != null);
+        }
+    }
+
+    private static class InMemoryManifestStore implements ManifestStore {
+        private final Map<String, StoredManifestRecord> store = new ConcurrentHashMap<>();
+
+        @Override
+        public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
+            OciDigest digest = OciManifestRecord.calculateDigest(payload.getBytes());
+            StoredManifestRecord rec = new StoredManifestRecord(
+                    UUID.randomUUID().toString(),
+                    repositoryName,
+                    Sha256Digest.of(digest.value()),
+                    mediaType,
+                    payload.getBytes().length,
+                    payload,
+                    Instant.now()
+            );
+            store.put(repositoryName + ":" + reference, rec);
+            store.put(repositoryName + ":" + digest.value(), rec);
+            return Uni.createFrom().item(rec);
+        }
+
+        @Override
+        public Uni<Optional<StoredManifestRecord>> findManifest(String repositoryName, String reference) {
+            return Uni.createFrom().item(Optional.ofNullable(store.get(repositoryName + ":" + reference)));
+        }
+
+        @Override
+        public Uni<Boolean> manifestExists(String repositoryName, String reference) {
+            return Uni.createFrom().item(store.containsKey(repositoryName + ":" + reference));
         }
     }
 }
