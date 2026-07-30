@@ -5,6 +5,7 @@ import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.InputStream;
@@ -14,8 +15,10 @@ import java.util.UUID;
 
 /**
  * AWS S3 / RustFS implementation of Content-Addressable Storage BlobStore SPI (ADR-004, ADR-025).
+ * Annotated with @Alternative to allow FileSystemBlobStore as default primary bean unless selected via CDI alternative priority.
  */
 @ApplicationScoped
+@Alternative
 public class S3BlobStore implements BlobStore {
 
     private final String bucketName;

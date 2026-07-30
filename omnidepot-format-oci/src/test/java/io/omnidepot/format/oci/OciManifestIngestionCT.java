@@ -58,7 +58,7 @@ class OciManifestIngestionCT {
     void setUp() {
         stubBlobStore = new InMemoryBlobStore();
         manifestStore = new InMemoryManifestStore();
-        resource = new OciDistributionResource(TestInstance.of(stubBlobStore), TestInstance.of(manifestStore));
+        resource = new OciDistributionResource(stubBlobStore, manifestStore);
     }
 
     @Test

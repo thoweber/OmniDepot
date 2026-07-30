@@ -6,8 +6,6 @@ import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -44,24 +43,16 @@ public class OciDistributionResource {
     private static final String MANIFESTS_PATH = "/manifests/";
     private static final String SHA256_PREFIX = "sha256:";
 
-    private final Instance<BlobStore> blobStoreInstance;
-    private final Instance<ManifestStore> manifestStoreInstance;
+    private final BlobStore blobStore;
+    private final ManifestStore manifestStore;
 
     @Inject
     public OciDistributionResource(
-            @Any Instance<BlobStore> blobStoreInstance,
-            @Any Instance<ManifestStore> manifestStoreInstance
+            BlobStore blobStore,
+            ManifestStore manifestStore
     ) {
-        this.blobStoreInstance = blobStoreInstance;
-        this.manifestStoreInstance = manifestStoreInstance;
-    }
-
-    private @Nullable BlobStore resolveBlobStore() {
-        return (nonNull(blobStoreInstance) && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
-    }
-
-    private @Nullable ManifestStore resolveManifestStore() {
-        return (nonNull(manifestStoreInstance) && manifestStoreInstance.isResolvable()) ? manifestStoreInstance.get() : null;
+        this.blobStore = blobStore;
+        this.manifestStore = manifestStore;
     }
 
     @GET
@@ -90,6 +81,10 @@ public class OciDistributionResource {
                 mountDigest = Sha256Digest.of(mountDigestOpt.get());
             } catch (IllegalArgumentException ex) {
                 throw new OciDigestInvalidException(ex.getMessage(), ex);
+            }
+
+            if (nonNull(blobStore)) {
+                blobStore.put(mountDigest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
             }
 
             OciDigest ociDigest = OciDigest.fromSha256(mountDigest);
@@ -128,6 +123,10 @@ public class OciDistributionResource {
             digest = Sha256Digest.of(digestValue);
         } catch (IllegalArgumentException ex) {
             throw new OciDigestInvalidException(ex.getMessage(), ex);
+        }
+
+        if (nonNull(blobStore)) {
+            blobStore.put(digest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
         }
 
         OciDigest ociDigest = OciDigest.fromSha256(digest);
@@ -170,7 +169,6 @@ public class OciDistributionResource {
         OciManifestRecord manifestRecord = OciManifestRecord.fromJson(jsonPayload);
 
         // Layer and Config Blob CAS Existence Guard
-        BlobStore blobStore = resolveBlobStore();
         if (nonNull(blobStore)) {
             verifyBlobExistsInCas(blobStore, manifestRecord.config().digest());
             for (OciDescriptor layer : manifestRecord.layers()) {
@@ -178,7 +176,6 @@ public class OciDistributionResource {
             }
         }
 
-        ManifestStore manifestStore = resolveManifestStore();
         if (isNull(manifestStore)) {
             throw new OciBlobUnknownException("Manifest store unavailable");
         }
@@ -200,7 +197,6 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        ManifestStore manifestStore = resolveManifestStore();
         if (isNull(manifestStore)) {
             throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
         }
@@ -222,7 +218,6 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        ManifestStore manifestStore = resolveManifestStore();
         if (isNull(manifestStore)) {
             throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
         }
@@ -237,10 +232,10 @@ public class OciDistributionResource {
                 .build();
     }
 
-    private void verifyBlobExistsInCas(BlobStore blobStore, String rawDigest) {
+    private void verifyBlobExistsInCas(BlobStore targetBlobStore, String rawDigest) {
         String hexDigest = rawDigest.startsWith(SHA256_PREFIX) ? rawDigest.substring(7) : rawDigest;
         Sha256Digest digest = Sha256Digest.of(hexDigest);
-        boolean exists = blobStore.exists(digest).await().indefinitely();
+        boolean exists = targetBlobStore.exists(digest).await().indefinitely();
         if (!exists) {
             throw new OciBlobUnknownException("Referenced layer or config blob missing from CAS: " + rawDigest);
         }
