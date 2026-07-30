@@ -1,8 +1,11 @@
 package io.omnidepot.format.oci;
 
+import io.omnidepot.core.api.oci.ManifestStore;
+import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -44,27 +47,39 @@ public class OciDistributionResource {
 
     @Inject
     @Any
-    @Nullable
     Instance<BlobStore> blobStoreInstance;
 
-    private final @Nullable BlobStore testBlobStore;
-    private final Map<String, StoredManifest> manifestStore = new ConcurrentHashMap<>();
+    @Inject
+    @Any
+    Instance<ManifestStore> manifestStoreInstance;
+
+    private @Nullable BlobStore testBlobStore;
+    private @Nullable ManifestStore testManifestStore;
 
     public OciDistributionResource() {
-        this.blobStoreInstance = null;
-        this.testBlobStore = null;
     }
 
     OciDistributionResource(@Nullable BlobStore testBlobStore) {
-        this.blobStoreInstance = null;
+        this(testBlobStore, new InMemoryManifestStore());
+    }
+
+    OciDistributionResource(@Nullable BlobStore testBlobStore, @Nullable ManifestStore testManifestStore) {
         this.testBlobStore = testBlobStore;
+        this.testManifestStore = testManifestStore;
     }
 
     private @Nullable BlobStore resolveBlobStore() {
         if (nonNull(testBlobStore)) {
             return testBlobStore;
         }
-        return blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
+        return (blobStoreInstance != null && blobStoreInstance.isResolvable()) ? blobStoreInstance.get() : null;
+    }
+
+    private @Nullable ManifestStore resolveManifestStore() {
+        if (nonNull(testManifestStore)) {
+            return testManifestStore;
+        }
+        return (manifestStoreInstance != null && manifestStoreInstance.isResolvable()) ? manifestStoreInstance.get() : null;
     }
 
     @GET
@@ -181,15 +196,28 @@ public class OciDistributionResource {
             }
         }
 
-        OciDigest digest = OciManifestRecord.calculateDigest(jsonPayload.getBytes());
-        String storeKey = repositoryName.value() + ":" + reference;
-        manifestStore.put(storeKey, new StoredManifest(jsonPayload, manifestRecord.mediaType(), digest));
-        manifestStore.put(repositoryName.value() + ":" + digest.value(), new StoredManifest(jsonPayload, manifestRecord.mediaType(), digest));
+        ManifestStore manifestStore = resolveManifestStore();
+        StoredManifestRecord stored;
+        if (nonNull(manifestStore)) {
+            stored = manifestStore.saveManifest(repositoryName.value(), reference, manifestRecord.mediaType(), jsonPayload)
+                    .await().indefinitely();
+        } else {
+            OciDigest computedDigest = OciManifestRecord.calculateDigest(jsonPayload.getBytes());
+            stored = new StoredManifestRecord(
+                    "temp-id",
+                    repositoryName.value(),
+                    Sha256Digest.of(computedDigest.value()),
+                    manifestRecord.mediaType(),
+                    jsonPayload.getBytes().length,
+                    jsonPayload,
+                    java.time.Instant.now()
+            );
+        }
 
         String location = buildManifestLocation(repositoryName.value(), reference);
         return Response.status(Response.Status.CREATED)
                 .header(HttpHeaders.LOCATION, location)
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), digest.value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
                 .build();
     }
 
@@ -200,14 +228,18 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        String storeKey = repositoryName.value() + ":" + reference;
+        ManifestStore manifestStore = resolveManifestStore();
+        if (manifestStore == null) {
+            throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
+        }
 
-        StoredManifest stored = Optional.ofNullable(manifestStore.get(storeKey))
+        StoredManifestRecord stored = manifestStore.findManifest(repositoryName.value(), reference)
+                .await().indefinitely()
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
-        return Response.ok(stored.jsonPayload())
+        return Response.ok(stored.payload())
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
                 .build();
     }
 
@@ -218,14 +250,18 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        String storeKey = repositoryName.value() + ":" + reference;
+        ManifestStore manifestStore = resolveManifestStore();
+        if (manifestStore == null) {
+            throw new OciBlobUnknownException("Manifest not found for reference: " + reference);
+        }
 
-        StoredManifest stored = Optional.ofNullable(manifestStore.get(storeKey))
+        StoredManifestRecord stored = manifestStore.findManifest(repositoryName.value(), reference)
+                .await().indefinitely()
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
         return Response.ok()
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), "sha256:" + stored.digest().hexValue())
                 .build();
     }
 
@@ -239,25 +275,45 @@ public class OciDistributionResource {
     }
 
     private static String buildBlobLocation(String repoName, String ociDigest) {
-        return V2_PREFIX +
-                repoName +
-                BLOBS_PATH +
-                ociDigest;
+        return V2_PREFIX + repoName + BLOBS_PATH + ociDigest;
     }
 
     private static String buildUploadSessionLocation(String repoName, String sessionId) {
-        return V2_PREFIX +
-                repoName +
-                UPLOADS_PATH +
-                sessionId;
+        return V2_PREFIX + repoName + UPLOADS_PATH + sessionId;
     }
 
     private static String buildManifestLocation(String repoName, String reference) {
-        return V2_PREFIX +
-                repoName +
-                MANIFESTS_PATH +
-                reference;
+        return V2_PREFIX + repoName + MANIFESTS_PATH + reference;
     }
 
-    private record StoredManifest(String jsonPayload, String mediaType, OciDigest digest) {}
+    private static class InMemoryManifestStore implements ManifestStore {
+        private final Map<String, StoredManifestRecord> store = new ConcurrentHashMap<>();
+
+        @Override
+        public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
+            OciDigest digest = OciManifestRecord.calculateDigest(payload.getBytes());
+            StoredManifestRecord rec = new StoredManifestRecord(
+                    java.util.UUID.randomUUID().toString(),
+                    repositoryName,
+                    Sha256Digest.of(digest.value()),
+                    mediaType,
+                    payload.getBytes().length,
+                    payload,
+                    java.time.Instant.now()
+            );
+            store.put(repositoryName + ":" + reference, rec);
+            store.put(repositoryName + ":" + digest.value(), rec);
+            return Uni.createFrom().item(rec);
+        }
+
+        @Override
+        public Uni<Optional<StoredManifestRecord>> findManifest(String repositoryName, String reference) {
+            return Uni.createFrom().item(Optional.ofNullable(store.get(repositoryName + ":" + reference)));
+        }
+
+        @Override
+        public Uni<Boolean> manifestExists(String repositoryName, String reference) {
+            return Uni.createFrom().item(store.containsKey(repositoryName + ":" + reference));
+        }
+    }
 }

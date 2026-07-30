@@ -54,7 +54,9 @@ class OciNativeDockerIT {
                 .contentType(OCI_IMAGE_MANIFEST.value())
                 .body(VALID_MANIFEST_JSON)
                 .when()
-                .put("/v2/my-org/alpine/manifests/latest");
+                .put("/v2/my-org/alpine/manifests/latest")
+                .then()
+                .statusCode(201);
 
         given()
                 .when()
@@ -73,7 +75,9 @@ class OciNativeDockerIT {
                 .contentType(OCI_IMAGE_MANIFEST.value())
                 .body(VALID_MANIFEST_JSON)
                 .when()
-                .put("/v2/my-org/alpine/manifests/v2.0.0");
+                .put("/v2/my-org/alpine/manifests/v2.0.0")
+                .then()
+                .statusCode(201);
 
         given()
                 .when()
