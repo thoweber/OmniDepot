@@ -5,6 +5,7 @@ import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
+import io.omnidepot.format.oci.validation.ValidOciDigest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
@@ -110,19 +111,15 @@ public class OciDistributionResource {
     public Response finalizeUpload(
             @PathParam("name") @NotBlank String rawName,
             @PathParam("sessionId") @NotBlank String rawSessionId,
-            @QueryParam("digest") @Nullable String rawDigestParam
+            @QueryParam("digest") @ValidOciDigest String rawDigestParam
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
 
-        String digestValue = Optional.ofNullable(rawDigestParam)
-                .filter(s -> !s.isBlank())
-                .orElseThrow(() -> new OciDigestInvalidException("Missing required digest parameter"));
-
         Sha256Digest digest;
         try {
-            digest = Sha256Digest.of(digestValue);
-        } catch (IllegalArgumentException ex) {
-            throw new OciDigestInvalidException(ex.getMessage(), ex);
+            digest = Sha256Digest.of(rawDigestParam);
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new OciDigestInvalidException("Missing or invalid digest parameter", ex);
         }
 
         if (nonNull(blobStore)) {
