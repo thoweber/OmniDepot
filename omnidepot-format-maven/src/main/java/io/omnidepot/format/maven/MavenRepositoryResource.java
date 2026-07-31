@@ -149,7 +149,7 @@ public class MavenRepositoryResource {
                 : MediaType.APPLICATION_OCTET_STREAM;
     }
 
-    private record MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {
+    record MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {
         public MavenArtifactRecord {
             payload = payload.clone();
         }

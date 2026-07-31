@@ -108,6 +108,36 @@ class MavenRepositoryResourceTest {
         assertThat(response.getEntity()).isEqualTo(payload);
     }
 
+    @Test
+    @DisplayName("Verify MavenArtifactRecord equals, hashCode, toString, and accessor methods")
+    void shouldVerifyMavenArtifactRecordContract() {
+        byte[] payload1 = "data1".getBytes(StandardCharsets.UTF_8);
+        byte[] payload2 = "data2".getBytes(StandardCharsets.UTF_8);
+        MavenCoordinates coords = MavenCoordinates.parse("org/omnidepot/app/1.0.0/app-1.0.0.jar");
+
+        MavenRepositoryResource.MavenArtifactRecord record1 = new MavenRepositoryResource.MavenArtifactRecord(payload1, "application/java-archive", coords);
+        MavenRepositoryResource.MavenArtifactRecord record1Same = new MavenRepositoryResource.MavenArtifactRecord(payload1, "application/java-archive", coords);
+        MavenRepositoryResource.MavenArtifactRecord record2 = new MavenRepositoryResource.MavenArtifactRecord(payload2, "application/java-archive", coords);
+
+        // equals
+        assertThat(record1.equals(record1)).isTrue();
+        assertThat(record1.equals(record1Same)).isTrue();
+        assertThat(record1.equals(null)).isFalse();
+        assertThat(record1.equals("different object")).isFalse();
+        assertThat(record1.equals(record2)).isFalse();
+
+        // hashCode
+        assertThat(record1.hashCode()).isEqualTo(record1Same.hashCode());
+
+        // toString
+        assertThat(record1.toString()).contains("MavenArtifactRecord", "byte[](5B)", "application/java-archive");
+
+        // defensive copies and accessors
+        assertThat(record1.payload()).isEqualTo(payload1);
+        assertThat(record1.contentType()).isEqualTo("application/java-archive");
+        assertThat(record1.coords()).isEqualTo(coords);
+    }
+
     private static class StubBlobStore implements BlobStore {
         @Override
         public Uni<BlobDescriptor> put(Sha256Digest digest, String mediaType, InputStream dataSupplier, long sizeBytes) {
