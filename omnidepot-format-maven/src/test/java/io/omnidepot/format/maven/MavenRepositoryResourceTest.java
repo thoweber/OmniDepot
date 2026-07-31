@@ -95,6 +95,19 @@ class MavenRepositoryResourceTest {
         assertThat(mavenResource.blobStore()).isSameAs(stubBlobStore);
     }
 
+    @Test
+    @DisplayName("Given deployed artifact, getArtifact retrieves deployed payload")
+    void shouldGetDeployedArtifactPayload() {
+        String path = "org/omnidepot/my-app/1.0.0/my-app-1.0.0.pom";
+        byte[] payload = "<project></project>".getBytes(StandardCharsets.UTF_8);
+
+        mavenResource.deployArtifact("releases", path, payload);
+        Response response = mavenResource.getArtifact("releases", path);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(payload);
+    }
+
     private static class StubBlobStore implements BlobStore {
         @Override
         public Uni<BlobDescriptor> put(Sha256Digest digest, String mediaType, InputStream dataSupplier, long sizeBytes) {
