@@ -1,6 +1,6 @@
 package io.omnidepot.format.oci.validation;
 
-import io.omnidepot.core.api.storage.Sha256Digest;
+import io.omnidepot.format.oci.OciDigest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +19,7 @@ public class OciDigestValidator implements ConstraintValidator<ValidOciDigest, S
             return false;
         }
         try {
-            Sha256Digest.of(value);
+            OciDigest.of(value);
             return true;
         } catch (IllegalArgumentException ignored) {
             return false;

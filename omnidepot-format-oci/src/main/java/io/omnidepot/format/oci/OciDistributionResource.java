@@ -74,16 +74,15 @@ public class OciDistributionResource {
         Optional<String> sourceRepoOpt = Optional.ofNullable(rawSourceRepository).filter(s -> !s.isBlank());
 
         if (mountDigestOpt.isPresent() && sourceRepoOpt.isPresent()) {
-            Sha256Digest mountDigest;
+            OciDigest ociDigest;
             try {
-                mountDigest = Sha256Digest.of(mountDigestOpt.get());
+                ociDigest = OciDigest.of(mountDigestOpt.get());
             } catch (IllegalArgumentException ex) {
                 throw new OciDigestInvalidException(ex.getMessage(), ex);
             }
 
+            Sha256Digest mountDigest = ociDigest.toSha256();
             blobStore.put(mountDigest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
-
-            OciDigest ociDigest = OciDigest.fromSha256(mountDigest);
 
             String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
             return Response.status(Response.Status.CREATED)
@@ -110,16 +109,16 @@ public class OciDistributionResource {
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
 
-        Sha256Digest digest;
+        OciDigest ociDigest;
         try {
-            digest = Sha256Digest.of(rawDigestParam);
+            ociDigest = OciDigest.of(rawDigestParam);
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new OciDigestInvalidException("Missing or invalid digest parameter", ex);
         }
 
+        Sha256Digest digest = ociDigest.toSha256();
         blobStore.put(digest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
 
-        OciDigest ociDigest = OciDigest.fromSha256(digest);
         String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
                 .header(HttpHeaders.LOCATION, location)
@@ -133,14 +132,13 @@ public class OciDistributionResource {
             @PathParam("name") @NotBlank String rawName,
             @PathParam("digest") String rawDigest
     ) {
-        Sha256Digest digest;
+        OciDigest ociDigest;
         try {
-            digest = Sha256Digest.of(rawDigest);
+            ociDigest = OciDigest.of(rawDigest);
         } catch (IllegalArgumentException ex) {
             throw new OciDigestInvalidException(ex.getMessage(), ex);
         }
 
-        OciDigest ociDigest = OciDigest.fromSha256(digest);
         return Response.ok()
                 .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
                 .header(HttpHeaders.CONTENT_LENGTH, 0)
