@@ -2,8 +2,6 @@ package io.omnidepot.format.maven;
 
 import io.omnidepot.core.api.storage.BlobStore;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.Consumes;
@@ -14,12 +12,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.util.Objects.nonNull;
 
 /**
  * Maven/Gradle Protocol Adapter Resource Endpoint (ADR-004, ADR-005).
@@ -32,32 +27,16 @@ import static java.util.Objects.nonNull;
 @SuppressWarnings({"java:S1166", "java:S7467"})
 public class MavenRepositoryResource {
 
-    private final @Nullable Instance<BlobStore> blobStoreInstance;
-    private final @Nullable BlobStore testBlobStore;
+    private final BlobStore blobStore;
     private final Map<String, MavenArtifactRecord> artifactStore = new ConcurrentHashMap<>();
 
-    public MavenRepositoryResource() {
-        this.blobStoreInstance = null;
-        this.testBlobStore = null;
-    }
-
     @Inject
-    public MavenRepositoryResource(@Any Instance<BlobStore> blobStoreInstance) {
-        this.blobStoreInstance = blobStoreInstance;
-        this.testBlobStore = null;
+    public MavenRepositoryResource(BlobStore blobStore) {
+        this.blobStore = blobStore;
     }
 
-    MavenRepositoryResource(@Nullable BlobStore testBlobStore) {
-        this.blobStoreInstance = null;
-        this.testBlobStore = testBlobStore;
-    }
-
-    @Nullable
-    BlobStore resolveBlobStore() {
-        if (nonNull(testBlobStore)) {
-            return testBlobStore;
-        }
-        return blobStoreInstance != null && blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
+    BlobStore blobStore() {
+        return blobStore;
     }
 
     @PUT
