@@ -42,7 +42,7 @@ Ensure all Netty `ByteBuf` streams and Vert.x file channels are closed or releas
 
 ---
 
-## 4. SonarCloud Execution Commands
+## 4. SonarCloud Execution Commands & Waiting Strategy
 
 * **SonarCloud MCP Inspection (`sonarcloud` server in `.agents/config.json`):**
   Uses `SONAR_TOKEN` environment variable to query open issues, security hotspots, and Quality Gate status directly for project `omnidepot`.
@@ -50,3 +50,5 @@ Ensure all Netty `ByteBuf` streams and Vert.x file channels are closed or releas
   `./mvnw -B clean verify sonar:sonar -Dsonar.qualitygate.wait=true`
 * **Inspect Aggregated JaCoCo Report:**
   `repo-coverage-report/target/site/jacoco-aggregate/index.html`
+* **Waiting Strategy for CI / Sonar Results:**
+  When waiting for Sonar / GitHub Actions analysis results after pushing or triggering a run, assume an initial wait time of 2 minutes (120 seconds) before checking status for the first time, and only recheck after waiting 45 seconds between subsequent status polls.
