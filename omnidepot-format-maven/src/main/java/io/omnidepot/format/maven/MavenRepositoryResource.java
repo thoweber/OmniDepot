@@ -1,5 +1,6 @@
 package io.omnidepot.format.maven;
 
+import io.omnidepot.core.api.converter.PayloadSizeConverter;
 import io.omnidepot.core.api.storage.BlobStore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,7 +14,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -154,6 +157,30 @@ public class MavenRepositoryResource {
         @Override
         public byte[] payload() {
             return payload.clone();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MavenArtifactRecord that = (MavenArtifactRecord) o;
+            return Arrays.equals(payload, that.payload)
+                    && Objects.equals(contentType, that.contentType)
+                    && Objects.equals(coords, that.coords);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(contentType, coords);
+            result = 31 * result + Arrays.hashCode(payload);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "MavenArtifactRecord[payload=" + PayloadSizeConverter.formatPayload(payload)
+                    + ", contentType=" + contentType
+                    + ", coords=" + coords + "]";
         }
     }
 }
