@@ -1,12 +1,13 @@
 package io.omnidepot.format.oci;
 
 import io.omnidepot.core.api.storage.Sha256Digest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Value Object representing an algorithm-prefixed OCI Digest string (e.g. "sha256:e3b0c4...").
  * Single Source of Truth for OCI digest formatting, validation, and capacity calculation in repo-format-oci.
  */
-public record OciDigest(String value, Sha256Digest toSha256) {
+public record OciDigest(String value, @Nullable Sha256Digest toSha256) {
 
     public static final String ALGORITHM_PREFIX = "sha256:";
     public static final int SHA256_HEX_LENGTH = 64;
