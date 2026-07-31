@@ -119,15 +119,14 @@ class MavenRepositoryResourceTest {
         MavenRepositoryResource.MavenArtifactRecord record1Same = new MavenRepositoryResource.MavenArtifactRecord(payload1, "application/java-archive", coords);
         MavenRepositoryResource.MavenArtifactRecord record2 = new MavenRepositoryResource.MavenArtifactRecord(payload2, "application/java-archive", coords);
 
-        // equals
-        assertThat(record1.equals(record1)).isTrue();
-        assertThat(record1.equals(record1Same)).isTrue();
-        assertThat(record1.equals(null)).isFalse();
-        assertThat(record1.equals("different object")).isFalse();
-        assertThat(record1.equals(record2)).isFalse();
-
-        // hashCode
-        assertThat(record1.hashCode()).isEqualTo(record1Same.hashCode());
+        // equals & hashCode
+        assertThat(record1)
+                .isEqualTo(record1)
+                .isEqualTo(record1Same)
+                .isNotEqualTo(null)
+                .isNotEqualTo("different object")
+                .isNotEqualTo(record2)
+                .hasSameHashCodeAs(record1Same);
 
         // toString
         assertThat(record1.toString()).contains("MavenArtifactRecord", "byte[](5B)", "application/java-archive");
