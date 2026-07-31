@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0  # Disabling shallow clone is recommended for improving relevancy of SonarCloud reporting
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
