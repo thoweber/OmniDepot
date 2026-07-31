@@ -36,7 +36,7 @@
         <sonar.organization>thoweber</sonar.organization>
         <sonar.projectKey>omnidepot</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/omnidepot-coverage-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/omnidepot-coverage-report/target/site/jacoco-aggregate/jacoco.xml,${maven.multiModuleProjectDirectory}/**/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Liquibase Default Configuration (Overridable via CLI for PostgreSQL) -->
         <liquibase.driver>org.h2.Driver</liquibase.driver>
@@ -250,6 +250,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
+                        <argLine>@{argLine}</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*CT.java</include>
@@ -261,6 +262,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
+                        <argLine>@{argLine}</argLine>
                         <includes>
                             <include>**/*IT.java</include>
                         </includes>

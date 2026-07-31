@@ -2,7 +2,8 @@
 
 ## 1. Java 25 & Quarkus Conventions
 * Use modern Java 25 constructs: `record` for immutable DTOs/Value Objects, pattern matching in `switch` expressions, and `sealed` interfaces for domain events.
-* Use `@ApplicationScoped` for CDI singletons and `@RequestScoped` strictly when request context state is mandatory.
+* Use `@ApplicationScoped` for CDI singletons and `@RequestScoped` strictly when request context state is mandatory. 
+* **Use Constructor Injection:** Always pass dependencies as constructor arguments rather than annotating fields with `@Inject`. Declare all injected dependency fields as `final` and use `@RequiredArgsConstructor`.
 * Annotate Panache entities with Hibernate 6 `@JdbcTypeCode(SqlTypes.JSON)` for complex JSONB fields (`attributes`, `provider_state`).
 
 ## 2. Strongly-Typed Value Objects & Nullability Rules
@@ -24,6 +25,7 @@
 * **Dedicated 1-to-1 Unit Test Files:** Every production class MUST have its own dedicated 1-to-1 unit test class (`<TargetClassName>Test.java`). Never group unit tests for different production classes into a single multi-target test file.
 * **Given-When-Then Display Names:** All `@Test` methods MUST use `@DisplayName("Given [precondition] - when [action/trigger] - then [expected outcome]")`.
 * **AssertJ Assertions:** Use AssertJ (`assertThat()`, `assertThatThrownBy()`) exclusively. `org.junit.jupiter.api.Assertions` is strictly forbidden.
+* **Mandatory 80%+ Test Coverage Thresholds:** Every production module and class MUST achieve AT LEAST 80% line coverage AND 80% branch/condition coverage across JaCoCo reports. No feature story or pull request may be completed with code falling below the 80% line and 80% condition/branch coverage targets.
 
 ## 6. Jakarta Validation & JSpecify Boundary Rules (`security-analyst`)
 * Use JSpecify (`@NullMarked`, `@Nullable`) for package nullability annotations.
@@ -40,3 +42,8 @@
 * Standard ANSI SQL changes must use built-in Liquibase tags (`<createTable>`, `<addColumn>`).
 * Dialect-specific features (`JSONB`, `USING GIN`, `FOR UPDATE SKIP LOCKED`) must be qualified with `dbms="postgresql"` or `dbms="h2"`.
 * Every `<changeSet>` MUST contain an explicit `<rollback>` definition.
+
+## 9. Strict Production Cleanliness & Anti-Pattern Prohibition
+* **Zero Test-Leakage in Production:** Production classes (`src/main/java`) MUST NOT contain test-specific constructors, test-only fallback fields (e.g., `testBlobStore`), test-specific default values, or embedded test double classes. All test mocks, stubs, and test double classes MUST reside strictly in `src/test/java`.
+* **Single Public Constructor:** Production CDI components MUST expose **exactly ONE** public constructor annotated with `@Inject`.
+* **Direct Interface Injection:** Dependencies defined as Java interfaces (e.g., `BlobStore`, `ManifestStore`) MUST be injected directly by interface type in constructor signatures. Do NOT wrap interfaces in `Instance<T>` or `Provider<T>` unless dynamic multi-tenant qualifier selection is explicitly required by an approved ADR.

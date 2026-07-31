@@ -1,11 +1,12 @@
 package io.omnidepot.format.oci;
 
+import io.omnidepot.core.api.oci.ManifestStore;
+import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
+import io.omnidepot.format.oci.validation.ValidOciDigest;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +23,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
+import java.io.ByteArrayInputStream;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static java.util.Objects.nonNull;
 
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
@@ -41,30 +39,18 @@ public class OciDistributionResource {
     private static final String BLOBS_PATH = "/blobs/";
     private static final String UPLOADS_PATH = "/blobs/uploads/";
     private static final String MANIFESTS_PATH = "/manifests/";
+    private static final String SHA256_PREFIX = "sha256:";
+
+    private final BlobStore blobStore;
+    private final ManifestStore manifestStore;
 
     @Inject
-    @Any
-    @Nullable
-    Instance<BlobStore> blobStoreInstance;
-
-    private final @Nullable BlobStore testBlobStore;
-    private final Map<String, StoredManifest> manifestStore = new ConcurrentHashMap<>();
-
-    public OciDistributionResource() {
-        this.blobStoreInstance = null;
-        this.testBlobStore = null;
-    }
-
-    OciDistributionResource(@Nullable BlobStore testBlobStore) {
-        this.blobStoreInstance = null;
-        this.testBlobStore = testBlobStore;
-    }
-
-    private @Nullable BlobStore resolveBlobStore() {
-        if (nonNull(testBlobStore)) {
-            return testBlobStore;
-        }
-        return blobStoreInstance.isResolvable() ? blobStoreInstance.get() : null;
+    public OciDistributionResource(
+            BlobStore blobStore,
+            ManifestStore manifestStore
+    ) {
+        this.blobStore = blobStore;
+        this.manifestStore = manifestStore;
     }
 
     @GET
@@ -88,14 +74,15 @@ public class OciDistributionResource {
         Optional<String> sourceRepoOpt = Optional.ofNullable(rawSourceRepository).filter(s -> !s.isBlank());
 
         if (mountDigestOpt.isPresent() && sourceRepoOpt.isPresent()) {
-            Sha256Digest mountDigest;
+            OciDigest ociDigest;
             try {
-                mountDigest = Sha256Digest.of(mountDigestOpt.get());
+                ociDigest = OciDigest.of(mountDigestOpt.get());
             } catch (IllegalArgumentException ex) {
                 throw new OciDigestInvalidException(ex.getMessage(), ex);
             }
 
-            OciDigest ociDigest = OciDigest.fromSha256(mountDigest);
+            Sha256Digest mountDigest = ociDigest.toSha256();
+            blobStore.put(mountDigest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
 
             String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
             return Response.status(Response.Status.CREATED)
@@ -118,22 +105,20 @@ public class OciDistributionResource {
     public Response finalizeUpload(
             @PathParam("name") @NotBlank String rawName,
             @PathParam("sessionId") @NotBlank String rawSessionId,
-            @QueryParam("digest") @Nullable String rawDigestParam
+            @QueryParam("digest") @ValidOciDigest String rawDigestParam
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
 
-        String digestValue = Optional.ofNullable(rawDigestParam)
-                .filter(s -> !s.isBlank())
-                .orElseThrow(() -> new OciDigestInvalidException("Missing required digest parameter"));
-
-        Sha256Digest digest;
+        OciDigest ociDigest;
         try {
-            digest = Sha256Digest.of(digestValue);
-        } catch (IllegalArgumentException ex) {
-            throw new OciDigestInvalidException(ex.getMessage(), ex);
+            ociDigest = OciDigest.of(rawDigestParam);
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new OciDigestInvalidException("Missing or invalid digest parameter", ex);
         }
 
-        OciDigest ociDigest = OciDigest.fromSha256(digest);
+        Sha256Digest digest = ociDigest.toSha256();
+        blobStore.put(digest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
+
         String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
                 .header(HttpHeaders.LOCATION, location)
@@ -147,14 +132,13 @@ public class OciDistributionResource {
             @PathParam("name") @NotBlank String rawName,
             @PathParam("digest") String rawDigest
     ) {
-        Sha256Digest digest;
+        OciDigest ociDigest;
         try {
-            digest = Sha256Digest.of(rawDigest);
+            ociDigest = OciDigest.of(rawDigest);
         } catch (IllegalArgumentException ex) {
             throw new OciDigestInvalidException(ex.getMessage(), ex);
         }
 
-        OciDigest ociDigest = OciDigest.fromSha256(digest);
         return Response.ok()
                 .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
                 .header(HttpHeaders.CONTENT_LENGTH, 0)
@@ -173,23 +157,18 @@ public class OciDistributionResource {
         OciManifestRecord manifestRecord = OciManifestRecord.fromJson(jsonPayload);
 
         // Layer and Config Blob CAS Existence Guard
-        BlobStore blobStore = resolveBlobStore();
-        if (nonNull(blobStore)) {
-            verifyBlobExistsInCas(blobStore, manifestRecord.config().digest());
-            for (OciDescriptor layer : manifestRecord.layers()) {
-                verifyBlobExistsInCas(blobStore, layer.digest());
-            }
+        verifyBlobExistsInCas(blobStore, manifestRecord.config().digest());
+        for (OciDescriptor layer : manifestRecord.layers()) {
+            verifyBlobExistsInCas(blobStore, layer.digest());
         }
 
-        OciDigest digest = OciManifestRecord.calculateDigest(jsonPayload.getBytes());
-        String storeKey = repositoryName.value() + ":" + reference;
-        manifestStore.put(storeKey, new StoredManifest(jsonPayload, manifestRecord.mediaType(), digest));
-        manifestStore.put(repositoryName.value() + ":" + digest.value(), new StoredManifest(jsonPayload, manifestRecord.mediaType(), digest));
+        StoredManifestRecord stored = manifestStore.saveManifest(repositoryName.value(), reference, manifestRecord.mediaType(), jsonPayload)
+                .await().indefinitely();
 
         String location = buildManifestLocation(repositoryName.value(), reference);
         return Response.status(Response.Status.CREATED)
                 .header(HttpHeaders.LOCATION, location)
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), digest.value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
@@ -200,14 +179,14 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        String storeKey = repositoryName.value() + ":" + reference;
 
-        StoredManifest stored = Optional.ofNullable(manifestStore.get(storeKey))
+        StoredManifestRecord stored = manifestStore.findManifest(repositoryName.value(), reference)
+                .await().indefinitely()
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
-        return Response.ok(stored.jsonPayload())
+        return Response.ok(stored.payload())
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
@@ -218,46 +197,35 @@ public class OciDistributionResource {
             @PathParam("reference") @NotBlank String reference
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
-        String storeKey = repositoryName.value() + ":" + reference;
 
-        StoredManifest stored = Optional.ofNullable(manifestStore.get(storeKey))
+        StoredManifestRecord stored = manifestStore.findManifest(repositoryName.value(), reference)
+                .await().indefinitely()
                 .orElseThrow(() -> new OciBlobUnknownException("Manifest not found for reference: " + reference));
 
         return Response.ok()
                 .header(HttpHeaders.CONTENT_TYPE, stored.mediaType())
-                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), stored.digest().value())
+                .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), SHA256_PREFIX + stored.digest().hexValue())
                 .build();
     }
 
-    private void verifyBlobExistsInCas(BlobStore blobStore, String rawDigest) {
-        String hexDigest = rawDigest.startsWith("sha256:") ? rawDigest.substring(7) : rawDigest;
+    private void verifyBlobExistsInCas(BlobStore targetBlobStore, String rawDigest) {
+        String hexDigest = rawDigest.startsWith(SHA256_PREFIX) ? rawDigest.substring(7) : rawDigest;
         Sha256Digest digest = Sha256Digest.of(hexDigest);
-        boolean exists = blobStore.exists(digest).await().indefinitely();
+        boolean exists = targetBlobStore.exists(digest).await().indefinitely();
         if (!exists) {
             throw new OciBlobUnknownException("Referenced layer or config blob missing from CAS: " + rawDigest);
         }
     }
 
     private static String buildBlobLocation(String repoName, String ociDigest) {
-        return V2_PREFIX +
-                repoName +
-                BLOBS_PATH +
-                ociDigest;
+        return V2_PREFIX + repoName + BLOBS_PATH + ociDigest;
     }
 
     private static String buildUploadSessionLocation(String repoName, String sessionId) {
-        return V2_PREFIX +
-                repoName +
-                UPLOADS_PATH +
-                sessionId;
+        return V2_PREFIX + repoName + UPLOADS_PATH + sessionId;
     }
 
     private static String buildManifestLocation(String repoName, String reference) {
-        return V2_PREFIX +
-                repoName +
-                MANIFESTS_PATH +
-                reference;
+        return V2_PREFIX + repoName + MANIFESTS_PATH + reference;
     }
-
-    private record StoredManifest(String jsonPayload, String mediaType, OciDigest digest) {}
 }

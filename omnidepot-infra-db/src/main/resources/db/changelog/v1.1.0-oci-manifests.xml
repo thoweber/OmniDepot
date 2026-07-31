@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- ChangeSet 1: OCI Manifests Base Table -->
+    <changeSet id="1.1.0-create-oci-manifests-table-ansi" author="omnidepot">
+        <createTable tableName="oci_manifests">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="repository_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_oci_man_repo" references="repositories(id)"/>
+            </column>
+            <column name="digest" type="VARCHAR(71)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="media_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size_bytes" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="oci_manifests" indexName="idx_oci_man_repo_digest" unique="true">
+            <column name="repository_id"/>
+            <column name="digest"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="oci_manifests" indexName="idx_oci_man_repo_digest"/>
+            <dropTable tableName="oci_manifests"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.1.0-oci-manifests-payload-pg" author="omnidepot" dbms="postgresql">
+        <addColumn tableName="oci_manifests">
+            <column name="payload" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="oci_manifests" columnName="payload"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.1.0-oci-manifests-payload-h2" author="omnidepot" dbms="h2">
+        <addColumn tableName="oci_manifests">
+            <column name="payload" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="oci_manifests" columnName="payload"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet 2: OCI Tags Table -->
+    <changeSet id="1.1.0-create-oci-tags-table-ansi" author="omnidepot">
+        <createTable tableName="oci_tags">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="repository_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_oci_tag_repo" references="repositories(id)"/>
+            </column>
+            <column name="tag_name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="manifest_id" type="VARCHAR(36)">
+                <constraints nullable="false" foreignKeyName="fk_oci_tag_man" references="oci_manifests(id)"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="oci_tags" indexName="idx_oci_tag_repo_name" unique="true">
+            <column name="repository_id"/>
+            <column name="tag_name"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="oci_tags" indexName="idx_oci_tag_repo_name"/>
+            <dropTable tableName="oci_tags"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

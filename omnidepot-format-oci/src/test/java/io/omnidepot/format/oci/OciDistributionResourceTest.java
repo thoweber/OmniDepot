@@ -1,10 +1,21 @@
 package io.omnidepot.format.oci;
 
+import io.omnidepot.core.api.oci.ManifestStore;
+import io.omnidepot.core.api.oci.StoredManifestRecord;
+import io.omnidepot.core.api.storage.BlobDescriptor;
+import io.omnidepot.core.api.storage.BlobStore;
+import io.omnidepot.core.api.storage.Sha256Digest;
+import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -15,7 +26,7 @@ class OciDistributionResourceTest {
 
     @BeforeEach
     void setUp() {
-        resource = new OciDistributionResource();
+        resource = new OciDistributionResource(new StubBlobStore(), new StubManifestStore());
     }
 
     @Test
@@ -99,5 +110,49 @@ class OciDistributionResourceTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getHeaderString(OciHttpHeader.DOCKER_CONTENT_DIGEST.value())).isEqualTo(digest);
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH)).isEqualTo("0");
+    }
+
+    private static class StubBlobStore implements BlobStore {
+        @Override
+        public Uni<BlobDescriptor> put(Sha256Digest digest, String mediaType, InputStream dataSupplier, long sizeBytes) {
+            return Uni.createFrom().item(new BlobDescriptor(digest.hexValue(), digest, sizeBytes, mediaType, digest.hexValue(), Instant.now()));
+        }
+
+        @Override
+        public Uni<InputStream> openStream(Sha256Digest digest) {
+            return Uni.createFrom().item(new ByteArrayInputStream(new byte[0]));
+        }
+
+        @Override
+        public Uni<Boolean> exists(Sha256Digest digest) {
+            return Uni.createFrom().item(true);
+        }
+
+        @Override
+        public Uni<Optional<BlobDescriptor>> getDescriptor(Sha256Digest digest) {
+            return Uni.createFrom().item(Optional.empty());
+        }
+
+        @Override
+        public Uni<Boolean> delete(Sha256Digest digest) {
+            return Uni.createFrom().item(true);
+        }
+    }
+
+    private static class StubManifestStore implements ManifestStore {
+        @Override
+        public Uni<StoredManifestRecord> saveManifest(String repositoryName, String reference, String mediaType, String payload) {
+            return Uni.createFrom().failure(new UnsupportedOperationException());
+        }
+
+        @Override
+        public Uni<Optional<StoredManifestRecord>> findManifest(String repositoryName, String reference) {
+            return Uni.createFrom().item(Optional.empty());
+        }
+
+        @Override
+        public Uni<Boolean> manifestExists(String repositoryName, String reference) {
+            return Uni.createFrom().item(false);
+        }
     }
 }
