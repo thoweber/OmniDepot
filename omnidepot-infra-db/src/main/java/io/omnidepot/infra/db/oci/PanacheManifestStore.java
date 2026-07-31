@@ -19,6 +19,7 @@ import java.util.UUID;
 import static java.util.Objects.isNull;
 
 @ApplicationScoped
+@SuppressWarnings("java:S3252")
 class PanacheManifestStore implements ManifestStore {
 
     private static final String SHA256_PREFIX = "sha256:";
@@ -88,17 +89,14 @@ class PanacheManifestStore implements ManifestStore {
             return Optional.empty();
         }
 
+        OciManifestEntity manifest;
         if (reference.startsWith(SHA256_PREFIX)) {
-            OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, reference).firstResult();
-            return Optional.ofNullable(manifest).map(m -> toRecord(repositoryName, m));
+            manifest = OciManifestEntity.<OciManifestEntity>find("repositoryId = ?1 and digest = ?2", repo.id, reference).firstResult();
+        } else {
+            OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
+            manifest = isNull(tag) ? null : OciManifestEntity.<OciManifestEntity>findById(tag.manifestId);
         }
 
-        OciTagEntity tag = OciTagEntity.<OciTagEntity>find("repositoryId = ?1 and tagName = ?2", repo.id, reference).firstResult();
-        if (isNull(tag)) {
-            return Optional.empty();
-        }
-
-        OciManifestEntity manifest = OciManifestEntity.<OciManifestEntity>findById(tag.manifestId);
         return Optional.ofNullable(manifest).map(m -> toRecord(repositoryName, m));
     }
 

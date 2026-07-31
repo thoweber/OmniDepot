@@ -20,7 +20,7 @@ public class OciDigestValidator implements ConstraintValidator<ValidOciDigest, S
         try {
             Sha256Digest.of(value);
             return true;
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ignored) {
             return false;
         }
     }
