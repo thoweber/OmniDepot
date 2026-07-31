@@ -15,7 +15,7 @@ class MavenRepositoryContractCT {
 
     @BeforeEach
     void setUp() {
-        mavenResource = new MavenRepositoryResource();
+        mavenResource = new MavenRepositoryResource(null);
     }
 
     @Test
