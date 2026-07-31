@@ -30,7 +30,7 @@
         <jacoco.version>0.8.15</jacoco.version>
         <sonar.version>5.7.0.6970</sonar.version>
         <lombok.version>1.18.46</lombok.version>
-        <jspecify.version>1.0.0</jspecify.version>
+        <jspecify.version>1.0.1</jspecify.version>
 
         <!-- SonarCloud Configuration -->
         <sonar.organization>thoweber</sonar.organization>
