@@ -24,7 +24,7 @@
         <aws.sdk.version>2.50.1</aws.sdk.version>
 
         <compiler-plugin.version>3.13.0</compiler-plugin.version>
-        <surefire-plugin.version>3.2.5</surefire-plugin.version>
+        <surefire-plugin.version>3.5.6</surefire-plugin.version>
         <archunit.version>1.4.2</archunit.version>
         <assertj.version>3.27.7</assertj.version>
         <jacoco.version>0.8.15</jacoco.version>
