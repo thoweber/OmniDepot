@@ -24,7 +24,7 @@ public record MavenCoordinates(
 ) {
     private static final Set<String> CHECKSUM_EXTENSIONS = Set.of("sha256", "sha1", "md5", "sha512");
 
-    public static MavenCoordinates parse(String rawPath) {
+    public static MavenCoordinates parse(@Nullable String rawPath) {
         if (rawPath == null || rawPath.isBlank()) {
             throw new IllegalArgumentException("Path cannot be null or blank");
         }

@@ -42,7 +42,8 @@ class S3BlobStoreTest {
     void shouldThrowUnsupportedOperationExceptionOnOpenStream() {
         Sha256Digest digest = DigestObjectMother.emptyPayloadDigest();
 
-        assertThatThrownBy(() -> s3BlobStore.openStream(digest).await().indefinitely())
+        var awaiter = s3BlobStore.openStream(digest).await();
+        assertThatThrownBy(awaiter::indefinitely)
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 

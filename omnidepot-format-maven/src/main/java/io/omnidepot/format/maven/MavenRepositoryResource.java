@@ -29,18 +29,21 @@ import static java.util.Objects.nonNull;
  */
 @Path("/maven")
 @ApplicationScoped
+@SuppressWarnings({"java:S1166", "java:S7467"})
 public class MavenRepositoryResource {
 
-    @Inject
-    @Any
-    @Nullable
-    Instance<BlobStore> blobStoreInstance;
-
+    private final @Nullable Instance<BlobStore> blobStoreInstance;
     private final @Nullable BlobStore testBlobStore;
     private final Map<String, MavenArtifactRecord> artifactStore = new ConcurrentHashMap<>();
 
     public MavenRepositoryResource() {
         this.blobStoreInstance = null;
+        this.testBlobStore = null;
+    }
+
+    @Inject
+    public MavenRepositoryResource(@Any Instance<BlobStore> blobStoreInstance) {
+        this.blobStoreInstance = blobStoreInstance;
         this.testBlobStore = null;
     }
 
@@ -68,16 +71,14 @@ public class MavenRepositoryResource {
         MavenCoordinates coords;
         try {
             coords = MavenCoordinates.parse(artifactPath);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Malformed Maven GAV path: " + e.getMessage())
+                    .entity("Malformed Maven GAV path: " + artifactPath)
                     .type(MediaType.TEXT_PLAIN)
                     .build();
         }
 
         String key = repositoryName + ":" + artifactPath;
-
-        // Enforce snapshot vs release immutability policies
         boolean isSnapshotRepoOrArtifact = "snapshots".equalsIgnoreCase(repositoryName) || coords.isSnapshot();
         if (!isSnapshotRepoOrArtifact && artifactStore.containsKey(key)) {
             return Response.status(Response.Status.CONFLICT)
@@ -101,21 +102,23 @@ public class MavenRepositoryResource {
         MavenCoordinates coords;
         try {
             coords = MavenCoordinates.parse(artifactPath);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Malformed Maven GAV path: " + e.getMessage())
+                    .entity("Malformed Maven GAV path: " + artifactPath)
                     .type(MediaType.TEXT_PLAIN)
                     .build();
         }
 
         String key = repositoryName + ":" + artifactPath;
-        MavenArtifactRecord record = artifactStore.get(key);
-
-        if (record != null) {
-            return Response.ok(record.payload(), record.contentType()).build();
+        MavenArtifactRecord storedRecord = artifactStore.get(key);
+        if (storedRecord != null) {
+            return Response.ok(storedRecord.payload(), storedRecord.contentType()).build();
         }
 
-        // Dynamic Checksum Synthesis (ADR-004)
+        return findChecksumResponse(repositoryName, coords);
+    }
+
+    private Response findChecksumResponse(String repositoryName, MavenCoordinates coords) {
         if (coords.isChecksumRequest() && coords.checksumAlgorithm() != null) {
             String primaryKey = repositoryName + ":" + coords.primaryPath();
             MavenArtifactRecord primaryRecord = artifactStore.get(primaryKey);
@@ -124,7 +127,6 @@ public class MavenRepositoryResource {
                 return Response.ok(checksumHex, MediaType.TEXT_PLAIN).build();
             }
         }
-
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
@@ -137,20 +139,17 @@ public class MavenRepositoryResource {
         MavenCoordinates coords;
         try {
             coords = MavenCoordinates.parse(artifactPath);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         String key = repositoryName + ":" + artifactPath;
-        if (artifactStore.containsKey(key)) {
-            return Response.ok().type(determineContentType(artifactPath)).build();
-        }
+        String primaryKey = repositoryName + ":" + coords.primaryPath();
+        boolean exists = artifactStore.containsKey(key) || (coords.isChecksumRequest() && artifactStore.containsKey(primaryKey));
 
-        if (coords.isChecksumRequest()) {
-            String primaryKey = repositoryName + ":" + coords.primaryPath();
-            if (artifactStore.containsKey(primaryKey)) {
-                return Response.ok().type(MediaType.TEXT_PLAIN).build();
-            }
+        if (exists) {
+            String type = artifactStore.containsKey(key) ? determineContentType(artifactPath) : MediaType.TEXT_PLAIN;
+            return Response.ok().type(type).build();
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
@@ -163,33 +162,19 @@ public class MavenRepositoryResource {
         if (path.endsWith(".pom") || path.endsWith(".xml")) {
             return MediaType.APPLICATION_XML;
         }
-        if (path.endsWith(".sha256") || path.endsWith(".sha1") || path.endsWith(".md5") || path.endsWith(".sha512")) {
-            return MediaType.TEXT_PLAIN;
-        }
-        return MediaType.APPLICATION_OCTET_STREAM;
+        return (path.endsWith(".sha256") || path.endsWith(".sha1") || path.endsWith(".md5") || path.endsWith(".sha512"))
+                ? MediaType.TEXT_PLAIN
+                : MediaType.APPLICATION_OCTET_STREAM;
     }
 
-    private static final class MavenArtifactRecord {
-        private final byte[] payload;
-        private final String contentType;
-        private final MavenCoordinates coords;
-
-        private MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {
-            this.payload = payload.clone();
-            this.contentType = contentType;
-            this.coords = coords;
+    private record MavenArtifactRecord(byte[] payload, String contentType, MavenCoordinates coords) {
+        public MavenArtifactRecord {
+            payload = payload.clone();
         }
 
+        @Override
         public byte[] payload() {
             return payload.clone();
-        }
-
-        public String contentType() {
-            return contentType;
-        }
-
-        public MavenCoordinates coords() {
-            return coords;
         }
     }
 }

@@ -97,7 +97,8 @@ class FileSystemBlobStoreTest {
         Sha256Digest missingDigest = DigestObjectMother.alternateDigest();
 
         // When / Then
-        assertThatThrownBy(() -> blobStore.openStream(missingDigest).await().indefinitely())
+        var awaiter = blobStore.openStream(missingDigest).await();
+        assertThatThrownBy(awaiter::indefinitely)
                 .isInstanceOf(BlobReadException.class)
                 .hasMessageContaining("Failed to open stream for blob");
     }
