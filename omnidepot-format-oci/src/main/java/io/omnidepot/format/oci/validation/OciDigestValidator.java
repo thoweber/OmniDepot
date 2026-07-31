@@ -13,6 +13,7 @@ import static java.util.Objects.isNull;
 public class OciDigestValidator implements ConstraintValidator<ValidOciDigest, String> {
 
     @Override
+    @SuppressWarnings({"java:S1166", "java:S7467"})
     public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
         if (isNull(value) || value.isBlank()) {
             return false;
