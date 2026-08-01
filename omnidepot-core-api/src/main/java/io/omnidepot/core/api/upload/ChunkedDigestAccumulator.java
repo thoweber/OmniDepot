@@ -11,6 +11,7 @@ import java.util.Objects;
  * Pure Java, state-serializable SHA-256 accumulator for resumable chunked upload verification.
  * State is serialized into a compact 108-byte array matching (H0..H7, count, bufOfs, buffer).
  */
+@SuppressWarnings({"java:S3776", "java:S107"})
 public class ChunkedDigestAccumulator {
 
     private static final int BLOCK_SIZE = 64;
@@ -176,12 +177,12 @@ public class ChunkedDigestAccumulator {
         int hVal = h[7];
 
         for (int i = 0; i < 64; i++) {
-            int S1 = Integer.rotateRight(e, 6) ^ Integer.rotateRight(e, 11) ^ Integer.rotateRight(e, 25);
+            int sigma1 = Integer.rotateRight(e, 6) ^ Integer.rotateRight(e, 11) ^ Integer.rotateRight(e, 25);
             int ch = (e & f) ^ ((~e) & g);
-            int temp1 = hVal + S1 + ch + K[i] + w[i];
-            int S0 = Integer.rotateRight(a, 2) ^ Integer.rotateRight(a, 13) ^ Integer.rotateRight(a, 22);
+            int temp1 = hVal + sigma1 + ch + K[i] + w[i];
+            int sigma0 = Integer.rotateRight(a, 2) ^ Integer.rotateRight(a, 13) ^ Integer.rotateRight(a, 22);
             int maj = (a & b) ^ (a & c) ^ (b & c);
-            int temp2 = S0 + maj;
+            int temp2 = sigma0 + maj;
 
             hVal = g;
             g = f;
