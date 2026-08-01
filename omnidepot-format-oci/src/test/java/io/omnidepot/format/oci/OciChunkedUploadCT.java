@@ -42,7 +42,7 @@ class OciChunkedUploadCT {
 
     @Test
     @DisplayName("Given multi-chunk upload sequence - when sending PATCH requests - then Range header tracks byte offset accurately")
-    void shouldTrackByteOffsetAcrossMultiPatchSequence() throws Exception {
+    void shouldTrackByteOffsetAcrossMultiPatchSequence() {
         Response initResponse = resource.handleBlobUploadOrMount("org/app", null, null);
         String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
         String sessionId = location.substring(location.lastIndexOf('/') + 1);

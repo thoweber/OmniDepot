@@ -237,30 +237,9 @@ public class OciDistributionResource {
         Sha256Digest expectedDigest = ociDigest.toSha256();
         Optional<UploadSession> sessionOpt = uploadSessionRepository.findByToken(rawSessionId).await().indefinitely();
 
-        long totalSize;
-        if (sessionOpt.isPresent()) {
-            UploadSession session = sessionOpt.get();
-            ChunkedDigestAccumulator accumulator;
-            if (session.sha256PartialState() != null && session.sha256PartialState().length > 0) {
-                accumulator = ChunkedDigestAccumulator.fromState(session.sha256PartialState());
-            } else {
-                accumulator = ChunkedDigestAccumulator.create();
-            }
-
-            if (finalChunk != null && finalChunk.length > 0) {
-                accumulator.update(finalChunk);
-            }
-
-            Sha256Digest computedDigest = accumulator.digest();
-            if (!computedDigest.equals(expectedDigest)) {
-                throw new OciDigestInvalidException("Digest mismatch: computed " + computedDigest.hexValue() + " does not match expected " + expectedDigest.hexValue());
-            }
-
-            totalSize = session.bytesReceived() + (finalChunk != null ? finalChunk.length : 0);
-            uploadSessionRepository.markStatus(rawSessionId, UploadSessionStatus.COMPLETED).await().indefinitely();
-        } else {
-            totalSize = finalChunk != null ? finalChunk.length : 0;
-        }
+        long totalSize = sessionOpt.isPresent()
+                ? processSessionFinalization(sessionOpt.get(), finalChunk, expectedDigest, rawSessionId)
+                : (finalChunk != null ? finalChunk.length : 0);
 
         blobStore.put(expectedDigest, "application/octet-stream", new ByteArrayInputStream(finalChunk != null ? finalChunk : new byte[0]), totalSize)
                 .await().indefinitely();
@@ -270,6 +249,25 @@ public class OciDistributionResource {
                 .header(HttpHeaders.LOCATION, location)
                 .header(OciHttpHeader.DOCKER_CONTENT_DIGEST.value(), ociDigest.value())
                 .build();
+    }
+
+    private long processSessionFinalization(UploadSession session, byte @Nullable [] finalChunk, Sha256Digest expectedDigest, String rawSessionId) {
+        ChunkedDigestAccumulator accumulator = (session.sha256PartialState() != null && session.sha256PartialState().length > 0)
+                ? ChunkedDigestAccumulator.fromState(session.sha256PartialState())
+                : ChunkedDigestAccumulator.create();
+
+        if (finalChunk != null && finalChunk.length > 0) {
+            accumulator.update(finalChunk);
+        }
+
+        Sha256Digest computedDigest = accumulator.digest();
+        if (!computedDigest.equals(expectedDigest)) {
+            throw new OciDigestInvalidException("Digest mismatch: computed " + computedDigest.hexValue() + " does not match expected " + expectedDigest.hexValue());
+        }
+
+        long totalSize = session.bytesReceived() + (finalChunk != null ? finalChunk.length : 0);
+        uploadSessionRepository.markStatus(rawSessionId, UploadSessionStatus.COMPLETED).await().indefinitely();
+        return totalSize;
     }
 
     @HEAD

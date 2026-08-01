@@ -18,6 +18,8 @@ import static java.util.Objects.isNull;
 @SuppressWarnings("java:S3252")
 class PanacheUploadSessionStore implements UploadSessionRepository {
 
+    private static final String UPLOAD_TOKEN_FIELD = "uploadToken";
+
     @Override
     public Uni<UploadSession> create(UploadSession session) {
         return Uni.createFrom().item(() ->
@@ -65,7 +67,7 @@ class PanacheUploadSessionStore implements UploadSessionRepository {
     }
 
     private Optional<UploadSession> doFindByToken(String uploadToken) {
-        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find("uploadToken", uploadToken).firstResult();
+        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find(UPLOAD_TOKEN_FIELD, uploadToken).firstResult();
         return Optional.ofNullable(entity).map(this::toDomain);
     }
 
@@ -77,7 +79,7 @@ class PanacheUploadSessionStore implements UploadSessionRepository {
     }
 
     private UploadSession doUpdateProgress(String uploadToken, long bytesReceived, String providerStateJson, byte @Nullable [] sha256PartialState) {
-        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find("uploadToken", uploadToken).firstResult();
+        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find(UPLOAD_TOKEN_FIELD, uploadToken).firstResult();
         if (isNull(entity)) {
             throw new IllegalArgumentException("Upload session not found for token: " + uploadToken);
         }
@@ -100,7 +102,7 @@ class PanacheUploadSessionStore implements UploadSessionRepository {
     }
 
     private UploadSession doMarkStatus(String uploadToken, UploadSessionStatus status) {
-        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find("uploadToken", uploadToken).firstResult();
+        UploadSessionEntity entity = UploadSessionEntity.<UploadSessionEntity>find(UPLOAD_TOKEN_FIELD, uploadToken).firstResult();
         if (isNull(entity)) {
             throw new IllegalArgumentException("Upload session not found for token: " + uploadToken);
         }
@@ -119,7 +121,7 @@ class PanacheUploadSessionStore implements UploadSessionRepository {
     }
 
     private boolean doDeleteByToken(String uploadToken) {
-        long deletedCount = UploadSessionEntity.delete("uploadToken", uploadToken);
+        long deletedCount = UploadSessionEntity.delete(UPLOAD_TOKEN_FIELD, uploadToken);
         return deletedCount > 0;
     }
 
