@@ -68,18 +68,24 @@ class UploadSessionTest {
     @DisplayName("Given null mandatory parameters - when builder build is invoked - then NullPointerException is thrown")
     void shouldValidateNullConstructorArguments() {
         Instant now = Instant.now();
-        assertThatThrownBy(() -> UploadSession.builder().id(null).repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId(null).uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken(null).bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(null).providerStateJson("{}").createdAt(now).updatedAt(now).build())
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(null).updatedAt(now).build())
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(null).build())
-                .isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b1 = UploadSession.builder().id(null).repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now);
+        assertThatThrownBy(b1::build).isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b2 = UploadSession.builder().id("id-1").repositoryId(null).uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now);
+        assertThatThrownBy(b2::build).isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b3 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken(null).bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now);
+        assertThatThrownBy(b3::build).isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b4 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(null).providerStateJson("{}").createdAt(now).updatedAt(now);
+        assertThatThrownBy(b4::build).isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b5 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(null).updatedAt(now);
+        assertThatThrownBy(b5::build).isInstanceOf(NullPointerException.class);
+
+        UploadSession.UploadSessionBuilder b6 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(null);
+        assertThatThrownBy(b6::build).isInstanceOf(NullPointerException.class);
     }
 
     @Test
