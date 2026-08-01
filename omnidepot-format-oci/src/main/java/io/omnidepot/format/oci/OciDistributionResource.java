@@ -40,6 +40,7 @@ import java.util.Optional;
  */
 @Path("/v2")
 @ApplicationScoped
+@SuppressWarnings("java:S1075")
 public class OciDistributionResource {
 
     private static final String V2_PREFIX = "/v2/";

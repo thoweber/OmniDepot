@@ -82,7 +82,10 @@ public record MavenCoordinates(
         };
     }
 
-    public static String computeChecksum(byte[] data, String extOrAlgorithm) {
+    public static String computeChecksum(byte[] data, @Nullable String extOrAlgorithm) {
+        if (extOrAlgorithm == null) {
+            throw new IllegalArgumentException("Checksum algorithm must not be null");
+        }
         String algo = CHECKSUM_EXTENSIONS.contains(extOrAlgorithm.toLowerCase())
                 ? mapAlgorithm(extOrAlgorithm.toLowerCase())
                 : extOrAlgorithm;
