@@ -236,9 +236,12 @@ public class OciDistributionResource {
         Sha256Digest expectedDigest = ociDigest.toSha256();
         Optional<UploadSession> sessionOpt = uploadSessionRepository.findByToken(rawSessionId).await().indefinitely();
 
-        long totalSize = sessionOpt.isPresent()
-                ? processSessionFinalization(sessionOpt.get(), finalChunk, expectedDigest, rawSessionId)
-                : (finalChunk != null ? finalChunk.length : 0);
+        long totalSize;
+        if (sessionOpt.isPresent()) {
+            totalSize = processSessionFinalization(sessionOpt.get(), finalChunk, expectedDigest, rawSessionId);
+        } else {
+            totalSize = finalChunk != null ? finalChunk.length : 0;
+        }
 
         blobStore.put(expectedDigest, "application/octet-stream", new ByteArrayInputStream(finalChunk != null ? finalChunk : new byte[0]), totalSize)
                 .await().indefinitely();

@@ -56,11 +56,14 @@ class UploadSessionTest {
         UploadSession session2 = new UploadSession("id-1", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", state2, now, now);
         UploadSession diffSession = new UploadSession("id-2", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", state1, now, now);
 
-        assertThat(session1).isEqualTo(session2);
-        assertThat(session1).hasSameHashCodeAs(session2);
-        assertThat(session1).isNotEqualTo(diffSession);
-        assertThat(session1).isNotEqualTo(null);
-        assertThat(session1).isNotEqualTo("string");
-        assertThat(session1.toString()).contains("id-1").contains("sha256PartialState=[10, 20, 30]");
+        assertThat(session1)
+                .isEqualTo(session2)
+                .hasSameHashCodeAs(session2)
+                .isNotEqualTo(diffSession)
+                .isNotEqualTo(null)
+                .isNotEqualTo("string");
+        assertThat(session1.toString())
+                .contains("id-1")
+                .contains("sha256PartialState=[10, 20, 30]");
     }
 }

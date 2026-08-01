@@ -85,10 +85,12 @@ class UploadSessionRepositoryTest {
 
         assertThat(uploadSessionRepository.deleteByToken(invalidToken).await().indefinitely()).isFalse();
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> uploadSessionRepository.updateProgress(invalidToken, 100L, "{}", null).await().indefinitely())
+        var updateAwaiter = uploadSessionRepository.updateProgress(invalidToken, 100L, "{}", null).await();
+        org.assertj.core.api.Assertions.assertThatThrownBy(updateAwaiter::indefinitely)
                 .isInstanceOf(IllegalArgumentException.class);
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> uploadSessionRepository.markStatus(invalidToken, UploadSessionStatus.COMPLETED).await().indefinitely())
+        var statusAwaiter = uploadSessionRepository.markStatus(invalidToken, UploadSessionStatus.COMPLETED).await();
+        org.assertj.core.api.Assertions.assertThatThrownBy(statusAwaiter::indefinitely)
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
