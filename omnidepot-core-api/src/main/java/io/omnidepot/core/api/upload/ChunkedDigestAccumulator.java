@@ -9,8 +9,30 @@ import java.util.HexFormat;
 import java.util.Objects;
 
 /**
- * Pure Java, state-serializable SHA-256 accumulator for resumable chunked upload verification.
- * State is serialized into a compact 108-byte array matching (H0..H7, count, bufOfs, buffer).
+ * Pure Java 25, state-serializable SHA-256 digest accumulator enforcing FIPS 180-4 standard specification.
+ *
+ * <p>Designed specifically for OCI Distribution spec compliant resumable chunked blob uploads.
+ * Standard JDK {@link java.security.MessageDigest} instances are non-serializable, preventing state persistence
+ * across HTTP request boundaries during pod restarts or distributed chunk uploads. This implementation extracts
+ * and serializes the exact 108-byte intermediate SHA-256 computation state between chunk arrivals.</p>
+ *
+ * <h3>108-Byte State Binary Layout:</h3>
+ * <pre>{@text
+ * +-------------------+------------------+------------------+-------------------+
+ * |  H0..H7 (32 B)    |    Count (8 B)   |   BufOfs (4 B)   |   Buffer (64 B)   |
+ * |  8 x int32 (BE)   |   int64 long (BE)|   int32 (BE)     |   unprocessed tail|
+ * +-------------------+------------------+------------------+-------------------+
+ * 0                   32                 40                 44                 108
+ * }</pre>
+ *
+ * <h3>Algorithm Overview (FIPS 180-4):</h3>
+ * <ul>
+ *   <li><b>Block Size:</b> 512 bits (64 bytes).</li>
+ *   <li><b>State Initialization:</b> Standard fractional square roots of first 8 primes ($H_0 \dots H_7$).</li>
+ *   <li><b>Message Schedule Expansion ($W_0 \dots W_{63}$):</b> 16 input words expanded into 64 words using $\sigma_0$ and $\sigma_1$ rotations.</li>
+ *   <li><b>Compression Function:</b> 64 rounds of non-linear bitwise operations using $K_0 \dots K_{63}$ constants.</li>
+ *   <li><b>Finalization & Padding:</b> Appends {@code 0x80} bit, zero-pads up to 448 bits (or dual block if tail exceeds 448 bits), and appends 64-bit total bit count.</li>
+ * </ul>
  */
 @SuppressWarnings({"java:S3776", "java:S107"})
 public final class ChunkedDigestAccumulator {
@@ -53,10 +75,22 @@ public final class ChunkedDigestAccumulator {
         Arrays.fill(buffer, (byte) 0);
     }
 
+    /**
+     * Creates a new accumulator initialized to standard SHA-256 starting state ($H_0 \dots H_7$).
+     *
+     * @return a fresh {@link ChunkedDigestAccumulator} instance
+     */
     public static ChunkedDigestAccumulator create() {
         return new ChunkedDigestAccumulator();
     }
 
+    /**
+     * Restores an accumulator instance from a serialized 108-byte intermediate state.
+     *
+     * @param stateBytes the 108-byte serialized state payload
+     * @return a restored {@link ChunkedDigestAccumulator} ready for further chunk updates
+     * @throws IllegalArgumentException if stateBytes is null, not 108 bytes, or contains corrupted state bounds
+     */
     public static ChunkedDigestAccumulator fromState(byte @Nullable [] stateBytes) {
         if (stateBytes == null) {
             throw new IllegalArgumentException("Invalid digest state: stateBytes must not be null");
@@ -79,11 +113,26 @@ public final class ChunkedDigestAccumulator {
         return acc;
     }
 
+    /**
+     * Updates the accumulator with the full contents of the provided byte array chunk.
+     *
+     * @param chunk the byte array containing chunk payload
+     * @throws NullPointerException if chunk is null
+     */
     public void update(byte[] chunk) {
         Objects.requireNonNull(chunk, "Chunk must not be null");
         update(chunk, 0, chunk.length);
     }
 
+    /**
+     * Updates the accumulator with a slice of the provided byte array chunk.
+     *
+     * @param chunk the byte array chunk payload
+     * @param offset the starting index in the chunk array
+     * @param len the number of bytes to process
+     * @throws NullPointerException if chunk is null
+     * @throws IndexOutOfBoundsException if offset or len are invalid
+     */
     public void update(byte[] chunk, int offset, int len) {
         Objects.requireNonNull(chunk, "Chunk must not be null");
         if (offset < 0 || len < 0 || offset + len > chunk.length) {
@@ -108,6 +157,11 @@ public final class ChunkedDigestAccumulator {
         }
     }
 
+    /**
+     * Serializes the current intermediate SHA-256 computation state into a compact 108-byte array.
+     *
+     * @return 108-byte array representing intermediate digest computation state
+     */
     public byte[] serializeState() {
         ByteBuffer bb = ByteBuffer.allocate(108);
         for (int i = 0; i < 8; i++) {
@@ -119,14 +173,19 @@ public final class ChunkedDigestAccumulator {
         return bb.array();
     }
 
+    /**
+     * Finalizes the SHA-256 computation (applying FIPS 180-4 padding) and returns the resulting digest.
+     * <p>Note: This call clones internal state during computation, allowing the accumulator instance
+     * to remain valid for further updates if needed.</p>
+     *
+     * @return immutable {@link Sha256Digest} object wrapping hex representation
+     */
     public Sha256Digest digest() {
-        // Clone internal state for finalization so accumulator remains valid
         int[] h = state.clone();
         byte[] padBuf = Arrays.copyOf(buffer, BLOCK_SIZE);
         int pOfs = bufOfs;
         long totalBits = count * 8L;
 
-        // Append 0x80 byte
         padBuf[pOfs] = (byte) 0x80;
         pOfs++;
 
@@ -145,7 +204,6 @@ public final class ChunkedDigestAccumulator {
             pOfs++;
         }
 
-        // Append bit count as 64-bit big endian int
         ByteBuffer.wrap(padBuf, 56, 8).putLong(totalBits);
         processBlock(h, padBuf, 0);
 
