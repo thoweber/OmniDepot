@@ -78,6 +78,20 @@ class UploadSessionRepositoryTest {
         assertThat(afterDelete).isEmpty();
     }
 
+    @Test
+    @DisplayName("Given non-existent token - when updating progress or marking status - then throws IllegalArgumentException")
+    void shouldHandleNonExistentTokenOperations() {
+        String invalidToken = "non-existent-token-" + UUID.randomUUID();
+
+        assertThat(uploadSessionRepository.deleteByToken(invalidToken).await().indefinitely()).isFalse();
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> uploadSessionRepository.updateProgress(invalidToken, 100L, "{}", null).await().indefinitely())
+                .isInstanceOf(IllegalArgumentException.class);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> uploadSessionRepository.markStatus(invalidToken, UploadSessionStatus.COMPLETED).await().indefinitely())
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     private static UploadSession createTestSession(String repoId, String uploadToken) {
         Instant now = Instant.now();
         return new UploadSession(

@@ -98,6 +98,30 @@ class OciChunkedUploadCT {
         assertThat(sessionAfterFinalize.get().status()).isEqualTo(UploadSessionStatus.COMPLETED);
     }
 
+    @Test
+    @DisplayName("Given active session - when cancelUploadSession is called via DELETE - then 204 No Content is returned and session is deleted")
+    void shouldCancelActiveUploadSession() {
+        Response initResponse = resource.handleBlobUploadOrMount("org/app", null, null);
+        String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
+        String sessionId = location.substring(location.lastIndexOf('/') + 1);
+
+        Response cancelResponse = resource.cancelUploadSession("org/app", sessionId);
+        assertThat(cancelResponse.getStatus()).isEqualTo(204);
+
+        assertThatThrownBy(() -> resource.getUploadSessionStatus("org/app", sessionId))
+                .isInstanceOf(OciBlobUploadUnknownException.class);
+    }
+
+    @Test
+    @DisplayName("Given unknown session - when GET or DELETE is called - then OciBlobUploadUnknownException is thrown")
+    void shouldRejectGetOrDeleteForUnknownSession() {
+        assertThatThrownBy(() -> resource.getUploadSessionStatus("org/app", "unknown-session"))
+                .isInstanceOf(OciBlobUploadUnknownException.class);
+
+        assertThatThrownBy(() -> resource.cancelUploadSession("org/app", "unknown-session"))
+                .isInstanceOf(OciBlobUploadUnknownException.class);
+    }
+
     private static class InMemoryUploadSessionRepository implements UploadSessionRepository {
         private final Map<String, UploadSession> sessions = new ConcurrentHashMap<>();
 

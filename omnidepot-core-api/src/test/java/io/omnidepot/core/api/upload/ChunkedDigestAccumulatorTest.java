@@ -84,6 +84,40 @@ class ChunkedDigestAccumulatorTest {
         assertThatThrownBy(() -> ChunkedDigestAccumulator.fromState(invalidState))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid digest state");
+
+        assertThatThrownBy(() -> ChunkedDigestAccumulator.fromState(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    @DisplayName("Given invalid update parameters - when updating accumulator - then throws expected exceptions")
+    void shouldValidateUpdateParameters() {
+        ChunkedDigestAccumulator acc = ChunkedDigestAccumulator.create();
+        byte[] chunk = new byte[10];
+
+        assertThatThrownBy(() -> acc.update(null))
+                .isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(() -> acc.update(chunk, -1, 5))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+
+        assertThatThrownBy(() -> acc.update(chunk, 0, 15))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+    }
+
+    @Test
+    @DisplayName("Given input exceeding 56 bytes in final block - when digesting - then handles multi-block padding correctly")
+    void shouldHandleMultiBlockPaddingInDigest() {
+        byte[] data58 = new byte[58];
+        java.util.Arrays.fill(data58, (byte) 'A');
+
+        ChunkedDigestAccumulator acc = ChunkedDigestAccumulator.create();
+        acc.update(data58);
+
+        Sha256Digest digest = acc.digest();
+        String expectedHex = calculateExpectedHex(data58);
+
+        assertThat(digest.hexValue()).isEqualTo(expectedHex);
     }
 
     private static String calculateExpectedHex(byte[] input) {
