@@ -152,12 +152,10 @@ public class OciDistributionResource {
             throw new OciBlobUploadUnknownException(rawSessionId);
         }
 
-        ChunkedDigestAccumulator accumulator;
-        if (session.sha256PartialState() != null && session.sha256PartialState().length > 0) {
-            accumulator = ChunkedDigestAccumulator.fromState(session.sha256PartialState());
-        } else {
-            accumulator = ChunkedDigestAccumulator.create();
-        }
+        byte[] partialState = session.sha256PartialState();
+        ChunkedDigestAccumulator accumulator = (partialState != null && partialState.length > 0)
+                ? ChunkedDigestAccumulator.fromState(partialState)
+                : ChunkedDigestAccumulator.create();
 
         int chunkLength = chunkData != null ? chunkData.length : 0;
         if (chunkData != null && chunkLength > 0) {
@@ -253,8 +251,9 @@ public class OciDistributionResource {
     }
 
     private long processSessionFinalization(UploadSession session, byte @Nullable [] finalChunk, Sha256Digest expectedDigest, String rawSessionId) {
-        ChunkedDigestAccumulator accumulator = (session.sha256PartialState() != null && session.sha256PartialState().length > 0)
-                ? ChunkedDigestAccumulator.fromState(session.sha256PartialState())
+        byte[] partialState = session.sha256PartialState();
+        ChunkedDigestAccumulator accumulator = (partialState != null && partialState.length > 0)
+                ? ChunkedDigestAccumulator.fromState(partialState)
                 : ChunkedDigestAccumulator.create();
 
         if (finalChunk != null && finalChunk.length > 0) {

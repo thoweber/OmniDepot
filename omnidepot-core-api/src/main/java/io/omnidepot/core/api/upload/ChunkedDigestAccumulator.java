@@ -1,6 +1,7 @@
 package io.omnidepot.core.api.upload;
 
 import io.omnidepot.core.api.storage.Sha256Digest;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import java.util.Objects;
  * State is serialized into a compact 108-byte array matching (H0..H7, count, bufOfs, buffer).
  */
 @SuppressWarnings({"java:S3776", "java:S107"})
-public class ChunkedDigestAccumulator {
+public final class ChunkedDigestAccumulator {
 
     private static final int BLOCK_SIZE = 64;
 
@@ -56,8 +57,10 @@ public class ChunkedDigestAccumulator {
         return new ChunkedDigestAccumulator();
     }
 
-    public static ChunkedDigestAccumulator fromState(byte[] stateBytes) {
-        Objects.requireNonNull(stateBytes, "State bytes must not be null");
+    public static ChunkedDigestAccumulator fromState(byte @Nullable [] stateBytes) {
+        if (stateBytes == null) {
+            throw new IllegalArgumentException("Invalid digest state: stateBytes must not be null");
+        }
         if (stateBytes.length != 108) {
             throw new IllegalArgumentException("Invalid digest state: state length must be exactly 108 bytes, got " + stateBytes.length);
         }
@@ -124,11 +127,13 @@ public class ChunkedDigestAccumulator {
         long totalBits = count * 8L;
 
         // Append 0x80 byte
-        padBuf[pOfs++] = (byte) 0x80;
+        padBuf[pOfs] = (byte) 0x80;
+        pOfs++;
 
         if (pOfs > 56) {
             while (pOfs < BLOCK_SIZE) {
-                padBuf[pOfs++] = 0;
+                padBuf[pOfs] = 0;
+                pOfs++;
             }
             processBlock(h, padBuf, 0);
             Arrays.fill(padBuf, (byte) 0);
@@ -136,7 +141,8 @@ public class ChunkedDigestAccumulator {
         }
 
         while (pOfs < 56) {
-            padBuf[pOfs++] = 0;
+            padBuf[pOfs] = 0;
+            pOfs++;
         }
 
         // Append bit count as 64-bit big endian int

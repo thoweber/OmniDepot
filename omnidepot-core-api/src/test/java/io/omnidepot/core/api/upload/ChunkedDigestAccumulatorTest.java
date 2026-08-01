@@ -86,7 +86,8 @@ class ChunkedDigestAccumulatorTest {
                 .hasMessageContaining("Invalid digest state");
 
         assertThatThrownBy(() -> ChunkedDigestAccumulator.fromState(null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid digest state");
     }
 
     @Test
