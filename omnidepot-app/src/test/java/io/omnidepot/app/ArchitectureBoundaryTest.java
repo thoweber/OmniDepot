@@ -48,6 +48,7 @@ class ArchitectureBoundaryTest {
                                 "org.eclipse.microprofile..",
                                 "org.jspecify..",
                                 "org.projectlombok..",
+                                "lombok..",
                                 "com.fasterxml.."
                         )
                 )
@@ -79,5 +80,40 @@ class ArchitectureBoundaryTest {
                 .allowEmptyShould(true);
 
         rule.check(allClasses);
+    }
+
+    @Test
+    @DisplayName("Given record classes - when they have 4 or more fields - then they must provide a static builder() method")
+    void complexRecordsMustProvideBuilderMethod() {
+        ArchRule rule = classes()
+                .that().areRecords()
+                .and(haveFourOrMoreFields())
+                .should(haveStaticBuilderMethod())
+                .allowEmptyShould(true);
+
+        rule.check(allClasses);
+    }
+
+    private static com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaClass> haveFourOrMoreFields() {
+        return new com.tngtech.archunit.base.DescribedPredicate<>("have 4 or more record components") {
+            @Override
+            public boolean test(com.tngtech.archunit.core.domain.JavaClass javaClass) {
+                return javaClass.getConstructors().stream()
+                        .anyMatch(c -> c.getParameters().size() >= 4);
+            }
+        };
+    }
+
+    private static com.tngtech.archunit.lang.ArchCondition<com.tngtech.archunit.core.domain.JavaClass> haveStaticBuilderMethod() {
+        return new com.tngtech.archunit.lang.ArchCondition<>("provide a static builder() method") {
+            @Override
+            public void check(com.tngtech.archunit.core.domain.JavaClass javaClass, com.tngtech.archunit.lang.ConditionEvents events) {
+                boolean hasBuilder = javaClass.getMethods().stream()
+                        .anyMatch(m -> m.getName().equals("builder") && m.getModifiers().contains(com.tngtech.archunit.core.domain.JavaModifier.STATIC));
+                String message = String.format("Record %s does %s a static builder() method",
+                        javaClass.getName(), hasBuilder ? "have" : "NOT have");
+                events.add(new com.tngtech.archunit.lang.SimpleConditionEvent(javaClass, hasBuilder, message));
+            }
+        };
     }
 }

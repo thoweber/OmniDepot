@@ -126,17 +126,17 @@ class PanacheUploadSessionStore implements UploadSessionRepository {
     }
 
     private UploadSession toDomain(UploadSessionEntity entity) {
-        return new UploadSession(
-                entity.id,
-                entity.repositoryId,
-                entity.uploadToken,
-                entity.bytesReceived,
-                entity.totalBytes,
-                UploadSessionStatus.valueOf(entity.status),
-                entity.providerState != null ? entity.providerState : "{}",
-                entity.sha256PartialState,
-                entity.createdAt,
-                entity.updatedAt
-        );
+        return UploadSession.builder()
+                .id(entity.id)
+                .repositoryId(entity.repositoryId)
+                .uploadToken(entity.uploadToken)
+                .bytesReceived(entity.bytesReceived)
+                .totalBytes(entity.totalBytes)
+                .status(UploadSessionStatus.valueOf(entity.status))
+                .providerStateJson(entity.providerState != null ? entity.providerState : "{}")
+                .sha256PartialState(entity.sha256PartialState)
+                .createdAt(entity.createdAt)
+                .updatedAt(entity.updatedAt)
+                .build();
     }
 }

@@ -11,11 +11,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UploadSessionTest {
 
     @Test
-    @DisplayName("Given valid parameters - when UploadSession is created - then fields are correctly populated")
+    @DisplayName("Given valid parameters - when UploadSession is created via builder - then fields are correctly populated")
     void shouldCreateUploadSessionWithAllFields() {
         Instant now = Instant.now();
         byte[] partialState = new byte[]{1, 2, 3, 4};
-        UploadSession session = new UploadSession("id-1", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", partialState, now, now);
+        UploadSession session = UploadSession.builder()
+                .id("id-1")
+                .repositoryId("repo-1")
+                .uploadToken("token-1")
+                .bytesReceived(100L)
+                .totalBytes(500L)
+                .status(UploadSessionStatus.INITIATED)
+                .providerStateJson("{}")
+                .sha256PartialState(partialState)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
 
         assertThat(session.id()).isEqualTo("id-1");
         assertThat(session.repositoryId()).isEqualTo("repo-1");
@@ -28,20 +39,46 @@ class UploadSessionTest {
     }
 
     @Test
-    @DisplayName("Given null mandatory parameters - when constructor is invoked - then NullPointerException is thrown")
+    @DisplayName("Given existing session - when toBuilder is invoked - then modified copy is produced cleanly")
+    void shouldSupportToBuilderModification() {
+        Instant now = Instant.now();
+        UploadSession initial = UploadSession.builder()
+                .id("id-1")
+                .repositoryId("repo-1")
+                .uploadToken("token-1")
+                .bytesReceived(100L)
+                .totalBytes(500L)
+                .status(UploadSessionStatus.INITIATED)
+                .providerStateJson("{}")
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        UploadSession updated = initial.toBuilder()
+                .bytesReceived(250L)
+                .status(UploadSessionStatus.COMPLETED)
+                .build();
+
+        assertThat(updated.id()).isEqualTo("id-1");
+        assertThat(updated.bytesReceived()).isEqualTo(250L);
+        assertThat(updated.status()).isEqualTo(UploadSessionStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("Given null mandatory parameters - when builder build is invoked - then NullPointerException is thrown")
     void shouldValidateNullConstructorArguments() {
         Instant now = Instant.now();
-        assertThatThrownBy(() -> new UploadSession(null, "repo-1", "token-1", 0L, null, UploadSessionStatus.INITIATED, "{}", null, now, now))
+        assertThatThrownBy(() -> UploadSession.builder().id(null).repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
                 .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new UploadSession("id-1", null, "token-1", 0L, null, UploadSessionStatus.INITIATED, "{}", null, now, now))
+        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId(null).uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
                 .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new UploadSession("id-1", "repo-1", null, 0L, null, UploadSessionStatus.INITIATED, "{}", null, now, now))
+        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken(null).bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(now).build())
                 .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new UploadSession("id-1", "repo-1", "token-1", 0L, null, null, "{}", null, now, now))
+        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(null).providerStateJson("{}").createdAt(now).updatedAt(now).build())
                 .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new UploadSession("id-1", "repo-1", "token-1", 0L, null, UploadSessionStatus.INITIATED, "{}", null, null, now))
+        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(null).updatedAt(now).build())
                 .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new UploadSession("id-1", "repo-1", "token-1", 0L, null, UploadSessionStatus.INITIATED, "{}", null, now, null))
+        assertThatThrownBy(() -> UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(0L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").createdAt(now).updatedAt(null).build())
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -52,9 +89,9 @@ class UploadSessionTest {
         byte[] state1 = new byte[]{10, 20, 30};
         byte[] state2 = new byte[]{10, 20, 30};
 
-        UploadSession session1 = new UploadSession("id-1", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", state1, now, now);
-        UploadSession session2 = new UploadSession("id-1", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", state2, now, now);
-        UploadSession diffSession = new UploadSession("id-2", "repo-1", "token-1", 100L, 500L, UploadSessionStatus.INITIATED, "{}", state1, now, now);
+        UploadSession session1 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(100L).totalBytes(500L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").sha256PartialState(state1).createdAt(now).updatedAt(now).build();
+        UploadSession session2 = UploadSession.builder().id("id-1").repositoryId("repo-1").uploadToken("token-1").bytesReceived(100L).totalBytes(500L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").sha256PartialState(state2).createdAt(now).updatedAt(now).build();
+        UploadSession diffSession = UploadSession.builder().id("id-2").repositoryId("repo-1").uploadToken("token-1").bytesReceived(100L).totalBytes(500L).status(UploadSessionStatus.INITIATED).providerStateJson("{}").sha256PartialState(state1).createdAt(now).updatedAt(now).build();
 
         assertThat(session1)
                 .isEqualTo(session2)

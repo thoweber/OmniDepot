@@ -142,18 +142,12 @@ class OciChunkedUploadCT {
             if (current == null) {
                 return Uni.createFrom().failure(new IllegalArgumentException("Session not found"));
             }
-            UploadSession updated = new UploadSession(
-                    current.id(),
-                    current.repositoryId(),
-                    current.uploadToken(),
-                    bytesReceived,
-                    current.totalBytes(),
-                    current.status(),
-                    providerStateJson,
-                    sha256PartialState,
-                    current.createdAt(),
-                    Instant.now()
-            );
+            UploadSession updated = current.toBuilder()
+                    .bytesReceived(bytesReceived)
+                    .providerStateJson(providerStateJson)
+                    .sha256PartialState(sha256PartialState != null ? sha256PartialState : current.sha256PartialState())
+                    .updatedAt(Instant.now())
+                    .build();
             sessions.put(uploadToken, updated);
             return Uni.createFrom().item(updated);
         }
@@ -164,18 +158,10 @@ class OciChunkedUploadCT {
             if (current == null) {
                 return Uni.createFrom().failure(new IllegalArgumentException("Session not found"));
             }
-            UploadSession updated = new UploadSession(
-                    current.id(),
-                    current.repositoryId(),
-                    current.uploadToken(),
-                    current.bytesReceived(),
-                    current.totalBytes(),
-                    status,
-                    current.providerStateJson(),
-                    current.sha256PartialState(),
-                    current.createdAt(),
-                    Instant.now()
-            );
+            UploadSession updated = current.toBuilder()
+                    .status(status)
+                    .updatedAt(Instant.now())
+                    .build();
             sessions.put(uploadToken, updated);
             return Uni.createFrom().item(updated);
         }

@@ -7,6 +7,7 @@ import io.omnidepot.core.api.storage.Sha256Digest;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.List;
  * Provides canonical SHA-256 digest computation and Jackson JSON parsing.
  */
 @NullMarked
+@Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 record OciManifestRecord(
         @JsonProperty("schemaVersion") @Min(2) Integer schemaVersion,

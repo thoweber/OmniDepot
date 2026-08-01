@@ -113,18 +113,18 @@ public class OciDistributionResource {
         Instant now = Instant.now();
         ChunkedDigestAccumulator initialAccumulator = ChunkedDigestAccumulator.create();
 
-        UploadSession session = new UploadSession(
-                sessionId.value(),
-                repositoryName.value(),
-                sessionId.value(),
-                0L,
-                null,
-                UploadSessionStatus.INITIATED,
-                "{}",
-                initialAccumulator.serializeState(),
-                now,
-                now
-        );
+        UploadSession session = UploadSession.builder()
+                .id(sessionId.value())
+                .repositoryId(repositoryName.value())
+                .uploadToken(sessionId.value())
+                .bytesReceived(0L)
+                .totalBytes(null)
+                .status(UploadSessionStatus.INITIATED)
+                .providerStateJson("{}")
+                .sha256PartialState(initialAccumulator.serializeState())
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
         uploadSessionRepository.create(session).await().indefinitely();
 
         String location = buildUploadSessionLocation(repositoryName.value(), sessionId.value());

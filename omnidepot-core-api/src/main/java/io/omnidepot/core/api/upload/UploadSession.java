@@ -1,5 +1,6 @@
 package io.omnidepot.core.api.upload;
 
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * Record representing persistent resumable chunked upload state.
  */
+@Builder(toBuilder = true)
 public record UploadSession(
         String id,
         String repositoryId,

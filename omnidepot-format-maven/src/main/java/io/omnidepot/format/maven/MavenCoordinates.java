@@ -1,5 +1,6 @@
 package io.omnidepot.format.maven;
 
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 import java.security.MessageDigest;
@@ -11,6 +12,7 @@ import java.util.Set;
 /**
  * Value record representing parsed Maven GAV coordinates and layout information.
  */
+@Builder(toBuilder = true)
 public record MavenCoordinates(
         String groupId,
         String artifactId,
@@ -59,17 +61,17 @@ public record MavenCoordinates(
 
         boolean isSnapshot = version.toUpperCase().contains("SNAPSHOT");
 
-        return new MavenCoordinates(
-                groupId,
-                artifactId,
-                version,
-                filename,
-                isSnapshot,
-                isChecksum,
-                checksumExt,
-                checksumAlg,
-                primaryPath
-        );
+        return MavenCoordinates.builder()
+                .groupId(groupId)
+                .artifactId(artifactId)
+                .version(version)
+                .filename(filename)
+                .isSnapshot(isSnapshot)
+                .isChecksumRequest(isChecksum)
+                .checksumExtension(checksumExt)
+                .checksumAlgorithm(checksumAlg)
+                .primaryPath(primaryPath)
+                .build();
     }
 
     private static String mapAlgorithm(String ext) {

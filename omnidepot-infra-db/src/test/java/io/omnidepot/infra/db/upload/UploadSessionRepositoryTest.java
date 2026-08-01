@@ -96,17 +96,17 @@ class UploadSessionRepositoryTest {
 
     private static UploadSession createTestSession(String repoId, String uploadToken) {
         Instant now = Instant.now();
-        return new UploadSession(
-                UUID.randomUUID().toString(),
-                repoId,
-                uploadToken,
-                0L,
-                10485760L,
-                UploadSessionStatus.INITIATED,
-                "{}",
-                null,
-                now,
-                now
-        );
+        return UploadSession.builder()
+                .id(UUID.randomUUID().toString())
+                .repositoryId(repoId)
+                .uploadToken(uploadToken)
+                .bytesReceived(0L)
+                .totalBytes(10485760L)
+                .status(UploadSessionStatus.INITIATED)
+                .providerStateJson("{}")
+                .sha256PartialState(null)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 }
