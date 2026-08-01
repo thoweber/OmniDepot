@@ -7,5 +7,6 @@
 
     <include file="db/changelog/v1.0.0-initial-schema.xml"/>
     <include file="db/changelog/v1.1.0-oci-manifests.xml"/>
+    <include file="db/changelog/v1.2.0-upload-sessions-partial-state.xml"/>
 
 </databaseChangeLog>

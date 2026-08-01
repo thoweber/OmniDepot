@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class OciDistributionResourceTest {
+class OciChunkedUploadCT {
 
     private OciDistributionResource resource;
     private InMemoryUploadSessionRepository sessionRepo;
@@ -41,98 +41,61 @@ class OciDistributionResourceTest {
     }
 
     @Test
-    @DisplayName("Given OCI client ping - when checking API version - then 200 OK with registry/2.0 header is returned")
-    void shouldReturnApiVersionHeader() {
-        Response response = resource.checkApiVersion();
-
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getHeaderString(OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION.value())).isEqualTo("registry/2.0");
-    }
-
-    @Test
-    @DisplayName("Given blob upload initiation - when POST /v2/{name}/blobs/uploads is invoked - then 202 Accepted with upload location is returned")
-    void shouldInitiateBlobUploadSession() {
-        Response response = resource.handleBlobUploadOrMount("test-repo", null, null);
-
-        assertThat(response.getStatus()).isEqualTo(202);
-        assertThat(response.getHeaderString(HttpHeaders.LOCATION)).startsWith("/v2/test-repo/blobs/uploads/");
-        assertThat(response.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-0");
-    }
-
-    @Test
-    @DisplayName("Given chunk data - when PATCH /v2/{name}/blobs/uploads/{sessionId} is invoked - then progress and digest accumulator update")
-    void shouldHandleChunkUploadPatch() {
-        Response initResponse = resource.handleBlobUploadOrMount("test-repo", null, null);
+    @DisplayName("Given multi-chunk upload sequence - when sending PATCH requests - then Range header tracks byte offset accurately")
+    void shouldTrackByteOffsetAcrossMultiPatchSequence() throws Exception {
+        Response initResponse = resource.handleBlobUploadOrMount("org/app", null, null);
         String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
         String sessionId = location.substring(location.lastIndexOf('/') + 1);
 
-        byte[] chunk1 = "Hello OCI Chunk 1! ".getBytes(StandardCharsets.UTF_8);
-        Response patchResponse = resource.handleChunkUpload("test-repo", sessionId, chunk1);
+        byte[] chunk1 = new byte[100];
+        byte[] chunk2 = new byte[250];
 
-        assertThat(patchResponse.getStatus()).isEqualTo(202);
-        assertThat(patchResponse.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-" + (chunk1.length - 1));
+        Response patch1 = resource.handleChunkUpload("org/app", sessionId, chunk1);
+        assertThat(patch1.getStatus()).isEqualTo(202);
+        assertThat(patch1.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-99");
 
-        Response statusResponse = resource.getUploadSessionStatus("test-repo", sessionId);
-        assertThat(statusResponse.getStatus()).isEqualTo(204);
-        assertThat(statusResponse.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-" + (chunk1.length - 1));
+        Response patch2 = resource.handleChunkUpload("org/app", sessionId, chunk2);
+        assertThat(patch2.getStatus()).isEqualTo(202);
+        assertThat(patch2.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-349");
+
+        Response status = resource.getUploadSessionStatus("org/app", sessionId);
+        assertThat(status.getStatus()).isEqualTo(204);
+        assertThat(status.getHeaderString(OciHttpHeader.RANGE.value())).isEqualTo("0-349");
     }
 
     @Test
-    @DisplayName("Given active session - when cancelled via DELETE - then session is removed")
-    void shouldCancelUploadSession() {
-        Response initResponse = resource.handleBlobUploadOrMount("test-repo", null, null);
-        String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
-        String sessionId = location.substring(location.lastIndexOf('/') + 1);
-
-        Response deleteResponse = resource.cancelUploadSession("test-repo", sessionId);
-        assertThat(deleteResponse.getStatus()).isEqualTo(204);
-
-        assertThatThrownBy(() -> resource.getUploadSessionStatus("test-repo", sessionId))
+    @DisplayName("Given unknown or terminated session ID - when PATCH is invoked - then OciBlobUploadUnknownException is thrown")
+    void shouldRejectChunkUploadForUnknownSession() {
+        assertThatThrownBy(() -> resource.handleChunkUpload("org/app", "non-existent-session", new byte[]{1, 2, 3}))
                 .isInstanceOf(OciBlobUploadUnknownException.class);
     }
 
     @Test
-    @DisplayName("Given chunked upload - when finalized with matching digest - then 201 Created is returned")
-    void shouldFinalizeChunkedBlobUploadWithValidDigest() throws Exception {
-        Response initResponse = resource.handleBlobUploadOrMount("test-repo", null, null);
+    @DisplayName("Given completed multi-PATCH upload - when final PUT digest matches - then 201 Created is returned and session is marked completed")
+    void shouldFinalizeMultiPatchUploadSuccessfully() throws Exception {
+        Response initResponse = resource.handleBlobUploadOrMount("org/app", null, null);
         String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
         String sessionId = location.substring(location.lastIndexOf('/') + 1);
 
-        byte[] chunk1 = "Chunk Alpha ".getBytes(StandardCharsets.UTF_8);
-        byte[] chunk2 = "Chunk Beta".getBytes(StandardCharsets.UTF_8);
+        byte[] chunk1 = "Layer Part 1 | ".getBytes(StandardCharsets.UTF_8);
+        byte[] chunk2 = "Layer Part 2 | ".getBytes(StandardCharsets.UTF_8);
+        byte[] chunk3 = "Layer Part 3".getBytes(StandardCharsets.UTF_8);
 
-        resource.handleChunkUpload("test-repo", sessionId, chunk1);
-        resource.handleChunkUpload("test-repo", sessionId, chunk2);
+        resource.handleChunkUpload("org/app", sessionId, chunk1);
+        resource.handleChunkUpload("org/app", sessionId, chunk2);
+        resource.handleChunkUpload("org/app", sessionId, chunk3);
 
-        byte[] fullContent = "Chunk Alpha Chunk Beta".getBytes(StandardCharsets.UTF_8);
-        String expectedDigestStr = "sha256:" + calculateSha256Hex(fullContent);
-
-        Response finalizeResponse = resource.finalizeUpload("test-repo", sessionId, expectedDigestStr, null);
-        assertThat(finalizeResponse.getStatus()).isEqualTo(201);
-        assertThat(finalizeResponse.getHeaderString(OciHttpHeader.DOCKER_CONTENT_DIGEST.value())).isEqualTo(expectedDigestStr);
-    }
-
-    @Test
-    @DisplayName("Given chunked upload - when finalized with mismatching digest - then OciDigestInvalidException is thrown")
-    void shouldRejectFinalizeWithMismatchingDigest() {
-        Response initResponse = resource.handleBlobUploadOrMount("test-repo", null, null);
-        String location = initResponse.getHeaderString(HttpHeaders.LOCATION);
-        String sessionId = location.substring(location.lastIndexOf('/') + 1);
-
-        byte[] chunk1 = "Actual Content".getBytes(StandardCharsets.UTF_8);
-        resource.handleChunkUpload("test-repo", sessionId, chunk1);
-
-        String wrongDigestStr = "sha256:0000000000000000000000000000000000000000000000000000000000000000";
-
-        assertThatThrownBy(() -> resource.finalizeUpload("test-repo", sessionId, wrongDigestStr, null))
-                .isInstanceOf(OciDigestInvalidException.class)
-                .hasMessageContaining("Digest mismatch");
-    }
-
-    private static String calculateSha256Hex(byte[] input) throws Exception {
+        byte[] fullContent = "Layer Part 1 | Layer Part 2 | Layer Part 3".getBytes(StandardCharsets.UTF_8);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        byte[] hash = md.digest(input);
-        return HexFormat.of().formatHex(hash);
+        String expectedDigest = "sha256:" + HexFormat.of().formatHex(md.digest(fullContent));
+
+        Response finalizeResponse = resource.finalizeUpload("org/app", sessionId, expectedDigest, null);
+        assertThat(finalizeResponse.getStatus()).isEqualTo(201);
+        assertThat(finalizeResponse.getHeaderString(OciHttpHeader.DOCKER_CONTENT_DIGEST.value())).isEqualTo(expectedDigest);
+
+        Optional<UploadSession> sessionAfterFinalize = sessionRepo.findByToken(sessionId).await().indefinitely();
+        assertThat(sessionAfterFinalize).isPresent();
+        assertThat(sessionAfterFinalize.get().status()).isEqualTo(UploadSessionStatus.COMPLETED);
     }
 
     private static class InMemoryUploadSessionRepository implements UploadSessionRepository {

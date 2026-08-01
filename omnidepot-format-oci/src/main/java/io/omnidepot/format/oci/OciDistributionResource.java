@@ -5,14 +5,20 @@ import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.BlobStore;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.UploadSessionId;
+import io.omnidepot.core.api.upload.ChunkedDigestAccumulator;
+import io.omnidepot.core.api.upload.UploadSession;
+import io.omnidepot.core.api.upload.UploadSessionRepository;
+import io.omnidepot.core.api.upload.UploadSessionStatus;
 import io.omnidepot.format.oci.validation.ValidOciDigest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HEAD;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -24,11 +30,12 @@ import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
  * OCI V2 Distribution API Resource Endpoint (ADR-004, ADR-020, ADR-028).
- * Handles blob upload, blob head checks, and manifest PUT/GET/HEAD operations.
+ * Handles chunked resumable blob upload, blob head checks, and manifest PUT/GET/HEAD operations.
  * Enforces layer and config blob existence in Content-Addressable Storage (CAS) prior to manifest persistence.
  */
 @Path("/v2")
@@ -43,14 +50,24 @@ public class OciDistributionResource {
 
     private final BlobStore blobStore;
     private final ManifestStore manifestStore;
+    private final UploadSessionRepository uploadSessionRepository;
 
     @Inject
     public OciDistributionResource(
             BlobStore blobStore,
-            ManifestStore manifestStore
+            ManifestStore manifestStore,
+            UploadSessionRepository uploadSessionRepository
     ) {
         this.blobStore = blobStore;
         this.manifestStore = manifestStore;
+        this.uploadSessionRepository = uploadSessionRepository;
+    }
+
+    public OciDistributionResource(
+            BlobStore blobStore,
+            ManifestStore manifestStore
+    ) {
+        this(blobStore, manifestStore, new NoOpUploadSessionRepository());
     }
 
     @GET
@@ -92,6 +109,22 @@ public class OciDistributionResource {
         }
 
         UploadSessionId sessionId = UploadSessionId.generate();
+        Instant now = Instant.now();
+        ChunkedDigestAccumulator initialAccumulator = ChunkedDigestAccumulator.create();
+
+        UploadSession session = new UploadSession(
+                sessionId.value(),
+                repositoryName.value(),
+                sessionId.value(),
+                0L,
+                null,
+                UploadSessionStatus.INITIATED,
+                "{}",
+                initialAccumulator.serializeState(),
+                now,
+                now
+        );
+        uploadSessionRepository.create(session).await().indefinitely();
 
         String location = buildUploadSessionLocation(repositoryName.value(), sessionId.value());
         return Response.status(Response.Status.ACCEPTED)
@@ -100,12 +133,97 @@ public class OciDistributionResource {
                 .build();
     }
 
+    @PATCH
+    @Path("/{name: .+}/blobs/uploads/{sessionId}")
+    @Consumes(MediaType.WILDCARD)
+    public Response handleChunkUpload(
+            @PathParam("name") @NotBlank String rawName,
+            @PathParam("sessionId") @NotBlank String rawSessionId,
+            byte @Nullable [] chunkData
+    ) {
+        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
+
+        UploadSession session = uploadSessionRepository.findByToken(rawSessionId)
+                .await().indefinitely()
+                .orElseThrow(() -> new OciBlobUploadUnknownException(rawSessionId));
+
+        if (session.status() != UploadSessionStatus.INITIATED) {
+            throw new OciBlobUploadUnknownException(rawSessionId);
+        }
+
+        ChunkedDigestAccumulator accumulator;
+        if (session.sha256PartialState() != null && session.sha256PartialState().length > 0) {
+            accumulator = ChunkedDigestAccumulator.fromState(session.sha256PartialState());
+        } else {
+            accumulator = ChunkedDigestAccumulator.create();
+        }
+
+        int chunkLength = chunkData != null ? chunkData.length : 0;
+        if (chunkData != null && chunkLength > 0) {
+            accumulator.update(chunkData);
+        }
+
+        long newBytesReceived = session.bytesReceived() + chunkLength;
+        byte[] updatedPartialState = accumulator.serializeState();
+
+        uploadSessionRepository.updateProgress(rawSessionId, newBytesReceived, session.providerStateJson(), updatedPartialState)
+                .await().indefinitely();
+
+        String rangeHeader = calculateRangeHeader(newBytesReceived);
+        String location = buildUploadSessionLocation(repositoryName.value(), rawSessionId);
+
+        return Response.status(Response.Status.ACCEPTED)
+                .header(HttpHeaders.LOCATION, location)
+                .header(OciHttpHeader.RANGE.value(), rangeHeader)
+                .header(HttpHeaders.CONTENT_LENGTH, 0)
+                .build();
+    }
+
+    @GET
+    @Path("/{name: .+}/blobs/uploads/{sessionId}")
+    public Response getUploadSessionStatus(
+            @PathParam("name") @NotBlank String rawName,
+            @PathParam("sessionId") @NotBlank String rawSessionId
+    ) {
+        OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
+
+        UploadSession session = uploadSessionRepository.findByToken(rawSessionId)
+                .await().indefinitely()
+                .orElseThrow(() -> new OciBlobUploadUnknownException(rawSessionId));
+
+        String rangeHeader = calculateRangeHeader(session.bytesReceived());
+        String location = buildUploadSessionLocation(repositoryName.value(), rawSessionId);
+
+        return Response.status(Response.Status.NO_CONTENT)
+                .header(HttpHeaders.LOCATION, location)
+                .header(OciHttpHeader.RANGE.value(), rangeHeader)
+                .build();
+    }
+
+    @DELETE
+    @Path("/{name: .+}/blobs/uploads/{sessionId}")
+    public Response cancelUploadSession(
+            @PathParam("name") @NotBlank String rawName,
+            @PathParam("sessionId") @NotBlank String rawSessionId
+    ) {
+        OciRepositoryName.of(rawName);
+
+        Boolean deleted = uploadSessionRepository.deleteByToken(rawSessionId).await().indefinitely();
+        if (Boolean.FALSE.equals(deleted)) {
+            throw new OciBlobUploadUnknownException(rawSessionId);
+        }
+
+        return Response.noContent().build();
+    }
+
     @PUT
     @Path("/{name: .+}/blobs/uploads/{sessionId}")
+    @Consumes(MediaType.WILDCARD)
     public Response finalizeUpload(
             @PathParam("name") @NotBlank String rawName,
             @PathParam("sessionId") @NotBlank String rawSessionId,
-            @QueryParam("digest") @ValidOciDigest String rawDigestParam
+            @QueryParam("digest") @ValidOciDigest String rawDigestParam,
+            byte @Nullable [] finalChunk
     ) {
         OciRepositoryName repositoryName = OciRepositoryName.of(rawName);
 
@@ -116,8 +234,36 @@ public class OciDistributionResource {
             throw new OciDigestInvalidException("Missing or invalid digest parameter", ex);
         }
 
-        Sha256Digest digest = ociDigest.toSha256();
-        blobStore.put(digest, "application/octet-stream", new ByteArrayInputStream(new byte[0]), 0).await().indefinitely();
+        Sha256Digest expectedDigest = ociDigest.toSha256();
+        Optional<UploadSession> sessionOpt = uploadSessionRepository.findByToken(rawSessionId).await().indefinitely();
+
+        long totalSize;
+        if (sessionOpt.isPresent()) {
+            UploadSession session = sessionOpt.get();
+            ChunkedDigestAccumulator accumulator;
+            if (session.sha256PartialState() != null && session.sha256PartialState().length > 0) {
+                accumulator = ChunkedDigestAccumulator.fromState(session.sha256PartialState());
+            } else {
+                accumulator = ChunkedDigestAccumulator.create();
+            }
+
+            if (finalChunk != null && finalChunk.length > 0) {
+                accumulator.update(finalChunk);
+            }
+
+            Sha256Digest computedDigest = accumulator.digest();
+            if (!computedDigest.equals(expectedDigest)) {
+                throw new OciDigestInvalidException("Digest mismatch: computed " + computedDigest.hexValue() + " does not match expected " + expectedDigest.hexValue());
+            }
+
+            totalSize = session.bytesReceived() + (finalChunk != null ? finalChunk.length : 0);
+            uploadSessionRepository.markStatus(rawSessionId, UploadSessionStatus.COMPLETED).await().indefinitely();
+        } else {
+            totalSize = finalChunk != null ? finalChunk.length : 0;
+        }
+
+        blobStore.put(expectedDigest, "application/octet-stream", new ByteArrayInputStream(finalChunk != null ? finalChunk : new byte[0]), totalSize)
+                .await().indefinitely();
 
         String location = buildBlobLocation(repositoryName.value(), ociDigest.value());
         return Response.status(Response.Status.CREATED)
@@ -217,6 +363,10 @@ public class OciDistributionResource {
         }
     }
 
+    private static String calculateRangeHeader(long bytesReceived) {
+        return bytesReceived > 0 ? "0-" + (bytesReceived - 1) : "0-0";
+    }
+
     private static String buildBlobLocation(String repoName, String ociDigest) {
         return V2_PREFIX + repoName + BLOBS_PATH + ociDigest;
     }
@@ -227,5 +377,32 @@ public class OciDistributionResource {
 
     private static String buildManifestLocation(String repoName, String reference) {
         return V2_PREFIX + repoName + MANIFESTS_PATH + reference;
+    }
+
+    private static class NoOpUploadSessionRepository implements UploadSessionRepository {
+        @Override
+        public io.smallrye.mutiny.Uni<UploadSession> create(UploadSession session) {
+            return io.smallrye.mutiny.Uni.createFrom().item(session);
+        }
+
+        @Override
+        public io.smallrye.mutiny.Uni<java.util.Optional<UploadSession>> findByToken(String uploadToken) {
+            return io.smallrye.mutiny.Uni.createFrom().item(java.util.Optional.empty());
+        }
+
+        @Override
+        public io.smallrye.mutiny.Uni<UploadSession> updateProgress(String uploadToken, long bytesReceived, String providerStateJson, byte @Nullable [] sha256PartialState) {
+            return io.smallrye.mutiny.Uni.createFrom().failure(new UnsupportedOperationException());
+        }
+
+        @Override
+        public io.smallrye.mutiny.Uni<UploadSession> markStatus(String uploadToken, UploadSessionStatus status) {
+            return io.smallrye.mutiny.Uni.createFrom().failure(new UnsupportedOperationException());
+        }
+
+        @Override
+        public io.smallrye.mutiny.Uni<Boolean> deleteByToken(String uploadToken) {
+            return io.smallrye.mutiny.Uni.createFrom().item(false);
+        }
     }
 }

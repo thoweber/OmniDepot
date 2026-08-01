@@ -4,6 +4,7 @@ import io.omnidepot.core.api.oci.ManifestStore;
 import io.omnidepot.core.api.oci.StoredManifestRecord;
 import io.omnidepot.core.api.storage.Sha256Digest;
 import io.omnidepot.core.api.storage.StorageException;
+import io.omnidepot.infra.db.RepositoryEntity;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;

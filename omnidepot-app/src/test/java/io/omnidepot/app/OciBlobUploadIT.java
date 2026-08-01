@@ -6,6 +6,10 @@ import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
+
 import static io.omnidepot.format.oci.OciHttpHeader.DOCKER_CONTENT_DIGEST;
 import static io.omnidepot.format.oci.OciHttpHeader.DOCKER_DISTRIBUTION_API_VERSION;
 import static io.restassured.RestAssured.given;
@@ -52,6 +56,51 @@ class OciBlobUploadIT {
                 .statusCode(201)
                 .header(HttpHeaders.LOCATION, equalTo("/v2/library/my-app/blobs/" + digest))
                 .header(DOCKER_CONTENT_DIGEST.value(), equalTo(digest));
+    }
+
+    @Test
+    @DisplayName("Given active session - when sending chunked PATCH requests and finalizing PUT - then 201 Created with digest is returned")
+    void shouldPerformResumableChunkedBlobUploadSession() throws Exception {
+        String location = given()
+                .when()
+                .post("/v2/library/debian/blobs/uploads")
+                .then()
+                .statusCode(202)
+                .extract()
+                .header(HttpHeaders.LOCATION);
+
+        byte[] chunk1 = "Layer chunk 1 content. ".getBytes(StandardCharsets.UTF_8);
+        byte[] chunk2 = "Layer chunk 2 content.".getBytes(StandardCharsets.UTF_8);
+
+        given()
+                .body(chunk1)
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .when()
+                .patch(location)
+                .then()
+                .statusCode(202)
+                .header(OciHttpHeader.RANGE.value(), equalTo("0-" + (chunk1.length - 1)));
+
+        given()
+                .body(chunk2)
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .when()
+                .patch(location)
+                .then()
+                .statusCode(202)
+                .header(OciHttpHeader.RANGE.value(), equalTo("0-" + (chunk1.length + chunk2.length - 1)));
+
+        byte[] fullContent = "Layer chunk 1 content. Layer chunk 2 content.".getBytes(StandardCharsets.UTF_8);
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        String expectedDigest = "sha256:" + HexFormat.of().formatHex(md.digest(fullContent));
+
+        given()
+                .queryParam("digest", expectedDigest)
+                .when()
+                .put(location)
+                .then()
+                .statusCode(201)
+                .header(DOCKER_CONTENT_DIGEST.value(), equalTo(expectedDigest));
     }
 
     @Test

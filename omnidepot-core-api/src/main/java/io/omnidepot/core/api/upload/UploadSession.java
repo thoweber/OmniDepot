@@ -1,5 +1,7 @@
 package io.omnidepot.core.api.upload;
 
+import org.jspecify.annotations.Nullable;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -11,9 +13,10 @@ public record UploadSession(
         String repositoryId,
         String uploadToken,
         long bytesReceived,
-        Long totalBytes,
+        @Nullable Long totalBytes,
         UploadSessionStatus status,
         String providerStateJson,
+        byte @Nullable [] sha256PartialState,
         Instant createdAt,
         Instant updatedAt
 ) {

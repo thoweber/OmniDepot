@@ -23,6 +23,7 @@ public final class UploadSessionObjectMother {
                 10485760L, // 10MB
                 UploadSessionStatus.INITIATED,
                 "{}",
+                null,
                 now,
                 now
         );
@@ -38,6 +39,7 @@ public final class UploadSessionObjectMother {
                 bytes,
                 UploadSessionStatus.COMPLETED,
                 "{\"parts\":[1,2]}",
+                null,
                 now.minusSeconds(60),
                 now
         );
