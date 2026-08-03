@@ -61,13 +61,14 @@ The repository is structured as an **Evolutionary Modular Monolith** across **15
 
 ## 4. Coding Conventions & Invariants
 
-### A. Primitive Obsession Prevention
+### A. Primitive Obsession Prevention & Record Builder Standard
 Encapsulate all domain primitives into strongly-typed Java 25 `record` Value Objects implementing tagging interfaces:
 * **`Sha256Digest`**: Validated 64-character hexadecimal SHA-256 hash.
 * **`CasPath`**: Calculated Content-Addressable Storage path (`blobs/sha256/xx/yy/...`).
 * **`BlobSize`**: Non-negative byte length with shared static `BlobSize.ZERO` singleton.
 * **`UploadSessionId`**: Unique upload session identifier.
 * **`OciRepositoryName`**: Normalized, validated OCI namespace.
+* **Complex Record Builder Standard:** Any `record` or Value Object with 4 or more fields (e.g. `UploadSession`) MUST be annotated with `@Builder(toBuilder = true)`. Positional `new Record(...)` calls for complex records are forbidden across production and test code — instantiation MUST use `Record.builder()...build()` or `record.toBuilder()`. ArchUnit enforces that all complex records are annotated with `@Builder`.
 
 ### B. Nullability Guardrails
 * **No `null` Returns:** Query methods return `Optional<T>`. Collection methods return immutable empty collections (`List.of()`, `Set.of()`).

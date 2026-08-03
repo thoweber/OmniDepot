@@ -2,12 +2,15 @@ package io.omnidepot.core.api.oci;
 
 import io.omnidepot.core.api.storage.Sha256Digest;
 
+import lombok.Builder;
+
 import java.time.Instant;
 import java.util.Objects;
 
 /**
  * Immutable value object representing a stored OCI image manifest.
  */
+@Builder(toBuilder = true)
 public record StoredManifestRecord(
         String id,
         String repositoryName,

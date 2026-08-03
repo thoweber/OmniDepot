@@ -1,5 +1,7 @@
 package io.omnidepot.core.api.iam;
 
+import lombok.Builder;
+
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
@@ -7,6 +9,7 @@ import java.util.Set;
 /**
  * Value Object representing parsed security token claims and granted scope capabilities.
  */
+@Builder(toBuilder = true)
 public record TokenClaims(
         String subject,
         String username,

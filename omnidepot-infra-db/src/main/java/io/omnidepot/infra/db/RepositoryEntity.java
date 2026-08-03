@@ -1,4 +1,4 @@
-package io.omnidepot.infra.db.oci;
+package io.omnidepot.infra.db;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "repositories")
-class RepositoryEntity extends PanacheEntityBase {
+public class RepositoryEntity extends PanacheEntityBase {
 
     @Id
     @Column(name = "id", length = 36, nullable = false)

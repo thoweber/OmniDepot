@@ -1,11 +1,14 @@
 package io.omnidepot.core.api.storage;
 
+import lombok.Builder;
+
 import java.time.Instant;
 import java.util.Objects;
 
 /**
  * Metadata record for a Content-Addressable Storage (CAS) Blob.
  */
+@Builder(toBuilder = true)
 public record BlobDescriptor(
         String id,
         Sha256Digest digest,

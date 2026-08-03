@@ -7,7 +7,7 @@
 * Annotate Panache entities with Hibernate 6 `@JdbcTypeCode(SqlTypes.JSON)` for complex JSONB fields (`attributes`, `provider_state`).
 
 ## 2. Strongly-Typed Value Objects & Nullability Rules
-* Encapsulate primitives (`String`, `Long`) into strongly-typed `record` Value Objects implementing core tagging interfaces (`RepositoryPath`, `ArtifactCoordinate`) to prevent primitive obsession.
+* **Complex Record Builder Standard:** Any `record` or Value Object containing 4 or more fields MUST be annotated with `@Builder(toBuilder = true)`. Positional `new Record(...)` calls for complex records are forbidden across production and test code — instantiation MUST use `Record.builder()...build()` or `record.toBuilder()`.
 * **Manual Null Checks:** Use `isNull(val)` or `nonNull(val)` with static imports (`import static java.util.Objects.isNull; import static java.util.Objects.nonNull;`) for manual null checks (never raw `== null` or `!= null`).
 * **Optional Return Types:** Use `Optional<T>` for any query or getter method return type that may not produce a value.
 * **Empty Collections:** Never return `null` for collection return types — always return an immutable empty collection (`List.of()`, `Set.of()`, `Map.of()`).
